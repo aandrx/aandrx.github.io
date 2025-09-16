@@ -6,7 +6,7 @@ export default function HomePage() {
       <Navigation />
       <div className="main-content">
         <div className="home-header">
-          <h1 className="home-name">Ziyi Le</h1>
+          <h1 className="home-name">Andrew Liu</h1>
         </div>
         <div className="home-image-container">
           <img 
