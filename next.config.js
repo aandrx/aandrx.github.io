@@ -8,6 +8,13 @@ const nextConfig = {
   output: "export",
 
   /**
+   * Ensure trailing slashes for consistent URLs.
+   *
+   * @see https://nextjs.org/docs/app/api-reference/config/next-config-js/trailingSlash
+   */
+  trailingSlash: true,
+
+  /**
    * Disable server-based image optimization. Next.js does not support
    * dynamic features with static exports.
    *
