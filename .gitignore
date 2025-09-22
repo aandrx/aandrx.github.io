@@ -34,4 +34,4 @@ next-env.d.ts
 
 # others 
 bin/
-*.md
+info.md
