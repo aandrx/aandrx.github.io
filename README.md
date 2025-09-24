@@ -1,8 +1,8 @@
 ### bulletport
 
-- to show you things i have done in the past
+- to show you the things i have done
 
-## stack
+### stack
 
 - **framework**: Next.js 15
 - **language**: TypeScript
