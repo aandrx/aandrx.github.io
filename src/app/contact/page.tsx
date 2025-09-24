@@ -11,15 +11,19 @@ export default function ContactPage() {
         <div className="content-area">
           <div className="page-content">
             <p>
-              <strong>Tel:</strong> +1 (234) 567-890
+              <strong>Tel:</strong> +1 (509) 405-6458
             </p>
             
             <p>
-              <strong>Email:</strong> hello@yourname.com
+              <strong>Email:</strong> andrxwliu@gmail.com / aliu458@gatech.edu
             </p>
             
             <p>
-              <strong>Instagram:</strong> @yourhandle
+              <strong>Instagram:</strong> @andweez
+            </p>
+
+            <p>
+              <strong>GitHub:</strong> @aandrx
             </p>
           </div>
         </div>
