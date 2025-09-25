@@ -1,6 +1,4 @@
-### bulletport
-
-- to show you the things i have done
+to show you the things i have done
 
 ### stack
 
@@ -16,7 +14,7 @@
 2. **start development server**:
 ```npm run dev```
 
-3. **open browser**: visit [http://localhost:3000](http://localhost:3000)
+3. visit [http://localhost:3000](http://localhost:3000)
 
 ---
 
