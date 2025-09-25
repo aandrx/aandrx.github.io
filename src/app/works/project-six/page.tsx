@@ -53,87 +53,82 @@ export default function ProjectSixPage() {
   const selectedPostData = posts.find(post => post.id === selectedPost)
 
   return (
-    <div className="horizontal-page-container">
-      {/* Fixed sidebar - maintains normal positioning */}
-      <div className="horizontal-sidebar">
-        <Navigation />
-      </div>
-      
-      {/* Content wrapper that scrolls horizontally */}
-      <div className="horizontal-content-wrapper">
-        {/* Thinner text column */}
-        <div className="horizontal-text-column">
-          <div className="home-header">
-            <h1 className="home-name">Horizontal Instagram Feed</h1>
-          </div>
-          <div className="page-content">
-            <p>
-              The Horizontal Instagram Feed presents a unique take on social media grid layouts. This implementation flows horizontally across the entire page, creating an immersive scrolling experience.
-            </p>
+    <div className="layout">
+      <Navigation />
+      <div className="main-content">
+        <div id="container" className="ie project-six-container">
+          <div className="post">
+            <div className="info">
+              <div className="title section">Horizontal Instagram Feed</div>
+              <div className="clear"></div>
+            </div>
             
-            <p>
-              Instead of traditional scrollbars, the entire page scrolls horizontally to reveal more content. Each square maintains perfect proportions while filling the available height.
-            </p>
-            
-            <p>
-              The grid extends infinitely to the right, with the newest content appearing first. As you scroll, you journey through the collection in a cinematic flow.
-            </p>
-
-            <p>
-              Scroll horizontally to explore the full grid, or click on any image to view it in detail.
-            </p>
-          </div>
-        </div>
-
-        {/* Grid container with proper square proportions */}
-        <div className="horizontal-grid-container">
-          {posts.map((post) => (
-            <div 
-              key={post.id} 
-              className="instagram-square"
-              onClick={() => openModal(post.id)}
-            >
-              <div className="instagram-post-overlay">
-                <div className="overlay-content">
-                  <span className="post-number">#{post.id}</span>
-                </div>
+            <div className="content" style={{ width: '240px', float: 'left' }}>
+              <div className="first-column">
+                <p>The Horizontal Instagram Feed presents a unique take on social media grid layouts. This implementation flows horizontally across the entire page, creating an immersive scrolling experience.</p>
+                <br />
+                <p>Instead of traditional scrollbars, the entire page scrolls horizontally to reveal more content. Each square maintains perfect proportions while filling the available height.</p>
+                <br />
+                <p>The grid extends infinitely to the right, with the newest content appearing first. As you scroll, you journey through the collection in a cinematic flow.</p>
+                <br />
+                <p>Scroll horizontally to explore the full grid, or click on any image to view it in detail.</p>
               </div>
-              <Image
-                src={post.src}
-                alt={post.alt}
-                width={600}
-                height={600}
-                className="instagram-image"
-                priority={post.id <= 6} // Prioritize first 6 images
-              />
+              <br style={{ clear: 'both' }} />
             </div>
-          ))}
-        </div>
-      </div>
 
-      {/* Modal for viewing individual posts */}
-      {selectedPost && selectedPostData && (
-        <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <button className="modal-close" onClick={closeModal}>
-              ×
-            </button>
-            <div className="modal-image-container">
-              <Image
-                src={selectedPostData.src}
-                alt={selectedPostData.alt}
-                width={600}
-                height={600}
-                className="modal-image"
-              />
+            {/* Horizontal Instagram Grid adapted to fit content height */}
+            <div className="project-six-grid-container">
+              {posts.map((post) => (
+                <div 
+                  key={post.id} 
+                  className="project-six-grid-item"
+                  onClick={() => openModal(post.id)}
+                >
+                  <div className="instagram-post-overlay">
+                    <div className="overlay-content">
+                      <span className="post-number">#{post.id}</span>
+                    </div>
+                  </div>
+                  <Image
+                    src={post.src}
+                    alt={post.alt}
+                    width={600}
+                    height={600}
+                    className="project-six-grid-image"
+                    priority={post.id <= 6} // Prioritize first 6 images
+                  />
+                </div>
+              ))}
             </div>
-            <div className="modal-info">
-              <h3>Post #{selectedPostData.id}</h3>
-              <p>{selectedPostData.alt}</p>
+
+          </div>
+          <div className="clear"></div>
+        </div>
+
+        {/* Modal for viewing individual posts */}
+        {selectedPost && selectedPostData && (
+          <div className="modal-overlay" onClick={closeModal}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <button className="modal-close" onClick={closeModal}>
+                ×
+              </button>
+              <div className="modal-image-container">
+                <Image
+                  src={selectedPostData.src}
+                  alt={selectedPostData.alt}
+                  width={600}
+                  height={600}
+                  className="modal-image"
+                />
+              </div>
+              <div className="modal-info">
+                <h3>Post #{selectedPostData.id}</h3>
+                <p>{selectedPostData.alt}</p>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }

@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import Navigation from '@/components/Navigation'
 
 const projects = [
   {
@@ -42,28 +43,27 @@ const projects = [
 
 export default function WorksPage() {
   return (
-    <div className="container">
-      <div className="text-center mb-12">
-        <Link href="/" className="nav-link">
-          ← Back
-        </Link>
-      </div>
-      
-      <div className="grid grid-3">
-        {projects.map((project) => (
-          <Link key={project.id} href={project.href} className="card">
-            <div className="mb-4">
-              <Image
-                src={project.image}
-                alt={project.title}
-                width={400}
-                height={300}
-                className="w-full h-auto"
-              />
-            </div>
-            <h3 className="subtitle text-center">{project.title}</h3>
-          </Link>
-        ))}
+    <div className="layout">
+      <Navigation />
+      <div className="main-content">
+        <div className="home-header">
+          <h1 className="home-name">Works</h1>
+        </div>
+        <div className="content-area">
+          <div className="project-grid">
+            {projects.map((project) => (
+              <Link key={project.id} href={project.href} className="project-item">
+                <Image
+                  src={project.image}
+                  alt={project.title}
+                  width={400}
+                  height={300}
+                />
+                <h3 className="project-title">{project.title}</h3>
+              </Link>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   )
