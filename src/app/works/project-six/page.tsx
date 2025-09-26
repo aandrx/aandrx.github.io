@@ -55,8 +55,7 @@ export default function ProjectSixPage() {
   return (
     <div className="layout">
       <Navigation />
-      <div className="main-content">
-        <div id="container" className="ie project-six-container">
+      <div id="container" className="ie project-six-container">
           <div className="post">
             <div className="info">
               <div className="title section">Horizontal Instagram Feed</div>
@@ -128,7 +127,6 @@ export default function ProjectSixPage() {
             </div>
           </div>
         )}
-      </div>
     </div>
   )
 }

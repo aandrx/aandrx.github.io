@@ -2,9 +2,9 @@ import Navigation from '@/components/Navigation'
 
 export default function ContactPage() {
   return (
-    <div className="layout">
+    <div className="layout contact-page">
       <Navigation />
-      <div className="main-content">
+      <div className="main-content contact-content">
         <div className="home-header">
           <h1 className="home-name">Contact</h1>
         </div>

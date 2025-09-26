@@ -6,6 +6,26 @@
 @tailwind utilities;
 
 /* ====================================================================
+   PAGE TRANSITION ANIMATIONS
+   ==================================================================== */
+.page-transition {
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out; /* Faster transition */
+}
+
+.page-transition.fade-in {
+  opacity: 1;
+}
+
+/* ====================================================================
+   CSS CUSTOM PROPERTIES
+   ==================================================================== */
+:root {
+  /* Dynamic container width - updated by DynamicColumns component */
+  --dynamic-container-width: 1200px;
+}
+
+/* ====================================================================
    BASE STYLES AND RESET
    ==================================================================== */
 * {
@@ -16,8 +36,10 @@
 
 html,
 body {
-  max-width: 100vw;
-  overflow-x: auto;
+  /* Fixed width like reference - very wide to accommodate all content */
+  width: 15751.1px; /* Matching reference width exactly */
+  max-width: none; /* Remove viewport constraint */
+  overflow-x: auto; /* Enable horizontal page scrolling */
   overflow-y: hidden;
   font-family: Arial, sans-serif;
   font-weight: 300;
@@ -48,17 +70,23 @@ a:hover {
    ==================================================================== */
 .layout {
   display: flex;
-  min-height: 100vh;
-  overflow-x: auto;
-  overflow-y: visible;
+  position: relative; /* Enable absolute positioning for sidebar */
+  height: calc(100vh - 55px); /* Window height minus 55px */
+  max-height: calc(100vh - 55px); /* Constrain to window height minus 55px */
+  overflow-x: auto; /* Enable horizontal scrolling at layout level */
+  overflow-y: hidden; /* Disable vertical scrolling */
+  width: 100%; /* Full width of body */
+  box-sizing: border-box; /* Standard box model */
 }
 
 .sidebar {
   width: 230px;
   padding: 6.4rem 4rem 2rem 3.3rem;
   border-right: none;
-  position: relative;
-  height: 100vh;
+  position: absolute; /* Position absolutely to overlay layout padding */
+  left: 0; /* Align to left edge of layout */
+  top: 0; /* Align to top edge of layout */
+  height: 100%; /* Use full height of layout container */
   overflow-y: auto;
   z-index: 10;
   flex-shrink: 0;
@@ -66,10 +94,51 @@ a:hover {
 
 .main-content {
   flex: 1;
-  padding: 3.3rem 4rem 2rem 4rem;
+  margin-left: 230px; /* Account for sidebar width */
+  padding: 6.4rem 4rem 2rem 3.3rem; /* Match sidebar padding for consistency */
   opacity: 0;
   animation: fadeIn 1s ease-in-out forwards;
 }
+
+/* ====================================================================
+   ABOUT & CONTACT PAGE SPECIFIC STYLES
+   ==================================================================== */
+/* About page - full width layout */
+.about-page .main-content {
+  padding-top: 40px; /* Custom top padding for about page */
+  padding-right: 2rem; /* Reduced right padding for more width */
+  width: calc(100vw - 230px - 3.3rem - 2rem);
+  max-width: none;
+  height: auto;
+  min-height: calc(100vh - 55px);
+}
+
+/* About page home-header margin */
+.about-page .home-header {
+  margin-bottom: 40px; /* Custom bottom margin for about page header */
+}
+
+/* Contact page - reduced top padding */
+.contact-page .main-content {
+  padding-top: 40px; /* Custom top padding for contact page */
+}
+
+/* Contact page text styling */
+.contact-page .page-content {
+  font-family: helvetica, arial, sans-serif;
+  font-size: 8pt;
+  line-height: 16pt;
+  color: #000000;
+  padding-bottom: 16pt;
+}
+
+/* Ensure about and contact pages don't have horizontal scroll */
+.about-page .layout,
+.contact-page .layout {
+  overflow-x: hidden;
+}
+
+
 
 @keyframes fadeIn {
   from {
@@ -109,7 +178,7 @@ a:hover {
 
 .works-submenu {
   margin-left: 8px;
-  margin-top: 0px;
+  margin-top: 0;
   overflow: hidden;
   transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
 }
@@ -119,21 +188,20 @@ a:hover {
   font-size: 9.5pt;
   font-weight: 300;
   line-height: 16pt;
-  margin-bottom: 0px;
-  color: #000;
+  margin-bottom: 0;
+  color: var(--wp--preset--color--black, #000);
   text-decoration: none;
   font-family: Arial, sans-serif;
 }
 
 .works-submenu a:hover {
-  color: #000;
-  opacity: 1;
   text-decoration: underline;
   text-underline-offset: 2pt;
 }
 
-
-
+/* ====================================================================
+   PROJECT GRID COMPONENTS
+   ==================================================================== */
 .project-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -242,26 +310,36 @@ a:hover {
 /* ====================================================================
    INSTAGRAM GRID SYSTEMS
    ==================================================================== */
-
-
-.instagram-post {
+.instagram-post,
+.instagram-square,
+.instagram-grid-item,
+.project-six-grid-item {
   position: relative;
   aspect-ratio: 1;
   overflow: hidden;
   cursor: pointer;
   background: #f5f5f5;
+  transition: transform 0.2s ease;
 }
 
-
-
-.instagram-image {
+.instagram-image,
+.instagram-grid-image,
+.project-six-grid-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
   transition: transform 0.2s ease;
 }
 
-.instagram-post:hover .instagram-image {
+.instagram-post:hover,
+.instagram-grid-item:hover,
+.project-six-grid-item:hover {
+  transform: scale(1.02);
+}
+
+.instagram-post:hover .instagram-image,
+.instagram-grid-item:hover .instagram-grid-image,
+.project-six-grid-item:hover .project-six-grid-image {
   transform: scale(1.05);
 }
 
@@ -280,7 +358,8 @@ a:hover {
   z-index: 1;
 }
 
-.instagram-post:hover .instagram-post-overlay {
+.instagram-post:hover .instagram-post-overlay,
+.project-six-grid-item:hover .instagram-post-overlay {
   opacity: 1;
 }
 
@@ -305,7 +384,7 @@ a:hover {
   overflow-y: hidden;
 }
 
-/* Create a wrapper that mimics the main-content structure */
+/* Create a wrapper for horizontal layout content */
 .horizontal-content-wrapper {
   display: flex;
   margin-left: 40px; /* Much smaller margin to bring content closer to sidebar */
@@ -346,124 +425,31 @@ a:hover {
 /* Header positioning to match other pages */
 .horizontal-text-column .home-header {
   margin-bottom: 4rem;
-  
-  /* WordPress preset variables for extensibility */
-  --wp--preset--font-size--normal: 16px;
-  --wp--preset--font-size--huge: 42px;
-  --wp--preset--color--black: #000000;
-  --wp--preset--color--cyan-bluish-gray: #abb8c3;
-  --wp--preset--color--white: #ffffff;
-  --wp--preset--color--pale-pink: #f78da7;
-  --wp--preset--color--vivid-red: #cf2e2e;
-  --wp--preset--color--luminous-vivid-orange: #ff6900;
-  --wp--preset--color--luminous-vivid-amber: #fcb900;
-  --wp--preset--color--light-green-cyan: #7bdcb5;
-  --wp--preset--color--vivid-green-cyan: #00d084;
-  --wp--preset--color--pale-cyan-blue: #8ed1fc;
-  --wp--preset--color--vivid-cyan-blue: #0693e3;
-  --wp--preset--color--vivid-purple: #9b51e0;
-  --wp--preset--gradient--vivid-cyan-blue-to-vivid-purple: linear-gradient(135deg,rgba(6,147,227,1) 0%,rgb(155,81,224) 100%);
-  --wp--preset--gradient--light-green-cyan-to-vivid-green-cyan: linear-gradient(135deg,rgb(122,220,180) 0%,rgb(0,208,130) 100%);
-  --wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange: linear-gradient(135deg,rgba(252,185,0,1) 0%,rgba(255,105,0,1) 100%);
-  --wp--preset--gradient--luminous-vivid-orange-to-vivid-red: linear-gradient(135deg,rgba(255,105,0,1) 0%,rgb(207,46,46) 100%);
-  --wp--preset--gradient--very-light-gray-to-cyan-bluish-gray: linear-gradient(135deg,rgb(238,238,238) 0%,rgb(169,184,195) 100%);
-  --wp--preset--gradient--cool-to-warm-spectrum: linear-gradient(135deg,rgb(74,234,220) 0%,rgb(151,120,209) 20%,rgb(207,42,186) 40%,rgb(238,44,130) 60%,rgb(251,105,98) 80%,rgb(254,248,76) 100%);
-  --wp--preset--gradient--blush-light-purple: linear-gradient(135deg,rgb(255,206,236) 0%,rgb(152,150,240) 100%);
-  --wp--preset--gradient--blush-bordeaux: linear-gradient(135deg,rgb(254,205,165) 0%,rgb(254,45,45) 50%,rgb(107,0,62) 100%);
-  --wp--preset--gradient--luminous-dusk: linear-gradient(135deg,rgb(255,203,112) 0%,rgb(199,81,192) 50%,rgb(65,88,208) 100%);
-  --wp--preset--gradient--pale-ocean: linear-gradient(135deg,rgb(255,245,203) 0%,rgb(182,227,212) 50%,rgb(51,167,181) 100%);
-  --wp--preset--gradient--electric-grass: linear-gradient(135deg,rgb(202,248,128) 0%,rgb(113,206,126) 100%);
-  --wp--preset--gradient--midnight: linear-gradient(135deg,rgb(2,3,129) 0%,rgb(40,116,252) 100%);
-  --wp--preset--font-size--small: 13px;
-  --wp--preset--font-size--medium: 20px;
-  --wp--preset--font-size--large: 36px;
-  --wp--preset--font-size--x-large: 42px;
-  --wp--preset--spacing--20: 0.44rem;
-  --wp--preset--spacing--30: 0.67rem;
-  --wp--preset--spacing--40: 1rem;
-  --wp--preset--spacing--50: 1.5rem;
-  --wp--preset--spacing--60: 2.25rem;
-  --wp--preset--spacing--70: 3.38rem;
-  --wp--preset--spacing--80: 5.06rem;
-  --wp--preset--shadow--natural: 6px 6px 9px rgba(0, 0, 0, 0.2);
-  --wp--preset--shadow--deep: 12px 12px 50px rgba(0, 0, 0, 0.4);
-  --wp--preset--shadow--sharp: 6px 6px 0px rgba(0, 0, 0, 0.2);
-  --wp--preset--shadow--outlined: 6px 6px 0px -3px rgba(255, 255, 255, 1), 6px 6px rgba(0, 0, 0, 1);
-  --wp--preset--shadow--crisp: 6px 6px 0px rgba(0, 0, 0, 1);
 }
 
 .horizontal-text-column .home-name {
-  /* Inherit design system values */
   font-size: 9.5pt;
   font-weight: 300;
   letter-spacing: 0;
-  margin: 0;
-  color: var(--wp--preset--color--black, #000);
+  margin: 0 0 1rem 0;
+  color: #000;
   font-family: Arial, sans-serif;
   line-height: 1.4;
-  
-  /* Enhanced styling using WordPress presets */
-  margin-bottom: var(--wp--preset--spacing--40, 1rem);
 }
 
-/* WordPress preset variables and text styling for horizontal text column */
+/* Text styling for horizontal text column */
 .horizontal-text-column .page-content {
-  /* WordPress preset variables for extensibility */
-  --wp--preset--font-size--normal: 16px;
-  --wp--preset--font-size--huge: 42px;
-  --wp--preset--color--black: #000000;
-  --wp--preset--color--cyan-bluish-gray: #abb8c3;
-  --wp--preset--color--white: #ffffff;
-  --wp--preset--color--pale-pink: #f78da7;
-  --wp--preset--color--vivid-red: #cf2e2e;
-  --wp--preset--color--luminous-vivid-orange: #ff6900;
-  --wp--preset--color--luminous-vivid-amber: #fcb900;
-  --wp--preset--color--light-green-cyan: #7bdcb5;
-  --wp--preset--color--vivid-green-cyan: #00d084;
-  --wp--preset--color--pale-cyan-blue: #8ed1fc;
-  --wp--preset--color--vivid-cyan-blue: #0693e3;
-  --wp--preset--color--vivid-purple: #9b51e0;
-  --wp--preset--gradient--vivid-cyan-blue-to-vivid-purple: linear-gradient(135deg,rgba(6,147,227,1) 0%,rgb(155,81,224) 100%);
-  --wp--preset--gradient--light-green-cyan-to-vivid-green-cyan: linear-gradient(135deg,rgb(122,220,180) 0%,rgb(0,208,130) 100%);
-  --wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange: linear-gradient(135deg,rgba(252,185,0,1) 0%,rgba(255,105,0,1) 100%);
-  --wp--preset--gradient--luminous-vivid-orange-to-vivid-red: linear-gradient(135deg,rgba(255,105,0,1) 0%,rgb(207,46,46) 100%);
-  --wp--preset--gradient--very-light-gray-to-cyan-bluish-gray: linear-gradient(135deg,rgb(238,238,238) 0%,rgb(169,184,195) 100%);
-  --wp--preset--gradient--cool-to-warm-spectrum: linear-gradient(135deg,rgb(74,234,220) 0%,rgb(151,120,209) 20%,rgb(207,42,186) 40%,rgb(238,44,130) 60%,rgb(251,105,98) 80%,rgb(254,248,76) 100%);
-  --wp--preset--gradient--blush-light-purple: linear-gradient(135deg,rgb(255,206,236) 0%,rgb(152,150,240) 100%);
-  --wp--preset--gradient--blush-bordeaux: linear-gradient(135deg,rgb(254,205,165) 0%,rgb(254,45,45) 50%,rgb(107,0,62) 100%);
-  --wp--preset--gradient--luminous-dusk: linear-gradient(135deg,rgb(255,203,112) 0%,rgb(199,81,192) 50%,rgb(65,88,208) 100%);
-  --wp--preset--gradient--pale-ocean: linear-gradient(135deg,rgb(255,245,203) 0%,rgb(182,227,212) 50%,rgb(51,167,181) 100%);
-  --wp--preset--gradient--electric-grass: linear-gradient(135deg,rgb(202,248,128) 0%,rgb(113,206,126) 100%);
-  --wp--preset--gradient--midnight: linear-gradient(135deg,rgb(2,3,129) 0%,rgb(40,116,252) 100%);
-  --wp--preset--font-size--small: 13px;
-  --wp--preset--font-size--medium: 20px;
-  --wp--preset--font-size--large: 36px;
-  --wp--preset--font-size--x-large: 42px;
-  --wp--preset--spacing--20: 0.44rem;
-  --wp--preset--spacing--30: 0.67rem;
-  --wp--preset--spacing--40: 1rem;
-  --wp--preset--spacing--50: 1.5rem;
-  --wp--preset--spacing--60: 2.25rem;
-  --wp--preset--spacing--70: 3.38rem;
-  --wp--preset--spacing--80: 5.06rem;
-  --wp--preset--shadow--natural: 6px 6px 9px rgba(0, 0, 0, 0.2);
-  --wp--preset--shadow--deep: 12px 12px 50px rgba(0, 0, 0, 0.4);
-  --wp--preset--shadow--sharp: 6px 6px 0px rgba(0, 0, 0, 0.2);
-  --wp--preset--shadow--outlined: 6px 6px 0px -3px rgba(255, 255, 255, 1), 6px 6px rgba(0, 0, 1);
-  --wp--preset--shadow--crisp: 6px 6px 0px rgba(0, 0, 0, 1);
-
-  /* Base styling that inherits from design system */
-  color: var(--wp--preset--color--black, #000);
+  color: #000;
   font-family: Arial, sans-serif;
-  font-size: 9.5pt; /* Match existing design system */
-  line-height: 1.4; /* Match existing design system line-height */
-  font-weight: 300; /* Match existing design system weight */
+  font-size: 9.5pt;
+  line-height: 1.4;
+  font-weight: 300;
   -webkit-text-size-adjust: none;
 }
 
 /* Enhanced paragraph styling */
 .horizontal-text-column .page-content p {
-  margin: 0 0 var(--wp--preset--spacing--40, 1rem) 0;
+  margin: 0 0 1rem 0;
   line-height: 1.4;
 }
 
@@ -591,6 +577,22 @@ body:has(.horizontal-page-container) {
 /* ====================================================================
    RESPONSIVE DESIGN
    ==================================================================== */
+@media (max-width: 1024px) {
+  .horizontal-content-wrapper { margin-left: 200px; }
+  .horizontal-sidebar { width: 190px; }
+  .horizontal-text-column { 
+    width: 250px; 
+    min-width: 250px; 
+    max-width: 250px; 
+    padding: 2rem 1.5rem; 
+  }
+  .horizontal-grid-container { padding: 2rem 1rem; }
+  .instagram-square {
+    width: calc((100vh - 4rem - 4px) / 3);
+    height: calc((100vh - 4rem - 4px) / 3);
+  }
+}
+
 @media (max-width: 768px) {
   .sidebar {
     width: 100%;
@@ -601,125 +603,91 @@ body:has(.horizontal-page-container) {
     padding: 1rem;
     z-index: 100;
   }
-
-  .horizontal-sidebar {
-    width: 170px; /* Smaller sidebar width for mobile */
-  }
   
-  .main-content {
-    margin-left: 0;
-    padding: 1rem;
+  .layout { flex-direction: column; }
+  .horizontal-sidebar { width: 170px; }
+  .horizontal-content-wrapper { 
+    margin-left: 180px; 
+    flex-direction: column; 
   }
-  
-  .layout {
-    flex-direction: column;
+  .horizontal-text-column { 
+    width: 100%; 
+    min-width: 100%; 
+    padding: 1rem; 
   }
-
-  /* Mobile adjustments for horizontal layout */
-  .horizontal-content-wrapper {
-    margin-left: 180px; /* Maintain spacing even on smaller screens */
-    flex-direction: column;
+  .horizontal-grid-container { 
+    padding: 1rem; 
+    gap: 1px; 
   }
-
-  .horizontal-text-column {
-    width: 100%;
-    min-width: 100%;
-    padding: 1rem;
-  }
-
-  .horizontal-grid-container {
-    padding: 1rem 1rem 1rem 1rem; /* Equal top and bottom margins for mobile */
-    gap: 1px;
-  }
-
   .instagram-square {
-    width: calc((100vh - 2rem - 2px) / 3); /* Fixed calculation for mobile */
+    width: calc((100vh - 2rem - 2px) / 3);
     height: calc((100vh - 2rem - 2px) / 3);
   }
-
-
-}
-
-@media (max-width: 1024px) {
-  /* Tablet adjustments for horizontal layout */
-  .horizontal-content-wrapper {
-    margin-left: 200px; /* Maintain proper spacing for tablet */
-  }
-
-  .horizontal-sidebar {
-    width: 190px; /* Adjust sidebar width for tablet */
-  }
-
-  .horizontal-text-column {
-    width: 250px;
-    min-width: 250px;
-    max-width: 250px;
-    padding: 2rem 1.5rem;
-  }
-
-  .horizontal-grid-container {
-    padding: 2rem 1rem 2rem 1rem; /* Equal top and bottom margins for tablet */
-  }
-
-  .instagram-square {
-    width: calc((100vh - 4rem - 4px) / 3);
-    height: calc((100vh - 4rem - 4px) / 3);
-  }
-
-
 }
 
 @media (max-width: 480px) {
-  .overlay-content {
-    font-size: 0.8rem;
+  .overlay-content { font-size: 0.8rem; }
+  .modal-overlay { padding: 1rem; }
+  .modal-content { 
+    max-width: 95vw; 
+    max-height: 95vh; 
   }
-
-  .modal-overlay {
-    padding: 1rem;
+  .modal-close { 
+    width: 2rem; 
+    height: 2rem; 
+    font-size: 1.2rem; 
+    top: 0.5rem; 
+    right: 0.5rem; 
   }
-
-  .modal-content {
-    max-width: 95vw;
-    max-height: 95vh;
+  .modal-image-container { 
+    max-width: 100%; 
+    max-height: 400px; 
   }
-
-  .modal-close {
-    width: 2rem;
-    height: 2rem;
-    font-size: 1.2rem;
-    top: 0.5rem;
-    right: 0.5rem;
-  }
-
-  .modal-image-container {
-    max-width: 100%;
-    max-height: 400px;
-  }
-
-  .modal-info {
-    padding: 1rem;
-  }
-
-  .modal-info h3 {
-    font-size: 1rem;
-  }
-
-  .modal-info p {
-    font-size: 0.8rem;
-  }
+  .modal-info { padding: 1rem; }
+  .modal-info h3 { font-size: 1rem; }
+  .modal-info p { font-size: 0.8rem; }
 }
 
-/* Reference-style container with set dimensions */
 #container {
-  margin: 0;
-  padding: 0;
-  overflow-x: auto;
-  overflow-y: visible;
-  width: auto;
-  min-width: 8500px; /* Ensure enough width for all images */
+  /* Container positioned using padding within layout space - matching reference */
+  padding: 40px 40px 40px 280px; /* top right bottom left - matches reference exactly */
+  
+  /* Dynamic container width based on number of columns */
+  position: static; /* Normal flow within layout */
+  width: var(--dynamic-container-width, 1200px); /* Dynamic width, fallback to reasonable default */
+  height: auto; /* Auto height for floating content */
+  min-height: 100vh; /* Minimum full viewport height */
+  
+  overflow: visible; /* Let page handle scrolling */
+  background: #fff;
+  color: #000;
+  font-family: helvetica, arial, sans-serif;
+  font-size: 8pt;
+  line-height: 16pt;
+  opacity: 1;
+  box-sizing: border-box; /* Include padding in calculations */
+  
+  /* Force content to wrap within available space */
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Container content constraints */
+#container * {
+  max-width: 100%;
+  box-sizing: border-box;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+#container img,
+#container video,
+#container iframe,
+#container canvas,
+#container svg {
+  max-width: 100% !important;
   height: auto;
-  min-height: 850px; /* Match post container height */
-  white-space: nowrap;
+  object-fit: contain;
 }
 
 /* ====================================================================
@@ -728,143 +696,301 @@ body:has(.horizontal-page-container) {
 
 /* Project Six specific container - calculated for grid layout */
 #container.project-six-container {
-  min-width: calc(240px + (248px * 10) + 40px); /* content + (10 columns * width) + margin */
-  /* 240 + 2480 + 40 = 2760px total width */
-  overflow-x: visible; /* Remove horizontal scroll from container */
-  overflow-y: visible;
+  /* Override base container width for horizontal scrolling */
+  width: calc(240px + (248px * 30) + 40px); /* content + (30 columns * width) + margin for horizontal scrolling */
+  /* 240 + 7440 + 40 = 7720px total width - forces horizontal scroll at LAYOUT level */
+  min-width: calc(240px + (248px * 30) + 40px);
+  max-width: none; /* Allow extension beyond container for scrolling */
+  
+  /* Still constrained by container height */
+  height: 100%; /* Use all available height within container */
+  max-height: 100%; /* Cannot exceed container available space */
+  overflow: visible; /* Content extends for layout-level scrolling */
+  box-sizing: border-box; /* Include any padding/borders in calculations */
 }
 
-/* Post container - traditional layout like reference */
+/* Override general container rules for project-six to allow horizontal extension */
+#container.project-six-container * {
+  max-width: none; /* Allow horizontal extension for grid scrolling */
+  max-height: 100%; /* Still constrain height to container */
+}
+
+/* Post container - regular block layout for content and images */
 .post {
-  position: relative;
-  height: auto;
-  min-height: 850px; /* Accommodate info section + content + images */
-  min-width: max-content;
-  width: max-content;
+  position: static; /* Normal document flow like reference */
+  height: auto; /* Allow natural height for content */
+  min-height: 100%; /* Minimum height to fit container */
+  width: auto; /* Auto width to accommodate content */
+  min-width: 100%; /* At least full container width */
+  padding: 0; /* No padding - fit exactly inside container */
+  margin: 0; /* No margin */
+  box-sizing: border-box;
+  overflow: visible; /* Allow content to be visible */
+  display: block; /* Regular block layout */
 }
 
-/* Info section */
+/* Post content constraints */
+.post * {
+  box-sizing: border-box;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.post .ie {
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+}
+
+/* Info section - spans full width including content + images area */
 .post .info {
-  margin-bottom: 2.75rem;
+  width: 100%; /* Span full width of post container */
+  max-width: none; /* Don't constrain width */
+  height: calc(16pt + 1px + 2.75rem); /* Explicit height: line-height + top margin + bottom margin */
+  min-height: calc(16pt + 1px + 2.75rem); /* Minimum height to contain title section and margins */
+  box-sizing: border-box;
+  margin: 0; /* Remove margins from info div */
+  padding: 0; /* No padding on info container */
+  clear: both; /* Ensure info is above any floating content */
+  position: relative; /* Establish positioning context for content */
 }
 
 .post .info .title.section {
   font-size: 9.5pt;
   font-weight: 300;
   letter-spacing: 0;
-  margin: 1px;
+  margin: 1px 0 2.75rem 0; /* Move the bottom margin from info to title-section */
   color: #000;
   font-family: Arial, sans-serif;
 }
 
-/* Content wrapper - 240px container */
-.post .content {
-  width: 240px;
-  float: left;
-  margin-top: 0;
-  margin-right: 0;
-  white-space: normal;
-  /* WordPress preset variables */
-  --wp--preset--font-size--normal: 16px;
-  --wp--preset--font-size--huge: 42px;
-  --wp--preset--color--black: #000000;
-  --wp--preset--color--cyan-bluish-gray: #abb8c3;
-  --wp--preset--color--white: #ffffff;
-  --wp--preset--color--pale-pink: #f78da7;
-  --wp--preset--color--vivid-red: #cf2e2e;
-  --wp--preset--color--luminous-vivid-orange: #ff6900;
-  --wp--preset--color--luminous-vivid-amber: #fcb900;
-  --wp--preset--color--light-green-cyan: #7bdcb5;
-  --wp--preset--color--vivid-green-cyan: #00d084;
-  --wp--preset--color--pale-cyan-blue: #8ed1fc;
-  --wp--preset--color--vivid-cyan-blue: #0693e3;
-  --wp--preset--color--vivid-purple: #9b51e0;
-  --wp--preset--gradient--vivid-cyan-blue-to-vivid-purple: linear-gradient(135deg,rgba(6,147,227,1) 0%,rgb(155,81,224) 100%);
-  --wp--preset--gradient--light-green-cyan-to-vivid-green-cyan: linear-gradient(135deg,rgb(122,220,180) 0%,rgb(0,208,130) 100%);
-  --wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange: linear-gradient(135deg,rgba(252,185,0,1) 0%,rgba(255,105,0,1) 100%);
-  --wp--preset--gradient--luminous-vivid-orange-to-vivid-red: linear-gradient(135deg,rgba(255,105,0,1) 0%,rgb(207,46,46) 100%);
-  --wp--preset--gradient--very-light-gray-to-cyan-bluish-gray: linear-gradient(135deg,rgb(238,238,238) 0%,rgb(169,184,195) 100%);
-  --wp--preset--gradient--cool-to-warm-spectrum: linear-gradient(135deg,rgb(74,234,220) 0%,rgb(151,120,209) 20%,rgb(207,42,186) 40%,rgb(238,44,130) 60%,rgb(251,105,98) 80%,rgb(254,248,76) 100%);
-  --wp--preset--gradient--blush-light-purple: linear-gradient(135deg,rgb(255,206,236) 0%,rgb(152,150,240) 100%);
-  --wp--preset--gradient--blush-bordeaux: linear-gradient(135deg,rgb(254,205,165) 0%,rgb(254,45,45) 50%,rgb(107,0,62) 100%);
-  --wp--preset--gradient--luminous-dusk: linear-gradient(135deg,rgb(255,203,112) 0%,rgb(199,81,192) 50%,rgb(65,88,208) 100%);
-  --wp--preset--gradient--pale-ocean: linear-gradient(135deg,rgb(255,245,203) 0%,rgb(182,227,212) 50%,rgb(51,167,181) 100%);
-  --wp--preset--gradient--electric-grass: linear-gradient(135deg,rgb(202,248,128) 0%,rgb(113,206,126) 100%);
-  --wp--preset--gradient--midnight: linear-gradient(135deg,rgb(2,3,129) 0%,rgb(40,116,252) 100%);
-  --wp--preset--font-size--small: 13px;
-  --wp--preset--font-size--medium: 20px;
-  --wp--preset--font-size--large: 36px;
-  --wp--preset--font-size--x-large: 42px;
-  --wp--preset--spacing--20: 0.44rem;
-  --wp--preset--spacing--30: 0.67rem;
-  --wp--preset--spacing--40: 1rem;
-  --wp--preset--spacing--50: 1.5rem;
-  --wp--preset--spacing--60: 2.25rem;
-  --wp--preset--spacing--70: 3.38rem;
-  --wp--preset--spacing--80: 5.06rem;
-  --wp--preset--shadow--natural: 6px 6px 9px rgba(0, 0, 0, 0.2);
-  --wp--preset--shadow--deep: 12px 12px 50px rgba(0, 0, 0, 0.4);
-  --wp--preset--shadow--sharp: 6px 6px 0px rgba(0, 0, 0, 0.2);
-  --wp--preset--shadow--outlined: 6px 6px 0px -3px rgba(255, 255, 255, 1), 6px 6px rgba(0, 0, 0, 1);
-  --wp--preset--shadow--crisp: 6px 6px 0px rgba(0, 0, 0, 1);
+/* Future-proof extended section - empty but ready for content */
+.post .info .extended-section {
+  width: 100%; /* Inherit full width from parent info div */
+  box-sizing: border-box; /* Consistent box model */
+  /* Ready for future expansion - currently empty */
 }
 
-/* First column - 200px inner content container */
-.post .content .first-column {
-  width: 200px;
+
+
+/* Content area: dynamic width float system */
+.post .content {
+  -webkit-text-size-adjust: none;
+  color: #000;
+  font-family: helvetica, arial, sans-serif;
+  font-size: 8pt;
+  line-height: 16pt;
+  list-style: none;
   margin: 0;
   padding: 0;
-  white-space: normal;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-  /* WordPress preset text styling */
-  -webkit-text-size-adjust: none;
-  color: var(--wp--preset--color--black);
-  font-family: helvetica, arial, sans-serif;
-  font-size: 8pt;
-  line-height: 16pt;
-  list-style: none;
+  width: auto; /* Dynamic width based on columns */
+  float: left;
+  overflow: visible; /* Don't clip floating columns */
+  min-height: 1px;
+  box-sizing: border-box;
+  overflow: visible; /* Allow content to wrap properly within bounds */
+  clear: none; /* Don't clear floats - allow images to flow alongside */
 }
 
-.post .content .first-column p {
-  font-family: helvetica, arial, sans-serif;
-  font-size: 8pt;
-  line-height: 16pt;
-  color: var(--wp--preset--color--black);
-  margin-bottom: 0;
-  margin-top: 0;
-  list-style: none;
+/* First column - always present with combined classes */
+.post .content .first.column.ie {
+  width: 200px; /* Width matching reference */
+  float: left; /* Float left as in reference */
+  margin-right: 40px; /* Right margin as in reference */
+  box-sizing: border-box;
+  overflow: hidden; /* Hide overflow - this is KEY for height constraint */
+  word-wrap: break-word; /* Force text wrapping */
+  overflow-wrap: break-word; /* Modern word wrapping */
+  max-width: 200px; /* Enforce width constraint */
+  height: calc(100vh - 180pt); /* Fixed height based on viewport - this constrains the column */
+  max-height: calc(100vh - 180pt); /* Same as height for strict constraint */
+}
+
+/* Second column - only created when text overflows first column */
+.post .content .column.ie {
+  width: 200px; /* Same width as first column */
+  float: left; /* Float left as in reference */
+  margin-right: 40px; /* Right margin as in reference */
+  box-sizing: border-box;
+  overflow: visible; /* Allow content to flow naturally */
+  word-wrap: break-word; /* Force text wrapping */
+  overflow-wrap: break-word; /* Modern word wrapping */
+  max-width: 200px; /* Enforce width constraint */
+  height: auto; /* Auto height for second column */
+}
+
+/* Text elements within columns */
+.post .content .first.column.ie p, 
+.post .content .first.column.ie li, 
+.post .content .first.column.ie h1, 
+.post .content .first.column.ie h2, 
+.post .content .first.column.ie h3,
+.post .content .first.column.ie h4, 
+.post .content .first.column.ie h5, 
+.post .content .first.column.ie h6, 
+.post .content .first.column.ie figure, 
+.post .content .first.column.ie div,
+.post .content .column.ie p, 
+.post .content .column.ie li, 
+.post .content .column.ie h1, 
+.post .content .column.ie h2, 
+.post .content .column.ie h3,
+.post .content .column.ie h4, 
+.post .content .column.ie h5, 
+.post .content .column.ie h6, 
+.post .content .column.ie figure, 
+.post .content .column.ie div {
+  margin: 0 0 0.75rem 0;
+  padding: 0;
   width: 100%;
+  max-width: 100%; /* Ensure elements don't exceed column width */
   white-space: normal;
+  word-wrap: break-word; /* Force text wrapping */
+  overflow-wrap: break-word; /* Modern word wrapping */
+  box-sizing: border-box;
+}
+
+/* Paragraph spacing within columns - 16pt bottom margin matching reference */
+.post .content .first.column.ie p, 
+.post .content .column.ie p { 
+  margin-bottom: 16pt; 
   word-wrap: break-word;
   overflow-wrap: break-word;
+  hyphens: auto;
 }
 
-.post .content .first-column p:first-child {
-  margin-top: 0;
+/* Split class for paragraphs that span across columns */
+.post .content .first.column.ie p.split,
+.post .content .column.ie p.split {
+  /* Split paragraphs - styling remains the same as regular paragraphs */
+  /* The split is handled by content distribution, not CSS */
+  margin-bottom: 0.75rem;
 }
 
-/* Image elements styling - matching reference layout exactly */
-.imageElement.ie {
-  display: block;
+/* Clear floats after content columns */
+.post .content::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+/* Images column container (sibling to .content) */
+/* Images panel floats to the left AFTER the text column block, appearing to the right */
+/* Images sit in right grid area, align top, horizontal row */
+/* Primary images container: occupies right column across both grid rows */
+.post .images-container {
+  grid-area: images;
+  grid-row: 1 / span 2; /* span info + content rows */
+  height: 100%;
+  max-height: 100%;
+  overflow-x: auto; /* horizontal scroll if many images */
+  overflow-y: hidden;
+  box-sizing: border-box;
+  /* Allow floating elements to flow naturally, no flex layout */
+}
+
+.post .images-container .imageElement.ie, .post .images-container .imageElement {
+  float: left;
   margin-right: 40px;
   margin-top: 0;
+  width: 573.244px; /* Match reference width */
+  clear: none;
+}
+
+.post .images-container img {
+  max-height: 100%;
+  width: 100%;
+  object-fit: cover;
+}
+
+/* Direct imageElement children should float horizontally */
+.post > .imageElement, .post > .imageElement.ie {
+  float: left; /* Float left to position horizontally */
+  clear: none; /* Allow horizontal flow */
+  margin-right: 40px; /* Right margin between images - matching reference */
+  margin-left: 0;
+  margin-top: 0;
   margin-bottom: 0;
+}
+
+.post .content .first.column.ie p:first-child {
+  margin-top: 0;
+}
+
+/* Content area styling */
+.post .content {
+  float: left; /* Float content to the left */
+  overflow: visible; /* Don't clip floating columns */
+  min-height: 1px; /* Ensure content area has minimum height */
+}
+
+/* Ensure columns float left within content area */
+.post .content .column {
   float: left;
+  margin-right: 40px; /* Gap between columns */
+}
+
+.post .content .column:last-child {
+  margin-right: 0; /* No margin on last column */
+}
+
+/* Ensure all column elements have consistent spacing */
+.post .content .first.column.ie,
+.post .content .column.ie {
+  margin-right: 40px !important;
+}
+
+
+
+/* Image elements styling - float horizontally like reference */
+.imageElement.ie {
+  float: left; /* Float left to flow horizontally */
+  clear: none; /* Allow horizontal flow */
+  margin-right: 40px; /* Right margin between images - matching reference */
+  margin-left: 0;
+  margin-top: 0 !important; /* No top margin - start at top of content div */
+  margin-bottom: 0;
+  width: 573.244px; /* Width matching reference */
+  max-width: 573.244px; /* Consistent sizing */
+  box-sizing: border-box !important;
 }
 
 .imageElement.ie .wp-caption {
   display: block;
-  height: 756px; /* Fixed height constraint */
-  overflow: hidden; /* Hide any overflow */
+  height: 468px; /* Height matching reference */
+  width: 573.244px; /* Width matching reference */
+  max-width: 100%; /* Fit within imageElement width */
+  overflow: hidden; /* Crop images to fit */
+  box-sizing: border-box;
+  margin: 0 !important; /* No margin - start at top of imageElement */
+  padding: 0 !important; /* No padding - start at top of imageElement */
+  position: relative;
+  top: 0;
 }
 
 .imageElement.ie img {
-  height: 756px !important;
-  width: auto !important; /* Let width adjust automatically to maintain aspect ratio */
-  max-width: none !important; /* Remove any max-width constraints */
+  height: 468px !important; /* Match wp-caption height exactly */
+  width: 573.244px !important; /* Match wp-caption width exactly */
+  max-width: none; /* Allow exact sizing */
+  min-width: 100%; /* Fill the caption container width */
   display: block;
-  object-fit: cover; /* Ensures image covers the area while maintaining aspect ratio */
+  object-fit: cover; /* Crop to fill container while maintaining aspect ratio */
+  object-position: top; /* Align image to top of container */
+  box-sizing: border-box !important;
+  margin: 0 !important; /* No margin - start at top of wp-caption */
+  padding: 0 !important; /* No padding - start at top of wp-caption */
+  position: relative;
+  top: 0;
+  left: 0;
+}
+
+/* Tracer element from reference */
+.tracer {
+  display: block;
+  width: 100%;
+  height: 1px;
+  clear: both;
 }
 
 /* Clear floats after content */
@@ -887,48 +1013,8 @@ body:has(.horizontal-page-container) {
   overflow-x: visible;
 }
 
-/* Shared Instagram Grid Item Styles */
-.instagram-grid-item {
-  position: relative;
-  overflow: hidden;
-  background-color: #f0f0f0;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-}
-
-.instagram-grid-item:hover {
-  transform: scale(1.02);
-}
-
-.instagram-grid-image {
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: cover;
-  display: block;
-}
-
-/* Project Six Specific Grid Items */
+/* Project Six specific grid styling */
 .project-six-grid-item {
-  position: relative;
-  overflow: hidden;
-  background-color: #f5f5f5;
-  cursor: pointer;
   width: 248px;
   height: 248px;
-}
-
-.project-six-grid-item:hover .instagram-post-overlay {
-  opacity: 1;
-}
-
-.project-six-grid-image {
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: cover;
-  display: block;
-  transition: transform 0.2s ease;
-}
-
-.project-six-grid-item:hover .project-six-grid-image {
-  transform: scale(1.05);
 }
