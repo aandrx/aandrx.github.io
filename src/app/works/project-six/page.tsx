@@ -1,5 +1,6 @@
 'use client'
 
+import './project-six.css'
 import Navigation from '@/components/Navigation'
 import Image from 'next/image'
 import DynamicColumns from '@/components/DynamicColumns'

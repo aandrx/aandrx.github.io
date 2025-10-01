@@ -1,0 +1,100 @@
+/* ====================================================================
+   HOME PAGE SPECIFIC STYLES
+   ==================================================================== */
+
+/* Home Page Layout - prevent horizontal scrolling */
+.layout:has(#container .post .imageElement) {
+  overflow-x: hidden;
+}
+
+/* Home Page Container */
+.layout #container {
+  /* Container positioned using padding within layout space */
+  padding: 40px 40px 90px 280px; /* 40px top padding as requested */
+  
+  position: static;
+  /* Width must contain the full image (573.244px) plus any padding/margins */
+  width: auto;
+  min-width: 653.237px; /* Reference width to ensure full image fits */
+  max-width: none;
+  height: auto;
+  min-height: 100vh;
+  
+  overflow: visible;
+  background: #fff;
+  color: #000;
+  font-family: helvetica, arial, sans-serif;
+  font-size: 8pt;
+  line-height: 16pt;
+  opacity: 1;
+  box-sizing: border-box;
+  
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Home Page Post Styles */
+.layout .post {
+  position: static;
+  height: auto; /* Auto height to fit content */
+  min-height: auto;
+  width: 100%;
+  max-width: none; /* Allow full width for image */
+  padding: 0;
+  margin: 0;
+  overflow: visible; /* Allow content to be visible */
+  display: block;
+  box-sizing: border-box;
+  overflow-wrap: break-word;
+  border-width: 0;
+  border-style: solid;
+  border-color: #e5e5e5;
+  font-weight: 300;
+  color: #000;
+  font-family: helvetica, arial, sans-serif;
+  font-size: 8pt;
+  line-height: 16pt;
+}
+
+/* Info section */
+.layout .post .info {
+  width: 100%;
+  margin-bottom: 0;
+  overflow: visible;
+}
+
+/* Image Element container */
+.layout .post .imageElement {
+  width: 573.244px;
+  min-width: 573.244px;
+  height: 468px;
+  min-height: 468px;
+  overflow: visible;
+  display: block;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Home Page Image Styles - Override global constraints */
+.layout .post .imageElement.ie img {
+  height: 468px !important;
+  width: 573.244px !important;
+  max-width: 573.244px !important;
+  min-width: 573.244px !important;
+  display: block !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  object-fit: cover;
+}
+
+.layout .post .imageElement.ie .wp-caption {
+  width: 573.244px !important;
+  max-width: 573.244px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Note: .home-header, .home-name, .home-image-container, and .home-image 
+   styles are defined in globals.css and will be inherited automatically */
+

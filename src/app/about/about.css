@@ -1,0 +1,117 @@
+/* ====================================================================
+   ABOUT PAGE SPECIFIC STYLES
+   ==================================================================== */
+
+/* About Page Layout - prevent horizontal scrolling */
+.layout:has(#container.about-container) {
+  overflow-x: hidden;
+}
+
+/* About Page Container */
+.layout #container.about-container {
+  /* Container positioned using padding within layout space */
+  padding: 40px 40px 90px 280px; /* 40px top, 40px right, 90px bottom, 280px left */
+  
+  position: static;
+  width: auto; /* Auto width - let content determine size */
+  height: auto;
+  min-height: 100vh;
+  
+  overflow: visible;
+  background: #fff;
+  color: #000;
+  font-family: helvetica, arial, sans-serif;
+  font-size: 8pt;
+  line-height: 16pt;
+  opacity: 1;
+  box-sizing: border-box;
+  list-style: none;
+  margin: 0;
+  
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* About Page Post Styles */
+.layout .post.about-post {
+  position: static;
+  height: auto;
+  min-height: auto;
+  width: 100%; /* Full width of container */
+  max-width: 760px; /* Match reference content width */
+  padding: 0;
+  margin: 0;
+  overflow: visible;
+  display: block;
+  box-sizing: border-box;
+  overflow-wrap: break-word;
+  border-width: 0;
+  border-style: solid;
+  border-color: #e5e5e5;
+  font-weight: 300;
+  color: #000;
+  font-family: helvetica, arial, sans-serif;
+  font-size: 8pt;
+  line-height: 16pt;
+}
+
+/* Info section */
+.layout .post.about-post .info {
+  width: 100%;
+  margin-bottom: 0;
+  overflow: visible;
+}
+
+/* Content area for text and image */
+.layout .post.about-post .content {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* WordPress block gallery */
+.layout .post.about-post .content .wp-block-gallery {
+  margin: 0 0 1.5rem 0;
+  padding: 0;
+  list-style: none;
+}
+
+.layout .post.about-post .content .wp-block-image {
+  margin: 0;
+  padding: 0;
+}
+
+.layout .post.about-post .content .wp-caption {
+  width: auto !important;
+  margin: 0;
+  padding: 0;
+}
+
+/* About page image */
+.layout .post.about-post .content img.about-image {
+  width: 760px !important;
+  height: auto !important;
+  max-width: 760px !important;
+  display: block !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Paragraphs in about page */
+.layout .post.about-post .content p {
+  margin: 0 0 1rem 0;
+  line-height: 16pt;
+  font-size: 8pt;
+}
+
+.layout .post.about-post .content p:last-child {
+  margin-bottom: 0;
+}
+
+.layout .post.about-post .content strong {
+  font-weight: 500;
+}
+
+.layout .post.about-post .content em {
+  font-style: italic;
+}

@@ -1,17 +1,20 @@
+import './contact.css'
 import Navigation from '@/components/Navigation'
 
 export default function ContactPage() {
   return (
-    <div className="layout contact-page">
+    <div className="layout">
       <Navigation />
-      <div className="main-content contact-content">
-        <div className="home-header">
-          <h1 className="home-name">Contact</h1>
-        </div>
-        <div className="content-area">
-          <div className="page-content">
+      <div id="container" className="contact-container ie">
+        <div className="post contact-post">
+          <div className="info">
+            <div className="title section">Contact</div>
+            <div className="clear"></div>
+          </div>
+
+          <div className="content">
             <p>
-              <strong>Tel:</strong> +1 (509) 405-6458
+              <strong>Tel:</strong> +15094056458
             </p>
             
             <p>
@@ -19,14 +22,17 @@ export default function ContactPage() {
             </p>
             
             <p>
-              <strong>Instagram:</strong> @andweez
+              <strong>Instagram:</strong> andweez
             </p>
 
             <p>
-              <strong>GitHub:</strong> @aandrx
+              <strong>GitHub:</strong> aandrx
             </p>
           </div>
         </div>
+
+        <div className="tracer"></div>
+        <div className="clear"></div>
       </div>
     </div>
   )

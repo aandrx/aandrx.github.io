@@ -1,0 +1,48 @@
+/* ====================================================================
+   PROJECT FIVE SPECIFIC STYLES
+   ==================================================================== */
+
+/* Project Five specific body scrolling - restore original implementation */
+html:has(.project-five-layout),
+body:has(.project-five-layout) {
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  width: fit-content;
+  min-width: 100vw;
+}
+
+/* Project Five specific layout - restore original scrolling behavior */
+.project-five-layout {
+  width: fit-content;
+  min-width: 100vw;
+  height: 100vh;
+  overflow-x: auto;
+  overflow-y: hidden;
+  display: flex;
+  flex-direction: row;
+  position: relative;
+}
+
+/* Project Five Container */
+.project-five-layout #container {
+  /* Container positioned using padding within layout space - matching reference */
+  padding: 40px 40px 90px 280px;
+  
+  /* Dynamic container width based on number of columns */
+  position: static;
+  width: var(--dynamic-container-width, 1200px);
+  height: auto;
+  min-height: 100vh;
+  
+  overflow: visible;
+  background: #fff;
+  color: #000;
+  font-family: helvetica, arial, sans-serif;
+  font-size: 8pt;
+  line-height: 16pt;
+  opacity: 1;
+  box-sizing: border-box;
+  
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}

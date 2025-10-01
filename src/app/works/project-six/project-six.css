@@ -1,0 +1,147 @@
+/* ====================================================================
+   PROJECT SIX SPECIFIC STYLES
+   ==================================================================== */
+
+/* Project Six - enable body-level horizontal scrollbar like Project Five */
+html:has(.project-six-layout),
+body:has(.project-six-layout) {
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  width: fit-content;
+  min-width: 100vw;
+}
+
+/* Project Six specific layout - contained scrolling within layout */
+.project-six-layout {
+  width: fit-content;
+  min-width: 100vw;
+  height: 100vh;
+  overflow-x: auto;
+  overflow-y: hidden;
+  display: flex;
+  flex-direction: row;
+  position: relative;
+}
+
+/* Project Six specific post container - enable absolute positioning for Instagram grid */
+.project-six-layout .post {
+  position: relative;
+  width: 100%;
+  height: auto;
+}
+
+/* Project Six specific content area - constrain width to allow Instagram grid to float alongside */
+.project-six-layout .post .content {
+  width: 240px;
+  float: left;
+  margin-right: 40px;
+}
+
+/* Project Six Container - calculated for Instagram grid layout */
+.project-six-layout #container {
+  /* Container positioned using padding within layout space */
+  padding: 40px 40px 90px 280px;
+  
+  /* Calculate total width needed for project-six: 240px content + 40px gap + 12 columns + 11 gaps + 40px margin-right */
+  --ig-gap: 4px;
+  --ig-height: calc(calc(100vh - 130px) - calc(16pt + 1px + 2.75rem));
+  --ig-usable: calc(var(--ig-height) - (2 * var(--ig-gap)));
+  --ig-cell: calc(var(--ig-usable) / 3);
+  
+  width: calc(240px + 40px + (12 * var(--ig-cell)) + (11 * var(--ig-gap)) + 40px);
+  min-width: calc(240px + 40px + (12 * var(--ig-cell)) + (11 * var(--ig-gap)) + 40px);
+  
+  position: static;
+  height: auto;
+  min-height: 100vh;
+  
+  overflow: visible;
+  background: #fff;
+  color: #000;
+  font-family: helvetica, arial, sans-serif;
+  font-size: 8pt;
+  line-height: 16pt;
+  opacity: 1;
+  box-sizing: border-box;
+  
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Instagram Grid Styles */
+.instagram-grid,
+.instagram-grid-full-height {
+  display: grid;
+  grid-template-rows: repeat(3, var(--ig-cell));
+  grid-auto-flow: column;
+  grid-auto-columns: var(--ig-cell);
+  gap: var(--ig-gap);
+  height: var(--ig-height);
+  width: fit-content;
+  position: absolute;
+  top: calc(16pt + 1px + 2.75rem);
+  left: calc(240px + 40px);
+  margin-right: 40px;
+}
+
+.project-six-grid-item,
+.instagram-grid-item-full {
+  cursor: pointer;
+  overflow: hidden;
+  position: relative;
+  width: var(--ig-cell);
+  height: var(--ig-cell);
+  background: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.project-six-grid-image,
+.instagram-grid-image {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  display: block !important;
+  transition: opacity 0.2s ease;
+  flex-shrink: 0;
+  max-width: 100% !important;
+  max-height: 100% !important;
+}
+
+.project-six-grid-item:hover .project-six-grid-image,
+.instagram-grid-item-full:hover .instagram-grid-image {
+  opacity: 0.8;
+}
+
+.instagram-post-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: all 0.2s ease;
+  pointer-events: none;
+}
+
+.project-six-grid-item:hover .instagram-post-overlay,
+.instagram-grid-item-full:hover .instagram-post-overlay {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.overlay-content {
+  color: white;
+  text-align: center;
+}
+
+.post-number {
+  font-size: 14px;
+  font-weight: bold;
+}

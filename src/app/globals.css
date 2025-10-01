@@ -49,28 +49,10 @@ body {
   background: #fff;
 }
 
-/* Default behavior for other pages (excluding project-five) */
-body:not(:has(.horizontal-page-container)):not(:has(.project-five-layout)) {
+/* Default behavior for other pages (excluding project-five and project-six) */
+body:not(:has(.horizontal-page-container)):not(:has(.project-five-layout)):not(:has(.project-six-layout)) {
   overflow-x: hidden;
   overflow-y: auto;
-}
-
-/* Project Five specific body scrolling - restore original implementation */
-html:has(.project-five-layout),
-body:has(.project-five-layout) {
-  width: 15751.1px !important; /* Original fixed width for horizontal scrolling */
-  max-width: none !important; /* Remove viewport constraint */
-  overflow-x: auto !important; /* Enable horizontal page scrolling like original */
-  overflow-y: hidden !important;
-}
-
-/* Project Six - enable body-level horizontal scrollbar like Project Five */
-html:has(.project-six-layout),
-body:has(.project-six-layout) {
-  width: 2000px !important; /* Reduced width for shorter scrollbar */
-  max-width: none !important;
-  overflow-x: auto !important; /* page-level scrollbar */
-  overflow-y: hidden !important;
 }
 
 a {
@@ -96,36 +78,6 @@ a:hover {
   width: fit-content; /* Width determined by content */
   min-width: 100vw; /* Ensure minimum full viewport width */
   box-sizing: border-box; /* Standard box model */
-}
-
-/* Project Five specific layout - restore original scrolling behavior */
-.project-five-layout {
-  width: 100%; /* Full width of body (which is 15751.1px) */
-  min-width: 100%; /* Match body width */
-  overflow-x: visible; /* Let body handle scrolling */
-}
-
-/* Project Six specific layout - contained scrolling within layout */
-.project-six-layout {
-  width: 100%; /* let body width define total scrollable width */
-  min-width: 100%;
-  height: auto; /* Allow content to define height */
-  max-height: none; /* Remove layout cap to avoid clipping grid */
-  overflow-x: visible; /* Let body provide the bottom scrollbar */
-  overflow-y: hidden;
-}
-
-/* Project Six specific post container - enable absolute positioning for Instagram grid */
-.project-six-layout .post {
-  position: relative; /* Enable absolute positioning for children */
-}
-
-/* Project Six specific content area - constrain width to allow Instagram grid to float alongside */
-.project-six-layout .post .content {
-  width: 240px; /* Fixed width: 200px column + 40px gap */
-  max-width: 240px; /* Ensure it doesn't expand */
-  float: left;
-  clear: none;
 }
 
 .sidebar {
@@ -357,12 +309,10 @@ a:hover {
    ==================================================================== */
 
 /* ====================================================================
-   INSTAGRAM GRID SYSTEMS
+   INSTAGRAM GRID SYSTEMS (for horizontal-page-container only)
    ==================================================================== */
 .instagram-post,
-.instagram-square,
-.instagram-grid-item,
-.project-six-grid-item {
+.instagram-square {
   position: relative;
   aspect-ratio: 1;
   overflow: hidden;
@@ -371,9 +321,7 @@ a:hover {
   transition: transform 0.2s ease;
 }
 
-.instagram-image,
-.instagram-grid-image,
-.project-six-grid-image {
+.instagram-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -381,14 +329,12 @@ a:hover {
 }
 
 .instagram-post:hover,
-.instagram-grid-item:hover,
-.project-six-grid-item:hover {
+.instagram-square:hover {
   transform: scale(1.02);
 }
 
 .instagram-post:hover .instagram-image,
-.instagram-grid-item:hover .instagram-grid-image,
-.project-six-grid-item:hover .project-six-grid-image {
+.instagram-square:hover .instagram-image {
   transform: scale(1.05);
 }
 
@@ -407,8 +353,7 @@ a:hover {
   z-index: 1;
 }
 
-.instagram-post:hover .instagram-post-overlay,
-.project-six-grid-item:hover .instagram-post-overlay {
+.instagram-post:hover .instagram-post-overlay {
   opacity: 1;
 }
 
@@ -721,6 +666,7 @@ body:has(.horizontal-page-container) {
   overflow-wrap: break-word;
 }
 
+/* Project Six specific container - calculated for Instagram grid layout */
 /* Container content constraints */
 #container * {
   max-width: 100%;
@@ -742,27 +688,6 @@ body:has(.horizontal-page-container) {
 /* ====================================================================
    PROJECT-SPECIFIC STYLES
    ==================================================================== */
-
-/* Project Six specific container - calculated for grid layout */
-#container.project-six-container {
-  /* Override base container width for horizontal scrolling */
-  /* Width = content (240px) + gap (40px) + full Instagram grid (10 columns + 9 gaps) */
-  width: calc(240px + 40px + calc(10 * var(--ig-cell)) + calc(9 * var(--ig-gap)));
-  min-width: calc(240px + 40px + calc(10 * var(--ig-cell)) + calc(9 * var(--ig-gap)));
-  max-width: none; /* Allow extension beyond container for scrolling */
-  
-  /* Still constrained by container height */
-  height: 100%; /* Use all available height within container */
-  max-height: 100%; /* Cannot exceed container available space */
-  overflow: visible; /* Content extends for layout-level scrolling */
-  box-sizing: border-box; /* Include any padding/borders in calculations */
-}
-
-/* Override general container rules for project-six to allow horizontal extension */
-#container.project-six-container * {
-  max-width: none; /* Allow horizontal extension for grid scrolling */
-  max-height: 100%; /* Still constrain height to container */
-}
 
 /* Post container - regular block layout for content and images */
 .post {
