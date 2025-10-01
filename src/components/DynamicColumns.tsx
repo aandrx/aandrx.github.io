@@ -6,15 +6,18 @@ interface DynamicColumnsProps {
   children: React.ReactNode
   columnWidth?: number
   columnGap?: number
+  onRenderComplete?: () => void
 }
 
 export default function DynamicColumns({ 
   children, 
   columnWidth = 200, 
-  columnGap = 40
+  columnGap = 40,
+  onRenderComplete
 }: DynamicColumnsProps) {
   const [columns, setColumns] = useState<React.ReactNode[]>([])
   const [renderKey, setRenderKey] = useState(0)
+  const [isRendering, setIsRendering] = useState(true)
   const firstColumnRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -23,6 +26,8 @@ export default function DynamicColumns({
     }
 
     const columnizeContent = () => {
+      setIsRendering(true)
+      
       // Extract all text as one continuous string
       const extractText = (node: React.ReactNode): string => {
         if (typeof node === 'string') return node
@@ -187,6 +192,12 @@ export default function DynamicColumns({
       
       setColumns(newColumns)
       setRenderKey(prev => prev + 1)
+      
+      // Use setTimeout to ensure DOM has updated before calling completion
+      setTimeout(() => {
+        setIsRendering(false)
+        onRenderComplete?.()
+      }, 10)
     }
 
     // Initial columnization
@@ -198,6 +209,10 @@ export default function DynamicColumns({
       window.removeEventListener('resize', handleResize)
     }
   }, [children, columnWidth])
+
+  if (isRendering && columns.length === 0) {
+    return <div className="columns-loading">Loading...</div>
+  }
 
   return <div key={renderKey}>{columns}</div>
 }

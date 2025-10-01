@@ -1,12 +1,29 @@
+'use client'
+
 import Navigation from '@/components/Navigation'
 import Image from 'next/image'
 import DynamicColumns from '@/components/DynamicColumns'
+import { useState } from 'react'
 
 export default function ProjectFivePage() {
+  const [isColumnsReady, setIsColumnsReady] = useState(false)
   return (
-    <div className="layout">
+    <div className="layout project-five-layout">
       <Navigation />
-      <div id="container" className="ie">
+      <div id="container" className="ie" style={{ opacity: isColumnsReady ? 1 : 0, transition: 'opacity 0.3s ease-in-out' }}>
+        {!isColumnsReady && (
+          <div style={{ 
+            position: 'absolute', 
+            top: '50%', 
+            left: '50%', 
+            transform: 'translate(-50%, -50%)',
+            fontSize: '14px',
+            color: '#666',
+            zIndex: 10
+          }}>
+            Preparing content...
+          </div>
+        )}
           <div className="post">
             <div className="info">
               <div className="title section">New Comer</div>
@@ -14,7 +31,11 @@ export default function ProjectFivePage() {
             </div>
             
             <div className="content">
-              <DynamicColumns columnWidth={200} columnGap={40}>
+              <DynamicColumns 
+                columnWidth={200} 
+                columnGap={40}
+                onRenderComplete={() => setIsColumnsReady(true)}
+              >
                 <p>I spent little time with my parents throughout my whole growth, less communication, long being alienated, thereby giving rise to a sense of staying in middle of nowhere. Every time when confronted with the built-in family issue, I would intend to shun away instinctively.</p>
                 <p>In March 2020, I moved to Hangzhou to get rid of the anxieties as well as for career. There, I got well paid and gained inner peace eventually, but later the routine of job bored me beyond bearing.</p>
                 <p>Out of the basic instinct as a photographer, I decided to explore the similar void of mind state among young people like me scattered in different cities, to see their faces as well as check over my deep self-doubt. Therefore, I post my personal photo project "New Comer" in Weibo, twitter-like social media in mainland China, and received more than 40 applicants.</p>

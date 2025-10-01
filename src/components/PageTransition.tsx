@@ -19,12 +19,12 @@ export default function PageTransition({ children }: PageTransitionProps) {
       return
     }
 
-    // Apply transition only on subsequent navigation
+    // Apply transition to entire layout (including sidebar) on navigation
     setIsVisible(false)
     
     const timer = setTimeout(() => {
       setIsVisible(true)
-    }, 50) // Minimal delay for smooth transition
+    }, 200) // Longer delay for more noticeable full-layout transition
 
     return () => clearTimeout(timer)
   }, [pathname])

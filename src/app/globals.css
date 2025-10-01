@@ -10,7 +10,7 @@
    ==================================================================== */
 .page-transition {
   opacity: 0;
-  transition: opacity 0.3s ease-in-out; /* Faster transition */
+  transition: opacity 0.6s ease-in-out; /* Smooth transition for entire layout including sidebar */
 }
 
 .page-transition.fade-in {
@@ -36,10 +36,10 @@
 
 html,
 body {
-  /* Fixed width like reference - very wide to accommodate all content */
-  width: 15751.1px; /* Matching reference width exactly */
+  /* Natural viewport width - no horizontal scrolling at body level */
+  width: 100vw; /* Full viewport width */
   max-width: none; /* Remove viewport constraint */
-  overflow-x: auto; /* Enable horizontal page scrolling */
+  overflow-x: hidden; /* Hide horizontal scrolling - layout handles it internally */
   overflow-y: hidden;
   font-family: Arial, sans-serif;
   font-weight: 300;
@@ -49,10 +49,28 @@ body {
   background: #fff;
 }
 
-/* Default behavior for other pages */
-body:not(:has(.horizontal-page-container)) {
+/* Default behavior for other pages (excluding project-five) */
+body:not(:has(.horizontal-page-container)):not(:has(.project-five-layout)) {
   overflow-x: hidden;
   overflow-y: auto;
+}
+
+/* Project Five specific body scrolling - restore original implementation */
+html:has(.project-five-layout),
+body:has(.project-five-layout) {
+  width: 15751.1px !important; /* Original fixed width for horizontal scrolling */
+  max-width: none !important; /* Remove viewport constraint */
+  overflow-x: auto !important; /* Enable horizontal page scrolling like original */
+  overflow-y: hidden !important;
+}
+
+/* Project Six - enable body-level horizontal scrollbar like Project Five */
+html:has(.project-six-layout),
+body:has(.project-six-layout) {
+  width: 2000px !important; /* Reduced width for shorter scrollbar */
+  max-width: none !important;
+  overflow-x: auto !important; /* page-level scrollbar */
+  overflow-y: hidden !important;
 }
 
 a {
@@ -75,8 +93,39 @@ a:hover {
   max-height: calc(100vh - 55px); /* Constrain to window height minus 55px */
   overflow-x: auto; /* Enable horizontal scrolling at layout level */
   overflow-y: hidden; /* Disable vertical scrolling */
-  width: 100%; /* Full width of body */
+  width: fit-content; /* Width determined by content */
+  min-width: 100vw; /* Ensure minimum full viewport width */
   box-sizing: border-box; /* Standard box model */
+}
+
+/* Project Five specific layout - restore original scrolling behavior */
+.project-five-layout {
+  width: 100%; /* Full width of body (which is 15751.1px) */
+  min-width: 100%; /* Match body width */
+  overflow-x: visible; /* Let body handle scrolling */
+}
+
+/* Project Six specific layout - contained scrolling within layout */
+.project-six-layout {
+  width: 100%; /* let body width define total scrollable width */
+  min-width: 100%;
+  height: auto; /* Allow content to define height */
+  max-height: none; /* Remove layout cap to avoid clipping grid */
+  overflow-x: visible; /* Let body provide the bottom scrollbar */
+  overflow-y: hidden;
+}
+
+/* Project Six specific post container - enable absolute positioning for Instagram grid */
+.project-six-layout .post {
+  position: relative; /* Enable absolute positioning for children */
+}
+
+/* Project Six specific content area - constrain width to allow Instagram grid to float alongside */
+.project-six-layout .post .content {
+  width: 240px; /* Fixed width: 200px column + 40px gap */
+  max-width: 240px; /* Ensure it doesn't expand */
+  float: left;
+  clear: none;
 }
 
 .sidebar {
@@ -650,7 +699,7 @@ body:has(.horizontal-page-container) {
 
 #container {
   /* Container positioned using padding within layout space - matching reference */
-  padding: 40px 40px 40px 280px; /* top right bottom left - matches reference exactly */
+  padding: 40px 40px 90px 280px; /* top right bottom left - increased bottom padding by 50px total */
   
   /* Dynamic container width based on number of columns */
   position: static; /* Normal flow within layout */
@@ -697,9 +746,9 @@ body:has(.horizontal-page-container) {
 /* Project Six specific container - calculated for grid layout */
 #container.project-six-container {
   /* Override base container width for horizontal scrolling */
-  width: calc(240px + (248px * 30) + 40px); /* content + (30 columns * width) + margin for horizontal scrolling */
-  /* 240 + 7440 + 40 = 7720px total width - forces horizontal scroll at LAYOUT level */
-  min-width: calc(240px + (248px * 30) + 40px);
+  /* Width = content (240px) + gap (40px) + full Instagram grid (10 columns + 9 gaps) */
+  width: calc(240px + 40px + calc(10 * var(--ig-cell)) + calc(9 * var(--ig-gap)));
+  min-width: calc(240px + 40px + calc(10 * var(--ig-cell)) + calc(9 * var(--ig-gap)));
   max-width: none; /* Allow extension beyond container for scrolling */
   
   /* Still constrained by container height */
@@ -718,10 +767,10 @@ body:has(.horizontal-page-container) {
 /* Post container - regular block layout for content and images */
 .post {
   position: static; /* Normal document flow like reference */
-  height: auto; /* Allow natural height for content */
-  min-height: 100%; /* Minimum height to fit container */
-  width: auto; /* Auto width to accommodate content */
-  min-width: 100%; /* At least full container width */
+  /* Post fills the container's content area (inside padding) */
+  height: calc(100vh - 130px); /* Container height minus top+bottom padding (40px + 90px) */
+  min-height: calc(100vh - 130px); /* Consistent minimum height */
+  width: 100%; /* Fill the container width (inside padding) */
   padding: 0; /* No padding - fit exactly inside container */
   margin: 0; /* No margin */
   box-sizing: border-box;
@@ -1017,4 +1066,97 @@ body:has(.horizontal-page-container) {
 .project-six-grid-item {
   width: 248px;
   height: 248px;
+}
+
+/* Instagram Grid that spans full post height */
+.instagram-grid-full-height {
+  position: absolute; /* Use absolute positioning to avoid float clearing issues */
+  left: calc(240px + 40px); /* Content width + gap; container padding already offsets from sidebar */
+  top: calc(16pt + 1px + 2.75rem); /* Position below info section */
+  display: grid;
+  /* Exact height: post height (100vh - 130px) minus info height */
+  --ig-gap: 4px;
+  --ig-height: calc(calc(100vh - 130px) - calc(16pt + 1px + 2.75rem));
+  --ig-usable: calc(var(--ig-height) - (2 * var(--ig-gap))); /* 3 rows need 2 gaps */
+  --ig-cell: calc(var(--ig-usable) / 3);
+  height: var(--ig-height);
+  grid-template-rows: repeat(3, var(--ig-cell));
+  grid-auto-flow: column;
+  grid-auto-columns: var(--ig-cell);
+  gap: var(--ig-gap);
+  width: max-content; /* content defines width; horizontal overflow shows bottom scrollbar */
+  min-height: 0;
+  box-sizing: border-box;
+  padding: 0; /* No padding - clean Instagram look */
+  background: none; /* No background */
+  overflow-x: hidden; /* No inner scrollbar; use bottom scrollbar */
+  overflow-y: hidden;
+  z-index: 1; /* Ensure it's above other content */
+}
+
+.instagram-grid-item-full {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.1s ease-out;
+  /* Clean Instagram look - no borders, backgrounds, or shadows */
+  background: none;
+  border: none;
+  border-radius: 0;
+  /* Fill full grid cell for full clickable area */
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  /* Ensure the image fills the square properly */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.instagram-grid-item-full:hover {
+  transform: scale(1.02); /* Subtle hover effect like Instagram */
+  z-index: 5;
+}
+
+.instagram-grid-item-full .instagram-grid-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.instagram-grid-item-full .instagram-post-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3); /* Lighter overlay like Instagram */
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.instagram-grid-item-full:hover .instagram-post-overlay {
+  opacity: 1;
+}
+
+.instagram-grid-item-full .overlay-content {
+  color: white;
+  font-size: 12px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.instagram-grid-item-full .post-number {
+  background: rgba(255, 255, 255, 0.9);
+  color: #000;
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: 600;
 }

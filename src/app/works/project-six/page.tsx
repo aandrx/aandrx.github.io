@@ -2,10 +2,12 @@
 
 import Navigation from '@/components/Navigation'
 import Image from 'next/image'
+import DynamicColumns from '@/components/DynamicColumns'
 import { useState } from 'react'
 
 export default function ProjectSixPage() {
   const [selectedPost, setSelectedPost] = useState<number | null>(null)
+  const [isColumnsReady, setIsColumnsReady] = useState(false)
   
   // Sample data - in a real app this would come from an API or database
   const posts = [
@@ -53,34 +55,47 @@ export default function ProjectSixPage() {
   const selectedPostData = posts.find(post => post.id === selectedPost)
 
   return (
-    <div className="layout">
+    <div className="layout project-six-layout">
       <Navigation />
-      <div id="container" className="ie project-six-container">
+      <div id="container" className="ie" style={{ opacity: isColumnsReady ? 1 : 0, transition: 'opacity 0.3s ease-in-out' }}>
+        {!isColumnsReady && (
+          <div style={{ 
+            position: 'absolute', 
+            top: '50%', 
+            left: '50%', 
+            transform: 'translate(-50%, -50%)',
+            fontSize: '14px',
+            color: '#666',
+            zIndex: 10
+          }}>
+            Preparing content...
+          </div>
+        )}
           <div className="post">
             <div className="info">
               <div className="title section">Horizontal Instagram Feed</div>
               <div className="clear"></div>
             </div>
             
-            <div className="content" style={{ width: '240px', float: 'left' }}>
-              <div className="first-column">
+            <div className="content">
+              <DynamicColumns 
+                columnWidth={200} 
+                columnGap={40}
+                onRenderComplete={() => setIsColumnsReady(true)}
+              >
                 <p>The Horizontal Instagram Feed presents a unique take on social media grid layouts. This implementation flows horizontally across the entire page, creating an immersive scrolling experience.</p>
-                <br />
                 <p>Instead of traditional scrollbars, the entire page scrolls horizontally to reveal more content. Each square maintains perfect proportions while filling the available height.</p>
-                <br />
                 <p>The grid extends infinitely to the right, with the newest content appearing first. As you scroll, you journey through the collection in a cinematic flow.</p>
-                <br />
                 <p>Scroll horizontally to explore the full grid, or click on any image to view it in detail.</p>
-              </div>
-              <br style={{ clear: 'both' }} />
+              </DynamicColumns>
             </div>
 
-            {/* Horizontal Instagram Grid adapted to fit content height */}
-            <div className="project-six-grid-container">
+            {/* Instagram Grid that spans the full post height */}
+            <div className="instagram-grid-full-height">
               {posts.map((post) => (
                 <div 
                   key={post.id} 
-                  className="project-six-grid-item"
+                  className="instagram-grid-item-full"
                   onClick={() => openModal(post.id)}
                 >
                   <div className="instagram-post-overlay">
@@ -91,10 +106,10 @@ export default function ProjectSixPage() {
                   <Image
                     src={post.src}
                     alt={post.alt}
-                    width={600}
-                    height={600}
-                    className="project-six-grid-image"
-                    priority={post.id <= 6} // Prioritize first 6 images
+                    width={200}
+                    height={200}
+                    className="instagram-grid-image"
+                    priority={post.id <= 12}
                   />
                 </div>
               ))}
