@@ -46,3 +46,10 @@ body:has(.project-five-layout) {
   word-wrap: break-word;
   overflow-wrap: break-word;
 }
+
+/* Project Five Image Elements - add margin-right */
+.project-five-layout .imageElement.ie {
+  margin-right: 40px;
+  display: inline-block;
+  vertical-align: top;
+}

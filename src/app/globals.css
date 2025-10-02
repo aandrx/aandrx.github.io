@@ -82,7 +82,7 @@ a:hover {
 
 .sidebar {
   width: 230px;
-  padding: 6.4rem 4rem 2rem 3.3rem;
+  padding: 40px;
   border-right: none;
   position: absolute; /* Position absolutely to overlay layout padding */
   left: 0; /* Align to left edge of layout */

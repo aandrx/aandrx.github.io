@@ -13,7 +13,8 @@
   padding: 40px 40px 90px 280px; /* 40px top, 40px right, 90px bottom, 280px left */
   
   position: static;
-  width: auto; /* Auto width - let content determine size */
+  width: 1120px; /* Fixed width: 760px content + 280px left padding + 40px right padding + 40px buffer */
+  max-width: 1120px; /* Hard coded max width */
   height: auto;
   min-height: 100vh;
   

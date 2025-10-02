@@ -6,14 +6,14 @@ export default function AboutPage() {
     <div className="layout">
       <Navigation />
       <div id="container" className="about-container ie">
-        <div className="post about-post">
+        <div className="post">
           <div className="info">
             <div className="title section">About</div>
             <div className="clear"></div>
           </div>
           
           <div className="content">
-            <figure className="wp-block-gallery has-nested-images columns-default is-cropped wp-block-gallery-1 is-layout-flex wp-block-gallery-is-layout-flex">
+            <figure className="wp-block-gallery has-nested-images columns-default is-cropped wp-block-gallery-1 is-layout-flex wp-block-gallery-is-layout-flex" style={{ marginBottom: '40px' }}>
               <figure className="wp-block-image size-large">
                 <div className="wp-caption" style={{ width: 'auto' }}>
                   <img 

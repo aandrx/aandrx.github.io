@@ -34,7 +34,8 @@ export default function Navigation() {
   }
 
   return (
-    <div className="sidebar">      
+    <div className="sidebar">
+      <div className="title" style={{ marginBottom: '40px' }}></div>
       <nav>
         <div>
           <button 
