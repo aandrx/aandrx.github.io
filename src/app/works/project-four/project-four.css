@@ -1,0 +1,88 @@
+/* ====================================================================
+   PROJECT FOUR SPECIFIC STYLES
+   ==================================================================== */
+
+/* Project Four specific body scrolling - restore original implementation */
+html:has(.project-four-layout),
+body:has(.project-four-layout) {
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  width: fit-content;
+  min-width: 100vw;
+}
+
+/* Project Four specific layout - restore original scrolling behavior */
+.project-four-layout {
+  width: fit-content;
+  min-width: 100vw;
+  height: 100vh;
+  overflow-x: auto;
+  overflow-y: hidden;
+  display: flex;
+  flex-direction: row;
+  position: relative;
+}
+
+/* Project Four Container */
+.project-four-layout #container {
+  /* Container positioned using padding within layout space - matching reference */
+  padding: 40px 40px 90px 280px;
+  
+  /* Dynamic container width - must be wide enough to fit all content horizontally */
+  position: static;
+  width: max-content;
+  min-width: 100vw;
+  height: auto;
+  min-height: 100vh;
+  
+  overflow: visible;
+  background: #fff;
+  color: #000;
+  font-family: helvetica, arial, sans-serif;
+  font-size: 8pt;
+  line-height: 16pt;
+  opacity: 1;
+  box-sizing: border-box;
+  
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Project Four Post container - ensure all content stays in one line */
+.project-four-layout .post {
+  display: block;
+  white-space: nowrap;
+  width: max-content;
+}
+
+/* Project Four Info section - keep normal stacking */
+.project-four-layout .post .info {
+  white-space: normal;
+  display: block;
+}
+
+/* Project Four Content - inline-block to flow horizontally with images */
+.project-four-layout .content {
+  display: inline-block;
+  vertical-align: top;
+  white-space: normal;
+}
+
+/* Project Four Image Elements - prevent wrapping and maintain horizontal layout */
+.project-four-layout .imageElement.ie {
+  margin-right: 40px;
+  flex-shrink: 0;
+  display: inline-block;
+  vertical-align: top;
+  height: 468px;
+}
+
+/* Ensure images don't break layout */
+.project-four-layout .imageElement.ie .wp-caption {
+  display: block;
+  height: 100%;
+}
+
+.project-four-layout .imageElement.ie img {
+  display: block;
+}

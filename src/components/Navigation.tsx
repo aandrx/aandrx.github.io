@@ -8,7 +8,7 @@ const projects = [
   { id: 1, title: 'Project One', href: '/works/project-one' },
   { id: 2, title: 'Project Two', href: '/works/project-two' },
   { id: 3, title: 'Project Three', href: '/works/project-three' },
-  { id: 4, title: 'Project Four', href: '/works/project-four' },
+  { id: 4, title: 'Starry Night 2025', href: '/works/project-four' },
   { id: 5, title: 'Project Five', href: '/works/project-five' },
   { id: 6, title: 'Project Six', href: '/works/project-six' }
 ]
