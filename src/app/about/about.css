@@ -2,9 +2,45 @@
    ABOUT PAGE SPECIFIC STYLES
    ==================================================================== */
 
-/* About Page Layout - prevent horizontal scrolling */
+/* About Page - Enable vertical scrolling at body level */
+html:has(.about-container),
+body:has(.about-container) {
+  overflow-x: hidden !important;
+  overflow-y: auto !important; /* Enable vertical scrolling for entire page height */
+  height: auto !important;
+}
+
+/* Dark scrollbar styling for about page - Webkit browsers */
+body:has(.about-container)::-webkit-scrollbar {
+  width: 15px;
+}
+
+body:has(.about-container)::-webkit-scrollbar-track {
+  background: #e0e0e0;
+}
+
+body:has(.about-container)::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 0;
+}
+
+body:has(.about-container)::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Firefox dark scrollbar */
+body:has(.about-container) {
+  scrollbar-width: auto;
+  scrollbar-color: #888 #e0e0e0;
+}
+
+/* About Page Layout - allow height to grow with content */
 .layout:has(#container.about-container) {
   overflow-x: hidden;
+  overflow-y: visible; /* Let body handle scrolling */
+  height: auto !important; /* Override fixed height */
+  max-height: none !important; /* Remove max-height constraint */
+  min-height: calc(100vh - 55px); /* Minimum height to fill viewport */
 }
 
 /* About Page Container */
@@ -34,7 +70,7 @@
 }
 
 /* About Page Post Styles */
-.layout .post.about-post {
+.layout .about-container .post {
   position: static;
   height: auto;
   min-height: auto;
@@ -57,39 +93,39 @@
 }
 
 /* Info section */
-.layout .post.about-post .info {
+.layout .about-container .post .info {
   width: 100%;
   margin-bottom: 0;
   overflow: visible;
 }
 
 /* Content area for text and image */
-.layout .post.about-post .content {
+.layout .about-container .post .content {
   width: 100%;
   margin: 0;
   padding: 0;
 }
 
 /* WordPress block gallery */
-.layout .post.about-post .content .wp-block-gallery {
+.layout .about-container .post .content .wp-block-gallery {
   margin: 0 0 1.5rem 0;
   padding: 0;
   list-style: none;
 }
 
-.layout .post.about-post .content .wp-block-image {
+.layout .about-container .post .content .wp-block-image {
   margin: 0;
   padding: 0;
 }
 
-.layout .post.about-post .content .wp-caption {
+.layout .about-container .post .content .wp-caption {
   width: auto !important;
   margin: 0;
   padding: 0;
 }
 
 /* About page image */
-.layout .post.about-post .content img.about-image {
+.layout .about-container .post .content img.about-image {
   width: 760px !important;
   height: auto !important;
   max-width: 760px !important;
@@ -99,20 +135,23 @@
 }
 
 /* Paragraphs in about page */
-.layout .post.about-post .content p {
-  margin: 0 0 1rem 0;
+.layout .about-container .post .content p {
+  padding: 0;
+  padding-bottom: 16pt;
+  display: block;
+  margin: 0 0 20px;
   line-height: 16pt;
   font-size: 8pt;
 }
 
-.layout .post.about-post .content p:last-child {
+.layout .about-container .post .content p:last-child {
   margin-bottom: 0;
 }
 
-.layout .post.about-post .content strong {
+.layout .about-container .post .content strong {
   font-weight: 500;
 }
 
-.layout .post.about-post .content em {
+.layout .about-container .post .content em {
   font-style: italic;
 }
