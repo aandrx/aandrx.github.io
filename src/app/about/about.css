@@ -155,3 +155,47 @@ body:has(.about-container) {
 .layout .about-container .post .content em {
   font-style: italic;
 }
+
+/* ====================================================================
+   MOBILE RESPONSIVE STYLES
+   ==================================================================== */
+@media (max-width: 768px) {
+  /* Mobile container - override fixed width and reduce padding */
+  .layout #container.about-container {
+    padding: 80px 20px 40px 20px !important; /* Top padding for nav, minimal sides */
+    width: 100vw !important;
+    max-width: 100vw !important;
+    min-width: 100vw !important;
+  }
+
+  /* Mobile post - full width */
+  .layout .about-container .post {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Mobile content - full width */
+  .layout .about-container .post .content {
+    width: 100% !important;
+  }
+
+  /* Mobile gallery - adjust spacing */
+  .layout .about-container .post .content .wp-block-gallery {
+    margin: 0 0 20px 0 !important;
+  }
+
+  /* Mobile image - full width and responsive */
+  .layout .about-container .post .content img.about-image {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  /* Mobile paragraphs - slightly larger for readability */
+  .layout .about-container .post .content p {
+    font-size: 9pt !important;
+    line-height: 18pt !important;
+    padding-bottom: 12pt !important;
+    margin: 0 0 16px !important;
+  }
+}

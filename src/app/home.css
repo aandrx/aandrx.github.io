@@ -98,3 +98,42 @@
 /* Note: .home-header, .home-name, .home-image-container, and .home-image 
    styles are defined in globals.css and will be inherited automatically */
 
+/* ====================================================================
+   MOBILE RESPONSIVE STYLES
+   ==================================================================== */
+@media (max-width: 768px) {
+  /* Mobile container - override fixed width and reduce padding */
+  .layout #container {
+    padding: 80px 20px 40px 20px !important; /* Top padding for nav, minimal sides */
+    width: 100vw !important;
+    max-width: 100vw !important;
+    min-width: 100vw !important;
+  }
+
+  /* Mobile post - full width */
+  .layout .post {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Mobile image element - full width and responsive */
+  .layout .post .imageElement {
+    width: 100% !important;
+    min-width: 100% !important;
+    height: auto !important;
+    min-height: auto !important;
+  }
+
+  /* Mobile image - full width and responsive */
+  .layout .post .imageElement.ie img {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 100% !important;
+    height: auto !important;
+  }
+
+  .layout .post .imageElement.ie .wp-caption {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}

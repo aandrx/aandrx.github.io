@@ -86,3 +86,70 @@ body:has(.project-four-layout) {
 .project-four-layout .imageElement.ie img {
   display: block;
 }
+
+/* ====================================================================
+   MOBILE RESPONSIVE STYLES
+   ==================================================================== */
+@media (max-width: 768px) {
+  /* Enable vertical scrolling on mobile */
+  html:has(.project-four-layout),
+  body:has(.project-four-layout) {
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    width: 100vw;
+    min-width: 100vw;
+  }
+
+  /* Mobile layout - vertical scrolling */
+  .project-four-layout {
+    width: 100vw;
+    min-width: 100vw;
+    height: auto;
+    min-height: 100vh;
+    overflow-x: hidden;
+    overflow-y: visible;
+    display: block;
+    flex-direction: column;
+  }
+
+  /* Mobile container - reduce padding */
+  .project-four-layout #container {
+    padding: 80px 20px 40px 20px !important; /* Top padding for nav, reduced sides */
+    width: 100vw !important;
+    min-width: 100vw !important;
+    max-width: 100vw !important;
+  }
+
+  /* Mobile post - stack vertically */
+  .project-four-layout .post {
+    display: block;
+    white-space: normal;
+    width: 100%;
+  }
+
+  /* Mobile content - full width block */
+  .project-four-layout .content {
+    display: block;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+
+  /* Mobile images - stack vertically, full width */
+  .project-four-layout .imageElement.ie {
+    display: block;
+    width: 100% !important;
+    height: auto;
+    margin-right: 0;
+    margin-bottom: 20px;
+  }
+
+  .project-four-layout .imageElement.ie .wp-caption {
+    width: 100% !important;
+    height: auto;
+  }
+
+  .project-four-layout .imageElement.ie img {
+    width: 100% !important;
+    height: auto !important;
+  }
+}
