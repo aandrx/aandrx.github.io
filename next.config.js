@@ -1,11 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   /**
-   * Enable static exports for GitHub Pages.
-   *
-   * @see https://nextjs.org/docs/app/building-your-application/deploying/static-exports
+   * Removed static export for Vercel deployment with API routes
+   * API routes require serverless functions
    */
-  output: "export",
+  // output: "export",  // Commented out for Vercel deployment
 
   /**
    * Ensure trailing slashes for consistent URLs.
@@ -15,8 +14,8 @@ const nextConfig = {
   trailingSlash: true,
 
   /**
-   * Disable server-based image optimization. Next.js does not support
-   * dynamic features with static exports.
+   * Keep images unoptimized for faster builds
+   * Can enable optimization later if needed
    *
    * @see https://nextjs.org/docs/app/api-reference/components/image#unoptimized
    */

@@ -1,0 +1,87 @@
+// This is your Prisma schema file
+// Learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Contact form submissions
+model ContactSubmission {
+  id          String           @id @default(cuid())
+  name        String
+  email       String
+  subject     String?
+  message     String           @db.Text
+  ipAddress   String?
+  status      SubmissionStatus @default(NEW)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@index([status])
+  @@index([createdAt(sort: Desc)])
+}
+
+// Event RSVP management
+model EventRSVP {
+  id                  String           @id @default(cuid())
+  eventId             String // Links to a specific event/exhibition
+  name                String
+  email               String
+  phone               String?
+  guestCount          Int              @default(1)
+  attending           AttendanceStatus
+  dietaryRestrictions String?
+  message             String?          @db.Text
+  confirmationSent    Boolean          @default(false)
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+
+  @@unique([eventId, email])
+  @@index([eventId])
+  @@index([attending])
+}
+
+// Newsletter subscriptions
+model NewsletterSubscription {
+  id                String    @id @default(cuid())
+  email             String    @unique
+  name              String?
+  preferences       String[] // ["new_work", "exhibitions", "blog"]
+  isActive          Boolean   @default(true)
+  unsubscribeReason String?
+  subscribedAt      DateTime  @default(now())
+  unsubscribedAt    DateTime?
+
+  @@index([isActive])
+}
+
+// Project analytics (optional)
+model ProjectView {
+  id        String   @id @default(cuid())
+  projectId String
+  sessionId String
+  viewedAt  DateTime @default(now())
+  timeSpent Int? // seconds
+
+  @@index([projectId])
+  @@index([viewedAt(sort: Desc)])
+}
+
+// Enums
+enum SubmissionStatus {
+  NEW
+  READ
+  REPLIED
+  ARCHIVED
+}
+
+enum AttendanceStatus {
+  YES
+  NO
+  MAYBE
+}
