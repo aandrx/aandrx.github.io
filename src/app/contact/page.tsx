@@ -300,13 +300,13 @@ export default function ContactPage() {
 
                     {status === 'success' && (
                       <p style={{ marginTop: '16px', color: '#2e7d32', textAlign: 'center' }}>
-                        ✓ Message sent successfully! I'll get back to you soon.
+                        Message sent successfully! I'll get back to you soon.
                       </p>
                     )}
 
                     {status === 'error' && (
                       <p style={{ marginTop: '16px', color: '#d32f2f', textAlign: 'center' }}>
-                        ✗ {errorMessage}
+                        {errorMessage}
                       </p>
                     )}
                   </form>

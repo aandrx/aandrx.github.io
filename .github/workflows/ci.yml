@@ -48,6 +48,6 @@ jobs:
 
       - name: Build summary
         run: |
-          echo "✅ Build completed successfully!"
-          echo "🚀 Deployment will happen automatically on Vercel"
-          echo "📊 View your deployment at: https://aandrx.vercel.app or https://aandrx-github-io.vercel.app"
+          echo "Build completed successfully!"
+          echo "Deployment will happen automatically on Vercel"
+          echo "View your deployment at: https://aandrx.vercel.app or https://aandrx-github-io.vercel.app"
