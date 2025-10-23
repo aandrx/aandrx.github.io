@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { contactFormSchema } from '@/lib/validations'
+import * as Sentry from '@sentry/nextjs'
 
 export async function POST(request: NextRequest) {
   try {
@@ -26,6 +27,19 @@ export async function POST(request: NextRequest) {
         status: 'NEW',
       },
     })
+
+    // Log successful submission to Sentry
+    Sentry.captureMessage('Contact form submitted', {
+      level: 'info',
+      tags: {
+        form: 'contact',
+        status: 'success',
+      },
+      extra: {
+        submissionId: submission.id,
+        email: validated.email,
+      },
+    })
     
     return NextResponse.json(
       { 
@@ -36,6 +50,14 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     )
   } catch (error) {
+    // Capture error in Sentry
+    Sentry.captureException(error, {
+      tags: {
+        form: 'contact',
+        status: 'error',
+      },
+    })
+    
     console.error('Contact form error:', error)
     
     // Check if it's a validation error
