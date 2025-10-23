@@ -1,0 +1,53 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  schedule:
+    # Run every day at 9 AM UTC (4 AM EST)
+    - cron: '0 9 * * *'
+  workflow_dispatch: # Allows manual trigger from GitHub UI
+
+jobs:
+  # Build and lint check
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      - name: Run ESLint
+        run: npm run lint
+        continue-on-error: true
+
+      - name: Type check
+        run: npx tsc --noEmit
+        continue-on-error: true
+
+      - name: Build project
+        run: npm run build
+        env:
+          # Use dummy database URLs for build
+          DATABASE_URL: "postgresql://dummy:dummy@localhost:5432/dummy"
+          DATABASE_URL_POOLING: "postgresql://dummy:dummy@localhost:5432/dummy"
+
+      - name: Build summary
+        run: |
+          echo "✅ Build completed successfully!"
+          echo "🚀 Deployment will happen automatically on Vercel"
+          echo "📊 View your deployment at: https://aandrx.vercel.app or https://aandrx-github-io.vercel.app"
