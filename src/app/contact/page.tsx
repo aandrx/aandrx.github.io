@@ -2,9 +2,10 @@
 
 import './contact.css'
 import Navigation from '@/components/Navigation'
-import { useState, FormEvent } from 'react'
+import { useState, FormEvent, useEffect } from 'react'
 
 export default function ContactPage() {
+  const [isReady, setIsReady] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [formData, setFormData] = useState({
     name: '',
@@ -19,6 +20,13 @@ export default function ContactPage() {
     email: '',
     message: '',
   })
+  
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsReady(true)
+    }, 50)
+    return () => clearTimeout(timer)
+  }, [])
 
   const validateForm = () => {
     const errors = {
@@ -97,7 +105,7 @@ export default function ContactPage() {
   return (
     <div className="layout">
       <Navigation />
-      <div id="container" className="contact-container ie">
+      <div id="container" className="contact-container ie" style={{ opacity: isReady ? 1 : 0, transition: 'opacity 0.3s ease-in-out' }}>
         <div className="post contact-post">
           <div className="info">
             <div className="title section">Contact</div>

@@ -1,6 +1,9 @@
+'use client'
+
 import Link from 'next/link'
 import Image from 'next/image'
 import Navigation from '@/components/Navigation'
+import { useState, useEffect } from 'react'
 
 const projects = [
   {
@@ -42,10 +45,19 @@ const projects = [
 ]
 
 export default function WorksPage() {
+  const [isReady, setIsReady] = useState(false)
+  
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsReady(true)
+    }, 50)
+    return () => clearTimeout(timer)
+  }, [])
+  
   return (
     <div className="layout">
       <Navigation />
-      <div className="main-content">
+      <div className="main-content" style={{ opacity: isReady ? 1 : 0, transition: 'opacity 0.3s ease-in-out' }}>
         <div className="home-header">
           <h1 className="home-name">Works</h1>
         </div>
