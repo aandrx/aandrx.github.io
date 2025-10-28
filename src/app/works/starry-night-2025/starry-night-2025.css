@@ -3,8 +3,8 @@
    ==================================================================== */
 
 /* Project Four specific body scrolling - restore original implementation */
-html:has(.project-four-layout),
-body:has(.project-four-layout) {
+html:has(.starry-night-2025-layout),
+body:has(.starry-night-2025-layout) {
   overflow-x: auto !important;
   overflow-y: hidden !important;
   width: fit-content;
@@ -12,7 +12,7 @@ body:has(.project-four-layout) {
 }
 
 /* Project Four specific layout - restore original scrolling behavior */
-.project-four-layout {
+.starry-night-2025-layout {
   width: fit-content;
   min-width: 100vw;
   height: 100vh;
@@ -24,7 +24,7 @@ body:has(.project-four-layout) {
 }
 
 /* Project Four Container */
-.project-four-layout #container {
+.starry-night-2025-layout #container {
   /* Container positioned using padding within layout space - matching reference */
   padding: 40px 40px 90px 280px;
   
@@ -49,27 +49,27 @@ body:has(.project-four-layout) {
 }
 
 /* Project Four Post container - ensure all content stays in one line */
-.project-four-layout .post {
+.starry-night-2025-layout .post {
   display: block;
   white-space: nowrap;
   width: max-content;
 }
 
 /* Project Four Info section - keep normal stacking */
-.project-four-layout .post .info {
+.starry-night-2025-layout .post .info {
   white-space: normal;
   display: block;
 }
 
 /* Project Four Content - inline-block to flow horizontally with images */
-.project-four-layout .content {
+.starry-night-2025-layout .content {
   display: inline-block;
   vertical-align: top;
   white-space: normal;
 }
 
 /* Project Four Image Elements - prevent wrapping and maintain horizontal layout */
-.project-four-layout .imageElement.ie {
+.starry-night-2025-layout .imageElement.ie {
   margin-right: 40px;
   flex-shrink: 0;
   display: inline-block;
@@ -78,12 +78,12 @@ body:has(.project-four-layout) {
 }
 
 /* Ensure images don't break layout */
-.project-four-layout .imageElement.ie .wp-caption {
+.starry-night-2025-layout .imageElement.ie .wp-caption {
   display: block;
   height: 100%;
 }
 
-.project-four-layout .imageElement.ie img {
+.starry-night-2025-layout .imageElement.ie img {
   display: block;
 }
 
@@ -92,8 +92,8 @@ body:has(.project-four-layout) {
    ==================================================================== */
 @media (max-width: 768px) {
   /* Enable vertical scrolling on mobile */
-  html:has(.project-four-layout),
-  body:has(.project-four-layout) {
+  html:has(.starry-night-2025-layout),
+  body:has(.starry-night-2025-layout) {
     overflow-x: hidden !important;
     overflow-y: auto !important;
     width: 100vw;
@@ -101,7 +101,7 @@ body:has(.project-four-layout) {
   }
 
   /* Mobile layout - vertical scrolling */
-  .project-four-layout {
+  .starry-night-2025-layout {
     width: 100vw;
     min-width: 100vw;
     height: auto;
@@ -113,7 +113,7 @@ body:has(.project-four-layout) {
   }
 
   /* Mobile container - reduce padding */
-  .project-four-layout #container {
+  .starry-night-2025-layout #container {
     padding: 80px 20px 40px 20px !important; /* Top padding for nav, reduced sides */
     width: 100vw !important;
     min-width: 100vw !important;
@@ -121,21 +121,21 @@ body:has(.project-four-layout) {
   }
 
   /* Mobile post - stack vertically */
-  .project-four-layout .post {
+  .starry-night-2025-layout .post {
     display: block;
     white-space: normal;
     width: 100%;
   }
 
   /* Mobile content - full width block */
-  .project-four-layout .content {
+  .starry-night-2025-layout .content {
     display: block;
     width: 100%;
     margin-bottom: 20px;
   }
 
   /* Mobile images - stack vertically, full width */
-  .project-four-layout .imageElement.ie {
+  .starry-night-2025-layout .imageElement.ie {
     display: block;
     width: 100% !important;
     height: auto;
@@ -143,12 +143,12 @@ body:has(.project-four-layout) {
     margin-bottom: 20px;
   }
 
-  .project-four-layout .imageElement.ie .wp-caption {
+  .starry-night-2025-layout .imageElement.ie .wp-caption {
     width: 100% !important;
     height: auto;
   }
 
-  .project-four-layout .imageElement.ie img {
+  .starry-night-2025-layout .imageElement.ie img {
     width: 100% !important;
     height: auto !important;
   }
