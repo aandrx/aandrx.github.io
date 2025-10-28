@@ -39,6 +39,9 @@ module.exports = withSentryConfig(nextConfig, {
   // Only print logs for uploading source maps in CI
   silent: !process.env.CI,
 
+  // Disable source map upload in development to speed up builds
+  disableSourceMapUpload: process.env.NODE_ENV !== 'production',
+
   // For all available options, see:
   // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
 
