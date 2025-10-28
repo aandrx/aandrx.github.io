@@ -208,7 +208,7 @@ export default function DynamicColumns({
     return () => {
       window.removeEventListener('resize', handleResize)
     }
-  }, [children, columnWidth])
+  }, [children, columnWidth, columnGap, onRenderComplete])
 
   if (isRendering && columns.length === 0) {
     return <div className="columns-loading">Loading...</div>

@@ -5,10 +5,10 @@ import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 
 const projects = [
-  { id: 1, title: 'Project One', href: '/works/project-one' },
-  { id: 2, title: 'Project Two', href: '/works/project-two' },
-  { id: 3, title: 'Project Three', href: '/works/project-three' },
-  { id: 4, title: 'Starry Night 2025', href: '/works/project-four' },
+  // { id: 1, title: 'Project One', href: '/works/project-one' },
+  // { id: 2, title: 'Project Two', href: '/works/project-two' },
+  // { id: 3, title: 'Project Three', href: '/works/project-three' },
+  { id: 4, title: 'Starry Night 2025', href: '/works/starry-night-2025' },
   { id: 5, title: 'Project Five', href: '/works/project-five' },
   { id: 6, title: 'Project Six', href: '/works/project-six' }
 ]
@@ -52,11 +52,30 @@ export default function Navigation() {
               transition: hasUserInteracted ? 'max-height 0.6s ease-out, opacity 0.6s ease-out' : 'none'
             }}
           >
-            {projects.map((project) => (
-              <Link key={project.id} href={project.href}>
-                {project.title}
-              </Link>
-            ))}
+            {projects.map((project) => {
+              // Use regular <a> tag for starry-night-2025 to force full page refresh
+              if (project.href === '/works/starry-night-2025') {
+                return (
+                  <a 
+                    key={project.id} 
+                    href={project.href}
+                    className={pathname === project.href ? 'active' : ''}
+                  >
+                    {project.title}
+                  </a>
+                )
+              }
+              
+              return (
+                <Link 
+                  key={project.id} 
+                  href={project.href}
+                  className={pathname === project.href ? 'active' : ''}
+                >
+                  {project.title}
+                </Link>
+              )
+            })}
           </div>
         </div>
         

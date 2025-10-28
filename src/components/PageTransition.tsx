@@ -24,10 +24,10 @@ export default function PageTransition({ children }: PageTransitionProps) {
     
     const timer = setTimeout(() => {
       setIsVisible(true)
-    }, 200) // Longer delay for more noticeable full-layout transition
+    }, 150) // Quick fade for smooth navigation
 
     return () => clearTimeout(timer)
-  }, [pathname])
+  }, [pathname, isInitialLoad])
 
   return (
     <div className={`${!isInitialLoad ? 'page-transition' : ''} ${isVisible ? 'fade-in' : ''}`}>
