@@ -1,11 +1,24 @@
+'use client'
+
 import './about.css'
 import Navigation from '@/components/Navigation'
+import Image from 'next/image'
+import { useState, useEffect } from 'react'
 
 export default function AboutPage() {
+  const [isReady, setIsReady] = useState(false)
+  
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsReady(true)
+    }, 50)
+    return () => clearTimeout(timer)
+  }, [])
+  
   return (
     <div className="layout">
       <Navigation />
-      <div id="container" className="about-container ie">
+      <div id="container" className="about-container ie" style={{ opacity: isReady ? 1 : 0, transition: 'opacity 0.3s ease-in-out' }}>
         <div className="post">
           <div className="info">
             <div className="title section">About</div>
@@ -16,12 +29,13 @@ export default function AboutPage() {
             <figure className="wp-block-gallery has-nested-images columns-default is-cropped wp-block-gallery-1 is-layout-flex wp-block-gallery-is-layout-flex" style={{ marginBottom: '40px' }}>
               <figure className="wp-block-image size-large">
                 <div className="wp-caption" style={{ width: 'auto' }}>
-                  <img 
-                    decoding="async"
-                    fetchPriority="high"
+                  <Image 
                     src="/about-image.jpg" 
-                    alt="About image" 
+                    alt="Portrait photo" 
                     className="about-image ie"
+                    width={760}
+                    height={507}
+                    priority
                     style={{ width: '760px', height: 'auto' }}
                   />
                 </div>
