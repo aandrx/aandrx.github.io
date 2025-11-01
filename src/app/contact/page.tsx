@@ -121,9 +121,9 @@ export default function ContactPage() {
               <strong>Email:</strong> andrxwliu@gmail.com / aliu458@gatech.edu
             </p>
             
-            <p>
+            {/* <p>
               <strong>Instagram:</strong> andweez
-            </p>
+            </p> */}
 
             <p>
               <strong>GitHub:</strong> aandrx
