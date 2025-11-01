@@ -1,10 +1,13 @@
-to show you the things i have done
+to show you the things i have [done](https://aandrx.vercel.app/)
 
 ### stack
 
 - **framework**: Next.js 15
 - **language**: TypeScript
 - **styling**: Tailwind CSS
+- **object storage**: Cloudflare R2
+- **database**: Neon +PostgreSQL
+- **quality**: Sentry
 
 ### build
 
