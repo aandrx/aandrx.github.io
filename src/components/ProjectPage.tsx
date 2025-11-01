@@ -8,7 +8,7 @@ interface ProjectPageProps {
   children: React.ReactNode
 }
 
-export default function ProjectPage({ title, children }: ProjectPageProps) {
+export default function ProjectPage({ title, children }: Readonly<ProjectPageProps>) {
   const [isReady, setIsReady] = useState(false)
   
   useEffect(() => {

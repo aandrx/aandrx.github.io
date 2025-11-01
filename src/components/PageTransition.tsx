@@ -7,7 +7,7 @@ interface PageTransitionProps {
   children: React.ReactNode
 }
 
-export default function PageTransition({ children }: PageTransitionProps) {
+export default function PageTransition({ children }: Readonly<PageTransitionProps>) {
   const [isVisible, setIsVisible] = useState(true) // Start visible for immediate content
   const [isInitialLoad, setIsInitialLoad] = useState(true)
   const pathname = usePathname()
@@ -30,7 +30,7 @@ export default function PageTransition({ children }: PageTransitionProps) {
   }, [pathname, isInitialLoad])
 
   return (
-    <div className={`${!isInitialLoad ? 'page-transition' : ''} ${isVisible ? 'fade-in' : ''}`}>
+    <div className={`${isInitialLoad ? '' : 'page-transition'} ${isVisible ? 'fade-in' : ''}`}>
       {children}
     </div>
   )

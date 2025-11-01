@@ -5,6 +5,8 @@ import Navigation from '@/components/Navigation'
 import DynamicColumns from '@/components/DynamicColumns'
 import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
+import Image from 'next/image'
+import * as Sentry from '@sentry/nextjs'
 
 const R2_BASE_URL = 'https://pub-a490d2e7f9254d579a1364365ba09b45.r2.dev/starrynight-2025-10-16'
 
@@ -29,6 +31,23 @@ const imageFilenames = [
 // Column height for all images
 const COLUMN_HEIGHT = 468
 
+// Helper function to load a single image dimension
+const loadSingleImageDimension = (filename: string): Promise<{ width: number; height: number } | null> => {
+  return new Promise((resolve) => {
+    const img = new globalThis.Image()
+    img.onload = () => {
+      const aspectRatio = img.naturalWidth / img.naturalHeight
+      const calculatedWidth = Math.round(COLUMN_HEIGHT * aspectRatio)
+      resolve({
+        width: calculatedWidth,
+        height: COLUMN_HEIGHT
+      })
+    }
+    img.onerror = () => resolve(null)
+    img.src = `${R2_BASE_URL}/${filename}-720w.webp`
+  })
+}
+
 export default function StarryNight2025Page() {
   const pathname = usePathname()
   const [isColumnsReady, setIsColumnsReady] = useState(false)
@@ -45,24 +64,19 @@ export default function StarryNight2025Page() {
     const loadImageDimensions = async () => {
       const dimensions: Record<string, { width: number; height: number }> = {}
       
-      await Promise.all(
-        imageFilenames.map((filename) => {
-          return new Promise<void>((resolve) => {
-            const img = new globalThis.Image()
-            img.onload = () => {
-              const aspectRatio = img.naturalWidth / img.naturalHeight
-              const calculatedWidth = Math.round(COLUMN_HEIGHT * aspectRatio)
-              dimensions[filename] = {
-                width: calculatedWidth,
-                height: COLUMN_HEIGHT
-              }
-              resolve()
-            }
-            img.onerror = () => resolve()
-            img.src = `${R2_BASE_URL}/${filename}-720w.webp`
-          })
+      const results = await Promise.all(
+        imageFilenames.map(async (filename) => {
+          const dimension = await loadSingleImageDimension(filename)
+          return { filename, dimension }
         })
       )
+      
+      // Build dimensions object from results
+      for (const { filename, dimension } of results) {
+        if (dimension) {
+          dimensions[filename] = dimension
+        }
+      }
       
       setImageDimensions(dimensions)
       setImagesLoaded(true)
@@ -113,39 +127,36 @@ export default function StarryNight2025Page() {
             </div>
 
             {/* Images from R2 bucket - starrynight folder */}
-            {(() => {
-              console.log(`About to render ${imageFilenames.length} images, dimensions available:`, Object.keys(imageDimensions).length)
-              return imageFilenames.map((filename) => {
-                const dimensions = imageDimensions[filename]
-                
-                // Only render if dimensions are available
-                if (!dimensions) {
-                  console.log(`⚠️ No dimensions for ${filename}`)
-                  return null
-                }
-                
-                console.log(`Rendering ${filename} with dimensions:`, dimensions)
-                
-                return (
-                  <div 
-                    key={filename} 
-                    className="imageElement ie"
-                    style={{ width: `${dimensions.width}px`, height: '468px' }}
-                  >
-                    <div className="wp-caption" style={{ width: `${dimensions.width}px` }}>
-                      <img
-                        src={`${R2_BASE_URL}/${filename}-720w.webp`}
-                        alt={`Starry Night ${filename}`}
-                        width={dimensions.width}
-                        height={dimensions.height}
-                        style={{ height: '468px', width: `${dimensions.width}px` }}
-                        className="wp-image-78"
-                      />
-                    </div>
+            {imageFilenames.map((filename) => {
+              const dimensions = imageDimensions[filename]
+              
+              // Only render if dimensions are available
+              if (!dimensions) {
+                Sentry.logger.debug(`No dimensions available for ${filename}`)
+                return null
+              }
+              
+              return (
+                <div 
+                  key={filename} 
+                  className="imageElement ie"
+                  style={{ width: `${dimensions.width}px`, height: '468px' }}
+                >
+                  <div className="wp-caption" style={{ width: `${dimensions.width}px` }}>
+                    <Image
+                      src={`${R2_BASE_URL}/${filename}-720w.webp`}
+                      alt={`Starry Night ${filename}`}
+                      width={dimensions.width}
+                      height={dimensions.height}
+                      style={{ height: '468px', width: `${dimensions.width}px` }}
+                      className="wp-image-78"
+                      loading="lazy"
+                      quality={85}
+                    />
+                  </div>
                   </div>
                 )
-              })
-            })()}
+              })}
           </div>
         )}
         <div className="tracer"></div>

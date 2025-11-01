@@ -2,11 +2,12 @@
 
 import './contact.css'
 import Navigation from '@/components/Navigation'
-import { useState, FormEvent, useEffect } from 'react'
+import { useState, FormEvent, useEffect, useRef } from 'react'
+import * as Sentry from '@sentry/nextjs'
 
 export default function ContactPage() {
   const [isReady, setIsReady] = useState(false)
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  const dialogRef = useRef<HTMLDialogElement>(null)
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -28,6 +29,15 @@ export default function ContactPage() {
     return () => clearTimeout(timer)
   }, [])
 
+  // Handle modal open/close
+  const openModal = () => {
+    dialogRef.current?.showModal()
+  }
+
+  const closeModal = () => {
+    dialogRef.current?.close()
+  }
+
   const validateForm = () => {
     const errors = {
       name: '',
@@ -41,7 +51,7 @@ export default function ContactPage() {
     }
 
     // Validate email
-    const emailRegex = /^(?!\.)(?!.*\.\.)([A-Za-z0-9_'+\-\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\-]*\.)+[A-Za-z]{2,}$/
+    const emailRegex = /^(?!\.)(?!.*\.\.)([A-Za-z0-9_'+\-.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9-]*.)+[A-Za-z]{2,}$/
     if (!emailRegex.test(formData.email)) {
       errors.email = 'Please enter a valid email address'
     }
@@ -81,7 +91,7 @@ export default function ContactPage() {
         setValidationErrors({ name: '', email: '', message: '' })
         // Close modal after 2 seconds on success
         setTimeout(() => {
-          setIsModalOpen(false)
+          closeModal()
           setStatus('idle')
         }, 2000)
       } else {
@@ -89,6 +99,10 @@ export default function ContactPage() {
         setErrorMessage(data.error || 'Failed to send message')
       }
     } catch (error) {
+      Sentry.captureException(error)
+      Sentry.logger.error('Contact form submission error', {
+        error: error instanceof Error ? error.message : String(error)
+      })
       setStatus('error')
       setErrorMessage('Network error. Please try again.')
     }
@@ -131,7 +145,7 @@ export default function ContactPage() {
 
             <div style={{ marginTop: '40px' }}>
               <button
-                onClick={() => setIsModalOpen(true)}
+                onClick={openModal}
                 style={{
                   padding: '10px 20px',
                   fontSize: '8pt',
@@ -147,58 +161,41 @@ export default function ContactPage() {
               </button>
             </div>
 
-            {/* Modal Overlay */}
-            {isModalOpen && (
-              <div
+            {/* Native Dialog Modal */}
+            <dialog
+              ref={dialogRef}
+              style={{
+                padding: '30px',
+                borderRadius: '4px',
+                maxWidth: '500px',
+                width: '90%',
+                maxHeight: '90vh',
+                border: 'none',
+                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+              }}
+            >
+              {/* Close button */}
+              <button
+                onClick={closeModal}
+                aria-label="Close"
                 style={{
-                  position: 'fixed',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  zIndex: 1000,
+                  position: 'absolute',
+                  top: '10px',
+                  right: '10px',
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '24px',
+                  cursor: 'pointer',
+                  color: '#666',
+                  padding: '5px 10px',
                 }}
-                onClick={() => setIsModalOpen(false)}
               >
-                {/* Modal Content */}
-                <div
-                  style={{
-                    backgroundColor: '#fff',
-                    padding: '30px',
-                    borderRadius: '4px',
-                    maxWidth: '500px',
-                    width: '90%',
-                    maxHeight: '90vh',
-                    overflowY: 'auto',
-                    position: 'relative',
-                  }}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  {/* Close button */}
-                  <button
-                    onClick={() => setIsModalOpen(false)}
-                    style={{
-                      position: 'absolute',
-                      top: '10px',
-                      right: '10px',
-                      background: 'none',
-                      border: 'none',
-                      fontSize: '24px',
-                      cursor: 'pointer',
-                      color: '#666',
-                      padding: '5px 10px',
-                    }}
-                  >
-                    ×
-                  </button>
+                ×
+              </button>
 
-                  <h2 style={{ marginTop: 0, marginBottom: '20px', fontSize: '14pt', fontFamily: 'helvetica, arial, sans-serif' }}>
-                    Contact Form
-                  </h2>
+              <h2 id="modal-title" style={{ marginTop: 0, marginBottom: '20px', fontSize: '14pt', fontFamily: 'helvetica, arial, sans-serif' }}>
+                Contact Form
+              </h2>
 
                   <form onSubmit={handleSubmit}>
                     <div style={{ marginBottom: '16px' }}>
@@ -318,9 +315,7 @@ export default function ContactPage() {
                       </p>
                     )}
                   </form>
-                </div>
-              </div>
-            )}
+                </dialog>
           </div>
         </div>
 

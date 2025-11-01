@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { rsvpFormSchema } from '@/lib/validations'
+import * as Sentry from '@sentry/nextjs'
 
 export async function POST(request: NextRequest) {
   try {
@@ -46,7 +47,12 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     )
   } catch (error) {
-    console.error('RSVP error:', error)
+    Sentry.captureException(error, {
+      tags: { form: 'rsvp', status: 'error' }
+    })
+    Sentry.logger.error('RSVP error', {
+      error: error instanceof Error ? error.message : String(error)
+    })
     
     if (error instanceof Error && error.name === 'ZodError') {
       return NextResponse.json(
@@ -99,7 +105,10 @@ export async function GET(request: NextRequest) {
       totalGuests 
     })
   } catch (error) {
-    console.error('Error fetching RSVP count:', error)
+    Sentry.captureException(error)
+    Sentry.logger.error('Error fetching RSVP count', {
+      error: error instanceof Error ? error.message : String(error)
+    })
     return NextResponse.json(
       { error: 'Failed to fetch RSVP count' },
       { status: 500 }

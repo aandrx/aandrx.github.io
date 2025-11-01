@@ -58,7 +58,9 @@ export async function POST(request: NextRequest) {
       },
     })
     
-    console.error('Contact form error:', error)
+    Sentry.logger.error('Contact form error', { 
+      error: error instanceof Error ? error.message : String(error) 
+    })
     
     // Check if it's a validation error
     if (error instanceof Error && error.name === 'ZodError') {
@@ -85,7 +87,10 @@ export async function GET(request: NextRequest) {
     
     return NextResponse.json(submissions)
   } catch (error) {
-    console.error('Error fetching submissions:', error)
+    Sentry.captureException(error)
+    Sentry.logger.error('Error fetching submissions', { 
+      error: error instanceof Error ? error.message : String(error) 
+    })
     return NextResponse.json(
       { error: 'Failed to fetch submissions' },
       { status: 500 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { newsletterSchema } from '@/lib/validations'
+import * as Sentry from '@sentry/nextjs'
 
 export async function POST(request: NextRequest) {
   try {
@@ -34,7 +35,12 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     )
   } catch (error) {
-    console.error('Newsletter error:', error)
+    Sentry.captureException(error, {
+      tags: { form: 'newsletter', status: 'error' }
+    })
+    Sentry.logger.error('Newsletter error', {
+      error: error instanceof Error ? error.message : String(error)
+    })
     
     if (error instanceof Error && error.name === 'ZodError') {
       return NextResponse.json(
@@ -76,7 +82,10 @@ export async function DELETE(request: NextRequest) {
       message: 'Successfully unsubscribed' 
     })
   } catch (error) {
-    console.error('Unsubscribe error:', error)
+    Sentry.captureException(error)
+    Sentry.logger.error('Unsubscribe error', {
+      error: error instanceof Error ? error.message : String(error)
+    })
     return NextResponse.json(
       { error: 'Failed to unsubscribe' },
       { status: 500 }
