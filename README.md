@@ -1,4 +1,4 @@
-to show you the things i have [done]([url](https://aandrx.vercel.app/))
+to show you the things i have [done](https://aandrx.vercel.app/)
 
 ### stack
 
