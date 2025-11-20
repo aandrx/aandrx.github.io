@@ -28,19 +28,14 @@ const imageFilenames = [
   'DSCF6377-Edit',
 ]
 
-// Column height for all images
-const COLUMN_HEIGHT = 468
-
 // Helper function to load a single image dimension
 const loadSingleImageDimension = (filename: string): Promise<{ width: number; height: number } | null> => {
   return new Promise((resolve) => {
     const img = new globalThis.Image()
     img.onload = () => {
-      const aspectRatio = img.naturalWidth / img.naturalHeight
-      const calculatedWidth = Math.round(COLUMN_HEIGHT * aspectRatio)
       resolve({
-        width: calculatedWidth,
-        height: COLUMN_HEIGHT
+        width: img.naturalWidth,
+        height: img.naturalHeight
       })
     }
     img.onerror = () => resolve(null)
@@ -53,47 +48,47 @@ export default function StarryNight2025Page() {
   const [isColumnsReady, setIsColumnsReady] = useState(false)
   const [imagesLoaded, setImagesLoaded] = useState(false)
   const [imageDimensions, setImageDimensions] = useState<Record<string, { width: number; height: number }>>({})
-  
+
   // Preload images to get dimensions before rendering
   useEffect(() => {
     // Reset state when navigating to this page
     setImagesLoaded(false)
     setIsColumnsReady(false)
     setImageDimensions({})
-    
+
     const loadImageDimensions = async () => {
       const dimensions: Record<string, { width: number; height: number }> = {}
-      
+
       const results = await Promise.all(
         imageFilenames.map(async (filename) => {
           const dimension = await loadSingleImageDimension(filename)
           return { filename, dimension }
         })
       )
-      
+
       // Build dimensions object from results
       for (const { filename, dimension } of results) {
         if (dimension) {
           dimensions[filename] = dimension
         }
       }
-      
+
       setImageDimensions(dimensions)
       setImagesLoaded(true)
     }
-    
+
     loadImageDimensions()
   }, [pathname]) // Re-run when pathname changes
-  
+
   return (
     <div className="layout starry-night-2025-layout">
       <Navigation />
       <div id="container" className="ie" style={{ opacity: isColumnsReady ? 1 : 0, transition: 'opacity 0.3s ease-in-out' }}>
         {!isColumnsReady && (
-          <div style={{ 
-            position: 'absolute', 
-            top: '50%', 
-            left: '50%', 
+          <div style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
             transform: 'translate(-50%, -50%)',
             fontSize: '24px',
             color: '#666',
@@ -102,17 +97,17 @@ export default function StarryNight2025Page() {
             ...
           </div>
         )}
-        
+
         {imagesLoaded && (
           <div className="post">
             <div className="info">
               <div className="title section">Starry Night 2025</div>
               <div className="clear"></div>
             </div>
-            
+
             <div className="content">
-              <DynamicColumns 
-                columnWidth={200} 
+              <DynamicColumns
+                columnWidth={200}
                 columnGap={40}
                 onRenderComplete={() => {
                   setIsColumnsReady(true)
@@ -129,34 +124,32 @@ export default function StarryNight2025Page() {
             {/* Images from R2 bucket - starrynight folder */}
             {imageFilenames.map((filename) => {
               const dimensions = imageDimensions[filename]
-              
+
               // Only render if dimensions are available
               if (!dimensions) {
                 Sentry.logger.debug(`No dimensions available for ${filename}`)
                 return null
               }
-              
+
               return (
-                <div 
-                  key={filename} 
+                <div
+                  key={filename}
                   className="imageElement ie"
-                  style={{ width: `${dimensions.width}px`, height: '468px' }}
                 >
-                  <div className="wp-caption" style={{ width: `${dimensions.width}px` }}>
+                  <div className="wp-caption">
                     <Image
                       src={`${R2_BASE_URL}/${filename}-720w.webp`}
                       alt={`Starry Night ${filename}`}
                       width={dimensions.width}
                       height={dimensions.height}
-                      style={{ height: '468px', width: `${dimensions.width}px` }}
                       className="wp-image-78"
                       loading="lazy"
                       quality={85}
                     />
                   </div>
-                  </div>
-                )
-              })}
+                </div>
+              )
+            })}
           </div>
         )}
         <div className="tracer"></div>

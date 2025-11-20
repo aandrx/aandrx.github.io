@@ -27,13 +27,15 @@ body:has(.project-five-layout) {
 .project-five-layout #container {
   /* Container positioned using padding within layout space - matching reference */
   padding: 40px 40px 90px 280px;
-  
-  /* Dynamic container width based on number of columns */
+
+  /* Dynamic container width - must be wide enough to fit all content horizontally */
   position: static;
-  width: var(--dynamic-container-width, 1200px);
+  width: max-content;
+  /* Allow container to grow with content */
+  min-width: 100vw;
   height: auto;
   min-height: 100vh;
-  
+
   overflow: visible;
   background: #fff;
   color: #000;
@@ -42,9 +44,29 @@ body:has(.project-five-layout) {
   line-height: 16pt;
   opacity: 1;
   box-sizing: border-box;
-  
+
   word-wrap: break-word;
   overflow-wrap: break-word;
+}
+
+/* Project Five Post container - ensure all content stays in one line */
+.project-five-layout .post {
+  display: block;
+  white-space: nowrap;
+  width: max-content;
+}
+
+/* Project Five Info section - keep normal stacking */
+.project-five-layout .post .info {
+  white-space: normal;
+  display: block;
+}
+
+/* Project Five Content - inline-block to flow horizontally with images */
+.project-five-layout .content {
+  display: inline-block;
+  vertical-align: top;
+  white-space: normal;
 }
 
 /* Project Five Image Elements - add margin-right */
@@ -52,12 +74,31 @@ body:has(.project-five-layout) {
   margin-right: 40px;
   display: inline-block;
   vertical-align: top;
+  height: calc(100vh - 240px);
+  width: auto;
+  flex-shrink: 0;
+  /* Prevent shrinking */
+}
+
+/* Ensure images don't break layout */
+.project-five-layout .imageElement.ie .wp-caption {
+  display: block;
+  height: 100%;
+  width: auto;
+}
+
+.project-five-layout .imageElement.ie img {
+  display: block;
+  height: 100% !important;
+  width: auto !important;
+  object-fit: contain;
 }
 
 /* ====================================================================
    MOBILE RESPONSIVE STYLES
    ==================================================================== */
 @media (max-width: 768px) {
+
   /* Enable vertical scrolling on mobile */
   html:has(.project-five-layout),
   body:has(.project-five-layout) {
@@ -81,7 +122,8 @@ body:has(.project-five-layout) {
 
   /* Mobile container - reduce padding */
   .project-five-layout #container {
-    padding: 80px 20px 40px 20px !important; /* Top padding for nav, reduced sides */
+    padding: 80px 20px 40px 20px !important;
+    /* Top padding for nav, reduced sides */
     width: 100vw !important;
     min-width: 100vw !important;
     max-width: 100vw !important;

@@ -27,14 +27,14 @@ body:has(.starry-night-2025-layout) {
 .starry-night-2025-layout #container {
   /* Container positioned using padding within layout space - matching reference */
   padding: 40px 40px 90px 280px;
-  
+
   /* Dynamic container width - must be wide enough to fit all content horizontally */
   position: static;
   width: max-content;
   min-width: 100vw;
   height: auto;
   min-height: 100vh;
-  
+
   overflow: visible;
   background: #fff;
   color: #000;
@@ -43,7 +43,7 @@ body:has(.starry-night-2025-layout) {
   line-height: 16pt;
   opacity: 1;
   box-sizing: border-box;
-  
+
   word-wrap: break-word;
   overflow-wrap: break-word;
 }
@@ -74,23 +74,29 @@ body:has(.starry-night-2025-layout) {
   flex-shrink: 0;
   display: inline-block;
   vertical-align: top;
-  height: 468px;
+  height: calc(100vh - 240px);
+  width: auto;
 }
 
 /* Ensure images don't break layout */
 .starry-night-2025-layout .imageElement.ie .wp-caption {
   display: block;
   height: 100%;
+  width: auto;
 }
 
 .starry-night-2025-layout .imageElement.ie img {
   display: block;
+  height: 100% !important;
+  width: auto !important;
+  object-fit: contain;
 }
 
 /* ====================================================================
    MOBILE RESPONSIVE STYLES
    ==================================================================== */
 @media (max-width: 768px) {
+
   /* Enable vertical scrolling on mobile */
   html:has(.starry-night-2025-layout),
   body:has(.starry-night-2025-layout) {
@@ -114,7 +120,8 @@ body:has(.starry-night-2025-layout) {
 
   /* Mobile container - reduce padding */
   .starry-night-2025-layout #container {
-    padding: 80px 20px 40px 20px !important; /* Top padding for nav, reduced sides */
+    padding: 80px 20px 40px 20px !important;
+    /* Top padding for nav, reduced sides */
     width: 100vw !important;
     min-width: 100vw !important;
     max-width: 100vw !important;
