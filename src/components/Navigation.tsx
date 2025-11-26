@@ -9,8 +9,7 @@ const projects = [
   // { id: 2, title: 'Project Two', href: '/works/project-two' },
   // { id: 3, title: 'Project Three', href: '/works/project-three' },
   { id: 4, title: 'Starry Night 2025', href: '/works/starry-night-2025' },
-  { id: 5, title: 'Project Five', href: '/works/project-five' },
-  { id: 6, title: 'Project Six', href: '/works/project-six' }
+  { id: 5, title: 'Project Five', href: '/works/project-five' }
 ]
 
 export default function Navigation() {
@@ -78,6 +77,10 @@ export default function Navigation() {
             })}
           </div>
         </div>
+        
+        <Link href="/feed" className={`nav-item ${pathname === '/feed' ? 'active' : ''}`}>
+          Feed
+        </Link>
         
         <Link href="/about" className={`nav-item ${pathname === '/about' ? 'active' : ''}`}>
           About

@@ -1,6 +1,6 @@
 'use client'
 
-import './project-six.css'
+import './feed.css'
 import Navigation from '@/components/Navigation'
 import Image from 'next/image'
 import DynamicColumns from '@/components/DynamicColumns'
@@ -74,7 +74,7 @@ export default function ProjectSixPage() {
         )}
           <div className="post">
             <div className="info">
-              <div className="title section">Horizontal Instagram Feed</div>
+              <div className="title section">Feed</div>
               <div className="clear"></div>
             </div>
             
