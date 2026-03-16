@@ -1,0 +1,162 @@
+/* ====================================================================
+   LANTERN FEST 2026 SPECIFIC STYLES
+   ==================================================================== */
+
+/* Lantern Fest 2026 specific body scrolling */
+html:has(.lantern-fest-2026-layout),
+body:has(.lantern-fest-2026-layout) {
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  width: fit-content;
+  min-width: 100vw;
+}
+
+/* Lantern Fest 2026 specific layout */
+.lantern-fest-2026-layout {
+  width: fit-content;
+  min-width: 100vw;
+  height: 100vh;
+  overflow-x: auto;
+  overflow-y: hidden;
+  display: flex;
+  flex-direction: row;
+  position: relative;
+}
+
+/* Lantern Fest 2026 Container */
+.lantern-fest-2026-layout #container {
+  /* Container positioned using padding within layout space - matching reference */
+  padding: 40px 40px 90px 280px;
+
+  /* Dynamic container width - must be wide enough to fit all content horizontally */
+  position: static;
+  width: max-content;
+  min-width: 100vw;
+  height: auto;
+  min-height: 100vh;
+
+  overflow: visible;
+  background: #fff;
+  color: #000;
+  font-family: helvetica, arial, sans-serif;
+  font-size: 8pt;
+  line-height: 16pt;
+  opacity: 1;
+  box-sizing: border-box;
+
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Lantern Fest 2026 Post container - ensure all content stays in one line */
+.lantern-fest-2026-layout .post {
+  display: block;
+  white-space: nowrap;
+  width: max-content;
+}
+
+/* Lantern Fest 2026 Info section - keep normal stacking */
+.lantern-fest-2026-layout .post .info {
+  white-space: normal;
+  display: block;
+}
+
+/* Lantern Fest 2026 Content - inline-block to flow horizontally with images */
+.lantern-fest-2026-layout .content {
+  display: inline-block;
+  vertical-align: top;
+  white-space: normal;
+}
+
+/* Lantern Fest 2026 Image Elements - prevent wrapping and maintain horizontal layout */
+.lantern-fest-2026-layout .imageElement.ie {
+  margin-right: 40px;
+  flex-shrink: 0;
+  display: inline-block;
+  vertical-align: top;
+  height: calc(100vh - 240px);
+  width: auto;
+}
+
+/* Ensure images don't break layout */
+.lantern-fest-2026-layout .imageElement.ie .wp-caption {
+  display: block;
+  height: 100%;
+  width: auto;
+}
+
+.lantern-fest-2026-layout .imageElement.ie img {
+  display: block;
+  height: 100% !important;
+  width: auto !important;
+  object-fit: contain;
+}
+
+/* ====================================================================
+   MOBILE RESPONSIVE STYLES
+   ==================================================================== */
+@media (max-width: 768px) {
+
+  /* Enable vertical scrolling on mobile */
+  html:has(.lantern-fest-2026-layout),
+  body:has(.lantern-fest-2026-layout) {
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    width: 100vw;
+    min-width: 100vw;
+  }
+
+  /* Mobile layout - vertical scrolling */
+  .lantern-fest-2026-layout {
+    width: 100vw;
+    min-width: 100vw;
+    height: auto;
+    min-height: 100vh;
+    overflow-x: hidden;
+    overflow-y: visible;
+    display: block;
+    flex-direction: column;
+  }
+
+  /* Mobile container - reduce padding */
+  .lantern-fest-2026-layout #container {
+    padding: 80px 20px 40px 20px !important;
+    /* Top padding for nav, reduced sides */
+    width: 100vw !important;
+    min-width: 100vw !important;
+    max-width: 100vw !important;
+  }
+
+  /* Mobile post - stack vertically */
+  .lantern-fest-2026-layout .post {
+    display: block;
+    white-space: normal;
+    width: 100%;
+  }
+
+  /* Mobile content - full width block */
+  .lantern-fest-2026-layout .content {
+    display: block;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+
+  /* Mobile images - stack vertically, full width */
+  .lantern-fest-2026-layout .imageElement.ie {
+    display: block;
+    width: 100% !important;
+    height: auto;
+    margin-right: 0;
+    margin-bottom: 20px;
+  }
+
+  .lantern-fest-2026-layout .imageElement.ie .wp-caption {
+    width: 100% !important;
+    height: auto;
+  }
+
+  .lantern-fest-2026-layout .imageElement.ie img {
+    width: 100% !important;
+    height: auto !important;
+  }
+}

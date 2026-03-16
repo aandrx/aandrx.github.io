@@ -1,0 +1,162 @@
+/* ====================================================================
+   NIGHTFIND 2024 SPECIFIC STYLES
+   ==================================================================== */
+
+/* Nightfind 2024 specific body scrolling - restore original implementation */
+html:has(.nightfind-2024-layout),
+body:has(.nightfind-2024-layout) {
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  width: fit-content;
+  min-width: 100vw;
+}
+
+/* Nightfind 2024 specific layout - restore original scrolling behavior */
+.nightfind-2024-layout {
+  width: fit-content;
+  min-width: 100vw;
+  height: 100vh;
+  overflow-x: auto;
+  overflow-y: hidden;
+  display: flex;
+  flex-direction: row;
+  position: relative;
+}
+
+/* Nightfind 2024 Container */
+.nightfind-2024-layout #container {
+  /* Container positioned using padding within layout space - matching reference */
+  padding: 40px 40px 90px 280px;
+
+  /* Dynamic container width - must be wide enough to fit all content horizontally */
+  position: static;
+  width: max-content;
+  min-width: 100vw;
+  height: auto;
+  min-height: 100vh;
+
+  overflow: visible;
+  background: #fff;
+  color: #000;
+  font-family: helvetica, arial, sans-serif;
+  font-size: 8pt;
+  line-height: 16pt;
+  opacity: 1;
+  box-sizing: border-box;
+
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Nightfind 2024 Post container - ensure all content stays in one line */
+.nightfind-2024-layout .post {
+  display: block;
+  white-space: nowrap;
+  width: max-content;
+}
+
+/* Nightfind 2024 Info section - keep normal stacking */
+.nightfind-2024-layout .post .info {
+  white-space: normal;
+  display: block;
+}
+
+/* Nightfind 2024 Content - inline-block to flow horizontally with images */
+.nightfind-2024-layout .content {
+  display: inline-block;
+  vertical-align: top;
+  white-space: normal;
+}
+
+/* Nightfind 2024 Image Elements - prevent wrapping and maintain horizontal layout */
+.nightfind-2024-layout .imageElement.ie {
+  margin-right: 40px;
+  flex-shrink: 0;
+  display: inline-block;
+  vertical-align: top;
+  height: calc(100vh - 240px);
+  width: auto;
+}
+
+/* Ensure images don't break layout */
+.nightfind-2024-layout .imageElement.ie .wp-caption {
+  display: block;
+  height: 100%;
+  width: auto;
+}
+
+.nightfind-2024-layout .imageElement.ie img {
+  display: block;
+  height: 100% !important;
+  width: auto !important;
+  object-fit: contain;
+}
+
+/* ====================================================================
+   MOBILE RESPONSIVE STYLES
+   ==================================================================== */
+@media (max-width: 768px) {
+
+  /* Enable vertical scrolling on mobile */
+  html:has(.nightfind-2024-layout),
+  body:has(.nightfind-2024-layout) {
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    width: 100vw;
+    min-width: 100vw;
+  }
+
+  /* Mobile layout - vertical scrolling */
+  .nightfind-2024-layout {
+    width: 100vw;
+    min-width: 100vw;
+    height: auto;
+    min-height: 100vh;
+    overflow-x: hidden;
+    overflow-y: visible;
+    display: block;
+    flex-direction: column;
+  }
+
+  /* Mobile container - reduce padding */
+  .nightfind-2024-layout #container {
+    padding: 80px 20px 40px 20px !important;
+    /* Top padding for nav, reduced sides */
+    width: 100vw !important;
+    min-width: 100vw !important;
+    max-width: 100vw !important;
+  }
+
+  /* Mobile post - stack vertically */
+  .nightfind-2024-layout .post {
+    display: block;
+    white-space: normal;
+    width: 100%;
+  }
+
+  /* Mobile content - full width block */
+  .nightfind-2024-layout .content {
+    display: block;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+
+  /* Mobile images - stack vertically, full width */
+  .nightfind-2024-layout .imageElement.ie {
+    display: block;
+    width: 100% !important;
+    height: auto;
+    margin-right: 0;
+    margin-bottom: 20px;
+  }
+
+  .nightfind-2024-layout .imageElement.ie .wp-caption {
+    width: 100% !important;
+    height: auto;
+  }
+
+  .nightfind-2024-layout .imageElement.ie img {
+    width: 100% !important;
+    height: auto !important;
+  }
+}

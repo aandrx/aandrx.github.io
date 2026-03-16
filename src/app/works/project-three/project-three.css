@@ -1,0 +1,162 @@
+/* ====================================================================
+   PROJECT THREE SPECIFIC STYLES
+   ==================================================================== */
+
+/* Project Three specific body scrolling - restore original implementation */
+html:has(.project-three-layout),
+body:has(.project-three-layout) {
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  width: fit-content;
+  min-width: 100vw;
+}
+
+/* Project Three specific layout - restore original scrolling behavior */
+.project-three-layout {
+  width: fit-content;
+  min-width: 100vw;
+  height: 100vh;
+  overflow-x: auto;
+  overflow-y: hidden;
+  display: flex;
+  flex-direction: row;
+  position: relative;
+}
+
+/* Project Three Container */
+.project-three-layout #container {
+  /* Container positioned using padding within layout space - matching reference */
+  padding: 40px 40px 90px 280px;
+
+  /* Dynamic container width - must be wide enough to fit all content horizontally */
+  position: static;
+  width: max-content;
+  min-width: 100vw;
+  height: auto;
+  min-height: 100vh;
+
+  overflow: visible;
+  background: #fff;
+  color: #000;
+  font-family: helvetica, arial, sans-serif;
+  font-size: 8pt;
+  line-height: 16pt;
+  opacity: 1;
+  box-sizing: border-box;
+
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Project Three Post container - ensure all content stays in one line */
+.project-three-layout .post {
+  display: block;
+  white-space: nowrap;
+  width: max-content;
+}
+
+/* Project Three Info section - keep normal stacking */
+.project-three-layout .post .info {
+  white-space: normal;
+  display: block;
+}
+
+/* Project Three Content - inline-block to flow horizontally with images */
+.project-three-layout .content {
+  display: inline-block;
+  vertical-align: top;
+  white-space: normal;
+}
+
+/* Project Three Image Elements - prevent wrapping and maintain horizontal layout */
+.project-three-layout .imageElement.ie {
+  margin-right: 40px;
+  flex-shrink: 0;
+  display: inline-block;
+  vertical-align: top;
+  height: calc(100vh - 240px);
+  width: auto;
+}
+
+/* Ensure images don't break layout */
+.project-three-layout .imageElement.ie .wp-caption {
+  display: block;
+  height: 100%;
+  width: auto;
+}
+
+.project-three-layout .imageElement.ie img {
+  display: block;
+  height: 100% !important;
+  width: auto !important;
+  object-fit: contain;
+}
+
+/* ====================================================================
+   MOBILE RESPONSIVE STYLES
+   ==================================================================== */
+@media (max-width: 768px) {
+
+  /* Enable vertical scrolling on mobile */
+  html:has(.project-three-layout),
+  body:has(.project-three-layout) {
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    width: 100vw;
+    min-width: 100vw;
+  }
+
+  /* Mobile layout - vertical scrolling */
+  .project-three-layout {
+    width: 100vw;
+    min-width: 100vw;
+    height: auto;
+    min-height: 100vh;
+    overflow-x: hidden;
+    overflow-y: visible;
+    display: block;
+    flex-direction: column;
+  }
+
+  /* Mobile container - reduce padding */
+  .project-three-layout #container {
+    padding: 80px 20px 40px 20px !important;
+    /* Top padding for nav, reduced sides */
+    width: 100vw !important;
+    min-width: 100vw !important;
+    max-width: 100vw !important;
+  }
+
+  /* Mobile post - stack vertically */
+  .project-three-layout .post {
+    display: block;
+    white-space: normal;
+    width: 100%;
+  }
+
+  /* Mobile content - full width block */
+  .project-three-layout .content {
+    display: block;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+
+  /* Mobile images - stack vertically, full width */
+  .project-three-layout .imageElement.ie {
+    display: block;
+    width: 100% !important;
+    height: auto;
+    margin-right: 0;
+    margin-bottom: 20px;
+  }
+
+  .project-three-layout .imageElement.ie .wp-caption {
+    width: 100% !important;
+    height: auto;
+  }
+
+  .project-three-layout .imageElement.ie img {
+    width: 100% !important;
+    height: auto !important;
+  }
+}

@@ -1,0 +1,175 @@
+/* ====================================================================
+   NIGHTFIND 2025 SPECIFIC STYLES - VERTICAL LAYOUT
+   ==================================================================== */
+
+/* Nightfind 2025 specific body scrolling - vertical layout */
+html:has(.nightfind-2025-layout),
+body:has(.nightfind-2025-layout) {
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  width: 100vw;
+  min-width: 100vw;
+}
+
+/* Nightfind 2025 specific layout - vertical scrolling behavior */
+.nightfind-2025-layout {
+  width: 100vw;
+  min-width: 100vw;
+  height: auto;
+  min-height: 100vh;
+  overflow-x: hidden;
+  overflow-y: visible;
+  display: block;
+  position: relative;
+}
+
+/* Nightfind 2025 Container - Fixed Width Vertical Layout */
+.nightfind-2025-layout #container {
+  padding: 40px 40px 90px 280px;
+  position: static;
+  width: 800px;
+  height: auto;
+  min-height: 100vh;
+
+  overflow: visible;
+  background: #fff;
+  color: #000;
+  font-family: helvetica, arial, sans-serif;
+  font-size: 8pt;
+  line-height: 16pt;
+  opacity: 1;
+  box-sizing: border-box;
+
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Nightfind 2025 Post container */
+.nightfind-2025-layout .post {
+  display: block;
+  width: 800px;
+  height: auto;
+  position: static;
+  overflow: visible;
+}
+
+/* Nightfind 2025 Info section */
+.nightfind-2025-layout .post .info {
+  display: block;
+  position: static;
+  width: 800px;
+  max-width: 800px;
+  margin-bottom: 0;
+}
+
+.nightfind-2025-layout .post .info .clear {
+  clear: both;
+  display: block;
+  height: 0;
+  line-height: 0;
+  overflow: hidden;
+  font-size: 0;
+}
+
+.nightfind-2025-layout .post .info .title {
+  margin-bottom: 0;
+  width: 800px;
+  max-width: 800px;
+}
+
+.nightfind-2025-layout .post .info .section {
+  margin-bottom: 40px;
+  font-size: 9.5pt;
+  line-height: 16pt;
+  width: 800px;
+  max-width: 800px;
+}
+
+.nightfind-2025-layout .post .info .extended {
+  margin-bottom: 40px;
+}
+
+/* Nightfind 2025 Content - contains images */
+.nightfind-2025-layout .content {
+  display: block;
+  position: static;
+  clear: both;
+  width: 800px;
+  max-width: 800px;
+  margin-top: 0;
+  padding-top: 0;
+}
+
+/* Nightfind 2025 Image Elements - match reference HTML structure */
+.nightfind-2025-layout .content .wp-block-image,
+.nightfind-2025-layout .content figure {
+  display: block;
+  margin: 0 0 0 0;
+  padding: 0;
+  position: static;
+}
+
+.nightfind-2025-layout .content .wp-caption {
+  display: block;
+  margin: 0;
+  padding: 0;
+  width: auto;
+  position: static;
+}
+
+/* Landscape images - 800px wide */
+.nightfind-2025-layout .content img {
+  display: block;
+  width: 800px !important;
+  height: auto !important;
+  margin: 0;
+  padding: 0;
+  position: static;
+}
+
+/* Portrait images - 400px wide */
+.nightfind-2025-layout .content .is-portrait img {
+  display: block;
+  width: 400px !important;
+  height: auto !important;
+  margin: 0;
+  padding: 0;
+  position: static;
+}
+
+/* Caption text styling */
+.nightfind-2025-layout .content .wp-caption .wp-caption-text {
+  font-size: 9.5pt;
+  color: #000000;
+  display: block;
+  padding-top: 5px;
+  padding-bottom: 16pt;
+  position: static;
+}
+
+.nightfind-2025-layout .image-separator img {
+  display: block;
+  width: 388px !important;
+  height: 37px !important;
+}
+
+/* ====================================================================
+   MOBILE RESPONSIVE STYLES
+   ==================================================================== */
+@media (max-width: 768px) {
+
+  /* Mobile container - reduce padding */
+  .nightfind-2025-layout #container {
+    padding: 80px 20px 40px 20px !important;
+  }
+
+  /* Mobile images - maintain vertical layout */
+  .nightfind-2025-layout .imageElement.ie {
+    margin-bottom: 20px;
+  }
+  
+  .nightfind-2025-layout .image-group-separator {
+    height: 40px;
+    margin-bottom: 20px;
+  }
+}

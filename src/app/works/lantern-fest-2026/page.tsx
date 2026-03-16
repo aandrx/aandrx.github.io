@@ -1,6 +1,6 @@
 'use client'
 
-import './project-three.css'
+import './lantern-fest-2026.css'
 import Navigation from '@/components/Navigation'
 import DynamicColumns from '@/components/DynamicColumns'
 import { useState, useEffect } from 'react'
@@ -8,23 +8,22 @@ import { usePathname } from 'next/navigation'
 import Image from 'next/image'
 import * as Sentry from '@sentry/nextjs'
 
-// Image folders to use
-const imageFolders = [
-  'nightfind-2024-09-24-25',
-  'nightfind-2024-10-11-31-6',
-  'nightfind-2024-10-24-30'
-]
+const R2_BASE_URL = 'https://pub-a490d2e7f9254d579a1364365ba09b45.r2.dev/lantern-fest-2026-03-15'
 
-// Base URL for R2 bucket
-const R2_BASE_URL = 'https://pub-a490d2e7f9254d579a1364365ba09b45.r2.dev'
-
-// Image filenames - placeholder to fix TypeScript errors
-const imageFilenames: string[] = [
-  // Add your image filenames here without extensions
+// Just list the filenames - dimensions will be detected automatically
+const imageFilenames = [
+  'DSCF8346-Edit',
+  'DSCF8326-Edit',
+  'DSCF8327-Edit',
+  'DSCF8328-Edit',
+  'DSCF8329-Edit',
+  'DSCF8330-Edit',
+  'DSCF8336-Edit',
+  'DSCF8338-Edit-2',
 ]
 
 // Helper function to load a single image dimension
-const loadSingleImageDimension = (folder: string, filename: string): Promise<{ width: number; height: number } | null> => {
+const loadSingleImageDimension = (filename: string): Promise<{ width: number; height: number } | null> => {
   return new Promise((resolve) => {
     const img = new globalThis.Image()
     img.onload = () => {
@@ -34,11 +33,11 @@ const loadSingleImageDimension = (folder: string, filename: string): Promise<{ w
       })
     }
     img.onerror = () => resolve(null)
-    img.src = `${R2_BASE_URL}/${folder}/${filename}-720w.webp`
+    img.src = `${R2_BASE_URL}/${filename}-720w.webp`
   })
 }
 
-export default function ProjectThreePage() {
+export default function LanternFest2026Page() {
   const pathname = usePathname()
   const [isColumnsReady, setIsColumnsReady] = useState(false)
   const [imagesLoaded, setImagesLoaded] = useState(false)
@@ -56,9 +55,7 @@ export default function ProjectThreePage() {
 
       const results = await Promise.all(
         imageFilenames.map(async (filename) => {
-          // Try to load from the first folder - you may need to adjust this logic
-          // if images are spread across different folders
-          const dimension = await loadSingleImageDimension(imageFolders[0], filename)
+          const dimension = await loadSingleImageDimension(filename)
           return { filename, dimension }
         })
       )
@@ -78,7 +75,7 @@ export default function ProjectThreePage() {
   }, [pathname]) // Re-run when pathname changes
 
   return (
-    <div className="layout project-three-layout">
+    <div className="layout lantern-fest-2026-layout">
       <Navigation />
       <div id="container" className="ie" style={{ opacity: isColumnsReady ? 1 : 0, transition: 'opacity 0.3s ease-in-out' }}>
         {!isColumnsReady && (
@@ -98,7 +95,7 @@ export default function ProjectThreePage() {
         {imagesLoaded && (
           <div className="post">
             <div className="info">
-              <div className="title section">Project Three</div>
+              <div className="title section">Lantern Fest 2026</div>
               <div className="clear"></div>
             </div>
 
@@ -110,13 +107,15 @@ export default function ProjectThreePage() {
                   setIsColumnsReady(true)
                 }}
               >
-                <p>Add your project description here.</p>
-                <p>You can add multiple paragraphs to describe your project.</p>
-                <p>Update the content and the image filenames array above.</p>
+                <p>The lantern festival arrives once a year, marking the first full moon of the lunar new year. Streets fill with light and the air carries the smell of winter giving way, a threshold between what was and what might still be possible.</p>
+                <p>I had been living in the same rhythm for months — work, sleep, the same routes between the same places. Something about the festival felt like permission to look up, to move through the city with slower attention and no particular destination.</p>
+                <p>What drew me to photograph it was not the spectacle itself but the faces gathered around it: strangers standing close together in the dark, sharing warmth in front of something briefly bright. The lanterns gave everyone a reason to pause.</p>
+                <p>I spent the evening moving through crowds without a plan, following light wherever it pooled. There is a particular quality to photographs made in celebration — something between documentation and longing, as though the camera already knows the night is ending.</p>
+                <p>March 15, 2026</p>
               </DynamicColumns>
             </div>
 
-            {/* Images from R2 bucket */}
+            {/* Images from R2 bucket - lantern-fest folder */}
             {imageFilenames.map((filename) => {
               const dimensions = imageDimensions[filename]
 
@@ -133,8 +132,8 @@ export default function ProjectThreePage() {
                 >
                   <div className="wp-caption">
                     <Image
-                      src={`${R2_BASE_URL}/${imageFolders[0]}/${filename}-720w.webp`}
-                      alt={`Project Three ${filename}`}
+                      src={`${R2_BASE_URL}/${filename}-720w.webp`}
+                      alt={`Lantern Fest 2026 ${filename}`}
                       width={dimensions.width}
                       height={dimensions.height}
                       className="wp-image-78"
