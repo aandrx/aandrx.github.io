@@ -3,7 +3,6 @@
 import './contact.css'
 import Navigation from '@/components/Navigation'
 import { useState, FormEvent, useEffect, useRef } from 'react'
-import * as Sentry from '@sentry/nextjs'
 
 export default function ContactPage() {
   const [isReady, setIsReady] = useState(false)
@@ -99,9 +98,8 @@ export default function ContactPage() {
         setErrorMessage(data.error || 'Failed to send message')
       }
     } catch (error) {
-      Sentry.captureException(error)
-      Sentry.logger.error('Contact form submission error', {
-        error: error instanceof Error ? error.message : String(error)
+      console.error('Contact form submission error', {
+        error: error instanceof Error ? error.message : String(error),
       })
       setStatus('error')
       setErrorMessage('Network error. Please try again.')

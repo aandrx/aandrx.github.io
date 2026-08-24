@@ -10,9 +10,6 @@ on:
     - cron: '0 9 * * *'
   workflow_dispatch: # Allows manual trigger from GitHub UI
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
 jobs:
   # Build and lint check
   build:
@@ -25,7 +22,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "24"
+          node-version: "20"
           cache: "npm"
 
       - name: Install dependencies
@@ -36,11 +33,9 @@ jobs:
 
       - name: Run ESLint
         run: npm run lint
-        continue-on-error: true
 
       - name: Type check
         run: npx tsc --noEmit
-        continue-on-error: true
 
       - name: Build project
         run: npm run build
