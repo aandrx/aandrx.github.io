@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation'
 const projects = [
   // { id: 1, title: 'Project One', href: '/works/project-one' },
   // { id: 2, title: 'Project Two', href: '/works/project-two' },
+  { id: 3, title: 'Wingspan', href: '/works/wingspan' },
   { id: 4, title: 'Starry Night 2025', href: '/works/starry-night-2025' },
   { id: 5, title: 'Lantern Fest 2026', href: '/works/lantern-fest-2026' },
   // { id: 6, title: 'Project Six', href: '/works/project-six' }
@@ -14,7 +15,7 @@ const projects = [
 
 const nightfindProjects = [
   { id: 1, title: '2024', href: '/works/nightfind-2024' },
-  // { id: 2, title: '2025', href: '/works/nightfind-2025' }
+  { id: 2, title: '2025', href: '/works/nightfind-2025' }
 ]
 
 export default function Navigation() {
@@ -71,7 +72,11 @@ export default function Navigation() {
           >
             {projects.map((project) => {
               // Use regular <a> tag to force full page refresh for horizontal scroll pages
-              if (project.href === '/works/starry-night-2025' || project.href === '/works/lantern-fest-2026') {
+              if (
+                project.href === '/works/wingspan' ||
+                project.href === '/works/starry-night-2025' ||
+                project.href === '/works/lantern-fest-2026'
+              ) {
                 return (
                   <a 
                     key={project.id} 

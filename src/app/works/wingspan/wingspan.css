@@ -1,0 +1,140 @@
+/* ====================================================================
+   WINGSPAN SPECIFIC STYLES
+   ==================================================================== */
+
+html:has(.wingspan-layout),
+body:has(.wingspan-layout) {
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  width: fit-content;
+  min-width: 100vw;
+}
+
+.wingspan-layout {
+  width: fit-content;
+  min-width: 100vw;
+  height: 100vh;
+  overflow-x: auto;
+  overflow-y: hidden;
+  display: flex;
+  flex-direction: row;
+  position: relative;
+}
+
+.wingspan-layout #container {
+  padding: 40px 40px 90px 280px;
+  position: static;
+  width: max-content;
+  min-width: 100vw;
+  height: auto;
+  min-height: 100vh;
+
+  overflow: visible;
+  background: #fff;
+  color: #000;
+  font-family: helvetica, arial, sans-serif;
+  font-size: 8pt;
+  line-height: 16pt;
+  opacity: 1;
+  box-sizing: border-box;
+
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.wingspan-layout .post {
+  display: block;
+  white-space: nowrap;
+  width: max-content;
+}
+
+.wingspan-layout .post .info {
+  white-space: normal;
+  display: block;
+}
+
+.wingspan-layout .content {
+  display: inline-block;
+  vertical-align: top;
+  white-space: normal;
+}
+
+.wingspan-layout .imageElement.ie {
+  margin-right: 40px;
+  flex-shrink: 0;
+  display: inline-block;
+  vertical-align: top;
+  height: calc(100vh - 240px);
+  width: auto;
+}
+
+.wingspan-layout .imageElement.ie .wp-caption {
+  display: block;
+  height: 100%;
+  width: auto;
+}
+
+.wingspan-layout .imageElement.ie img {
+  display: block;
+  height: 100% !important;
+  width: auto !important;
+  object-fit: contain;
+}
+
+@media (max-width: 768px) {
+  html:has(.wingspan-layout),
+  body:has(.wingspan-layout) {
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    width: 100vw;
+    min-width: 100vw;
+  }
+
+  .wingspan-layout {
+    width: 100vw;
+    min-width: 100vw;
+    height: auto;
+    min-height: 100vh;
+    overflow-x: hidden;
+    overflow-y: visible;
+    display: block;
+    flex-direction: column;
+  }
+
+  .wingspan-layout #container {
+    padding: 80px 20px 40px 20px !important;
+    width: 100vw !important;
+    min-width: 100vw !important;
+    max-width: 100vw !important;
+  }
+
+  .wingspan-layout .post {
+    display: block;
+    white-space: normal;
+    width: 100%;
+  }
+
+  .wingspan-layout .content {
+    display: block;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+
+  .wingspan-layout .imageElement.ie {
+    display: block;
+    width: 100% !important;
+    height: auto;
+    margin-right: 0;
+    margin-bottom: 20px;
+  }
+
+  .wingspan-layout .imageElement.ie .wp-caption {
+    width: 100% !important;
+    height: auto;
+  }
+
+  .wingspan-layout .imageElement.ie img {
+    width: 100% !important;
+    height: auto !important;
+  }
+}
