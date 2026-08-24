@@ -7,7 +7,7 @@ to show you the things i have [done](https://aandrx.vercel.app/)
 - **styling**: Tailwind CSS
 - **object storage**: Cloudflare R2
 - **database**: Neon +PostgreSQL
-- **quality**: Sentry
+- **quality**: ESLint
 
 ### build
 
