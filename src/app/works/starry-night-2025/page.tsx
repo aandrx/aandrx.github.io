@@ -6,7 +6,6 @@ import DynamicColumns from '@/components/DynamicColumns'
 import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import Image from 'next/image'
-import * as Sentry from '@sentry/nextjs'
 
 const R2_BASE_URL = 'https://pub-a490d2e7f9254d579a1364365ba09b45.r2.dev/starrynight-2025-10-16'
 
@@ -113,10 +112,10 @@ export default function StarryNight2025Page() {
                   setIsColumnsReady(true)
                 }}
               >
-                <p>I spent little time with my parents throughout my whole growth, less communication, long being alienated, thereby giving rise to a sense of staying in middle of nowhere. Every time when confronted with the built-in family issue, I would intend to shun away instinctively.</p>
-                <p>In March 2020, I moved to Hangzhou to get rid of the anxieties as well as for career. There, I got well paid and gained inner peace eventually, but later the routine of job bored me beyond bearing.</p>
-                <p>Out of the basic instinct as a photographer, I decided to explore the similar void of mind state among young people like me scattered in different cities, to see their faces as well as check over my deep self-doubt. Therefore, I post my personal photo project "New Comer" in Weibo, twitter-like social media in mainland China, and received more than 40 applicants.</p>
-                <p>Before shooting, I predicted their inner drives to different cities: career, money, emotion issue, or just escaping family. In the process of shooting and communicating with them, I found my predictions well fit, but the point is that even I share a lot with most of them, I am still touched by every each individual, his or her willingness to thrive, trying to gain redemption in ways positive, or negative.</p>
+                <p>Growing up between two worlds, I spent years navigating the quiet distance between where I came from and where I was trying to go; a persistent sense of standing somewhere in the middle of nowhere. Every time the weight of that in-between feeling surfaced, my instinct was simply to look away.</p>
+                <p>In the fall of 2024, I moved across an ocean for school, trading one kind of uncertainty for another. Here, I found new rhythms and glimpses of belonging, but beneath the surface ran the same undercurrent: a restlessness that a busy schedule could not quite fill, a longing that a packed calendar could not quite answer.</p>
+                <p>Out of that restlessness came Starry Night, an event organized by our school's Chinese Student Association to gather those of us scattered across the unfamiliar grounds. Before picking up my camera, I thought I already knew what I would find– nostalgia, homesickness, the quiet ache of displacement. But what the lens revealed was something harder to predict: the way a stranger's laughter can sound familiar, how a single unguarded expression holds an entire journey within it.</p>
+                <p>Starry Night became less about the event itself and more about the faces, rather each one a different answer to the same question of how we learn to belong.</p>
                 <p>October 16, 2025</p>
               </DynamicColumns>
             </div>
@@ -127,7 +126,7 @@ export default function StarryNight2025Page() {
 
               // Only render if dimensions are available
               if (!dimensions) {
-                Sentry.logger.debug(`No dimensions available for ${filename}`)
+                console.debug(`No dimensions available for ${filename}`)
                 return null
               }
 

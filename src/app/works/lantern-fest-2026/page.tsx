@@ -6,20 +6,19 @@ import DynamicColumns from '@/components/DynamicColumns'
 import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import Image from 'next/image'
-import * as Sentry from '@sentry/nextjs'
 
 const R2_BASE_URL = 'https://pub-a490d2e7f9254d579a1364365ba09b45.r2.dev/lantern-fest-2026-03-15'
 
 // Just list the filenames - dimensions will be detected automatically
 const imageFilenames = [
   'DSCF8346-Edit',
-  'DSCF8326-Edit',
-  'DSCF8327-Edit',
-  'DSCF8328-Edit',
-  'DSCF8329-Edit',
-  'DSCF8330-Edit',
   'DSCF8336-Edit',
-  'DSCF8338-Edit-2',
+  'DSCF8326-Edit',
+  'DSCF8330-Edit',
+  'DSCF8328-Edit',
+  // 'DSCF8338-Edit-2',
+  // 'DSCF8327-Edit',
+  // 'DSCF8329-Edit',
 ]
 
 // Helper function to load a single image dimension
@@ -107,10 +106,10 @@ export default function LanternFest2026Page() {
                   setIsColumnsReady(true)
                 }}
               >
-                <p>The lantern festival arrives once a year, marking the first full moon of the lunar new year. Streets fill with light and the air carries the smell of winter giving way, a threshold between what was and what might still be possible.</p>
-                <p>I had been living in the same rhythm for months — work, sleep, the same routes between the same places. Something about the festival felt like permission to look up, to move through the city with slower attention and no particular destination.</p>
-                <p>What drew me to photograph it was not the spectacle itself but the faces gathered around it: strangers standing close together in the dark, sharing warmth in front of something briefly bright. The lanterns gave everyone a reason to pause.</p>
-                <p>I spent the evening moving through crowds without a plan, following light wherever it pooled. There is a particular quality to photographs made in celebration — something between documentation and longing, as though the camera already knows the night is ending.</p>
+                <p>The lantern festival arrives once a year, marking the first full moon of the lunar new year. The banquet hall fills with lights and the feeling of spring entering, a threshold between the lingering stress of school and the coming spring break. </p>
+                <p>I had been living in the same rhythm for months — work, sleep, the same routes between the same places. Something about the festival felt like permission to look up, to enjoy a formal banquet with no bounds, getting to move through freely with my lens and no particular destination.</p>
+                <p>What drew me to photograph it was not the spectacle itself but the faces gathered around it: strangers standing close together in the dark, sharing warmth in front of something briefly bright. The performances and bright lights surrounding the venue gave everyone a reason to participate.</p>
+                <p>I spent the evening moving through crowds without a plan, following light wherever it pooled. There is a particular quality to photographs made in celebration, something between documentation and longing, as though the camera already knows the night is ending.</p>
                 <p>March 15, 2026</p>
               </DynamicColumns>
             </div>
@@ -121,7 +120,7 @@ export default function LanternFest2026Page() {
 
               // Only render if dimensions are available
               if (!dimensions) {
-                Sentry.logger.debug(`No dimensions available for ${filename}`)
+                console.debug(`No dimensions available for ${filename}`)
                 return null
               }
 

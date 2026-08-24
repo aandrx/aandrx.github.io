@@ -6,7 +6,6 @@ import DynamicColumns from '@/components/DynamicColumns'
 import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import Image from 'next/image'
-import * as Sentry from '@sentry/nextjs'
 import React from 'react'
 
 // Image folders to use
@@ -148,7 +147,7 @@ export default function ProjectThreePage() {
 
               // Only render if dimensions are available
               if (!dimensions) {
-                Sentry.logger.debug(`No dimensions available for ${key}`)
+                console.debug(`No dimensions available for ${key}`)
                 return null
               }
 
