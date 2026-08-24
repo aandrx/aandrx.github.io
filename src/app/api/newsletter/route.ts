@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { getPrismaClient } from '@/lib/prisma'
 import { newsletterSchema } from '@/lib/validations'
-import * as Sentry from '@sentry/nextjs'
 
 export async function POST(request: NextRequest) {
   try {
+    const prisma = getPrismaClient()
     const body = await request.json()
     
     // Validate input
@@ -35,11 +35,8 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     )
   } catch (error) {
-    Sentry.captureException(error, {
-      tags: { form: 'newsletter', status: 'error' }
-    })
-    Sentry.logger.error('Newsletter error', {
-      error: error instanceof Error ? error.message : String(error)
+    console.error('Newsletter error', {
+      error: error instanceof Error ? error.message : String(error),
     })
     
     if (error instanceof Error && error.name === 'ZodError') {
@@ -59,6 +56,7 @@ export async function POST(request: NextRequest) {
 // Unsubscribe endpoint
 export async function DELETE(request: NextRequest) {
   try {
+    const prisma = getPrismaClient()
     const { email, reason } = await request.json()
     
     if (!email) {
@@ -82,9 +80,8 @@ export async function DELETE(request: NextRequest) {
       message: 'Successfully unsubscribed' 
     })
   } catch (error) {
-    Sentry.captureException(error)
-    Sentry.logger.error('Unsubscribe error', {
-      error: error instanceof Error ? error.message : String(error)
+    console.error('Unsubscribe error', {
+      error: error instanceof Error ? error.message : String(error),
     })
     return NextResponse.json(
       { error: 'Failed to unsubscribe' },

@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { getPrismaClient } from '@/lib/prisma'
 import { contactFormSchema } from '@/lib/validations'
-import * as Sentry from '@sentry/nextjs'
 
 export async function POST(request: NextRequest) {
   try {
+    const prisma = getPrismaClient()
     const body = await request.json()
     
     // Validate input
@@ -28,19 +28,6 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    // Log successful submission to Sentry
-    Sentry.captureMessage('Contact form submitted', {
-      level: 'info',
-      tags: {
-        form: 'contact',
-        status: 'success',
-      },
-      extra: {
-        submissionId: submission.id,
-        email: validated.email,
-      },
-    })
-    
     return NextResponse.json(
       { 
         success: true, 
@@ -50,16 +37,8 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     )
   } catch (error) {
-    // Capture error in Sentry
-    Sentry.captureException(error, {
-      tags: {
-        form: 'contact',
-        status: 'error',
-      },
-    })
-    
-    Sentry.logger.error('Contact form error', { 
-      error: error instanceof Error ? error.message : String(error) 
+    console.error('Contact form error', {
+      error: error instanceof Error ? error.message : String(error),
     })
     
     // Check if it's a validation error
@@ -80,6 +59,7 @@ export async function POST(request: NextRequest) {
 // Optional: GET endpoint to retrieve submissions (for admin use)
 export async function GET(request: NextRequest) {
   try {
+    const prisma = getPrismaClient()
     const submissions = await prisma.contactSubmission.findMany({
       orderBy: { createdAt: 'desc' },
       take: 50, // Limit to last 50 submissions
@@ -87,9 +67,8 @@ export async function GET(request: NextRequest) {
     
     return NextResponse.json(submissions)
   } catch (error) {
-    Sentry.captureException(error)
-    Sentry.logger.error('Error fetching submissions', { 
-      error: error instanceof Error ? error.message : String(error) 
+    console.error('Error fetching submissions', {
+      error: error instanceof Error ? error.message : String(error),
     })
     return NextResponse.json(
       { error: 'Failed to fetch submissions' },
