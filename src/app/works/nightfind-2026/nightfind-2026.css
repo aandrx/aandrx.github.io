@@ -1,0 +1,150 @@
+/* ====================================================================
+   NIGHTFIND 2026 SPECIFIC STYLES
+   ==================================================================== */
+
+/* Nightfind 2026 specific body scrolling */
+html:has(.nightfind-2026-layout),
+body:has(.nightfind-2026-layout) {
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  width: fit-content;
+  min-width: 100vw;
+}
+
+/* Nightfind 2026 specific layout */
+.nightfind-2026-layout {
+  width: fit-content;
+  min-width: 100vw;
+  height: 100vh;
+  overflow-x: auto;
+  overflow-y: hidden;
+  display: flex;
+  flex-direction: row;
+  position: relative;
+}
+
+/* Nightfind 2026 Container */
+.nightfind-2026-layout #container {
+  padding: 40px 40px 90px 280px;
+  position: static;
+  width: max-content;
+  min-width: 100vw;
+  height: auto;
+  min-height: 100vh;
+
+  overflow: visible;
+  background: #fff;
+  color: #000;
+  font-family: helvetica, arial, sans-serif;
+  font-size: 8pt;
+  line-height: 16pt;
+  opacity: 1;
+  box-sizing: border-box;
+
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Nightfind 2026 Post container */
+.nightfind-2026-layout .post {
+  display: block;
+  white-space: nowrap;
+  width: max-content;
+}
+
+/* Nightfind 2026 Info section */
+.nightfind-2026-layout .post .info {
+  white-space: normal;
+  display: block;
+}
+
+/* Nightfind 2026 Content */
+.nightfind-2026-layout .content {
+  display: inline-block;
+  vertical-align: top;
+  white-space: normal;
+}
+
+/* Nightfind 2026 Image Elements */
+.nightfind-2026-layout .imageElement.ie {
+  margin-right: 40px;
+  flex-shrink: 0;
+  display: inline-block;
+  vertical-align: top;
+  height: calc(100vh - 240px);
+  width: auto;
+}
+
+.nightfind-2026-layout .imageElement.ie .wp-caption {
+  display: block;
+  height: 100%;
+  width: auto;
+}
+
+.nightfind-2026-layout .imageElement.ie img {
+  display: block;
+  height: 100% !important;
+  width: auto !important;
+  object-fit: contain;
+}
+
+/* ====================================================================
+   MOBILE RESPONSIVE STYLES
+   ==================================================================== */
+@media (max-width: 768px) {
+  html:has(.nightfind-2026-layout),
+  body:has(.nightfind-2026-layout) {
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    width: 100vw;
+    min-width: 100vw;
+  }
+
+  .nightfind-2026-layout {
+    width: 100vw;
+    min-width: 100vw;
+    height: auto;
+    min-height: 100vh;
+    overflow-x: hidden;
+    overflow-y: visible;
+    display: block;
+    flex-direction: column;
+  }
+
+  .nightfind-2026-layout #container {
+    padding: 80px 20px 40px 20px !important;
+    width: 100vw !important;
+    min-width: 100vw !important;
+    max-width: 100vw !important;
+  }
+
+  .nightfind-2026-layout .post {
+    display: block;
+    white-space: normal;
+    width: 100%;
+  }
+
+  .nightfind-2026-layout .content {
+    display: block;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+
+  .nightfind-2026-layout .imageElement.ie {
+    display: block;
+    width: 100% !important;
+    height: auto;
+    margin-right: 0;
+    margin-bottom: 20px;
+  }
+
+  .nightfind-2026-layout .imageElement.ie .wp-caption {
+    width: 100% !important;
+    height: auto;
+  }
+
+  .nightfind-2026-layout .imageElement.ie img {
+    width: 100% !important;
+    height: auto !important;
+  }
+}
