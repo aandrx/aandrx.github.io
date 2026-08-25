@@ -7,6 +7,13 @@
   overflow-x: hidden;
 }
 
+/* Re-center the native <dialog> when opened via showModal(). The global
+   `* { margin: 0 }` reset overrides the UA's `margin: auto` centering, which
+   would otherwise pin the popup to the top-left of the viewport. */
+.layout #container.contact-container dialog {
+  margin: auto;
+}
+
 /* Contact Page Container */
 .layout #container.contact-container {
   /* Container positioned using padding within layout space */

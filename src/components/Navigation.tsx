@@ -15,7 +15,8 @@ const projects = [
 
 const nightfindProjects = [
   { id: 1, title: '2024', href: '/works/nightfind-2024' },
-  { id: 2, title: '2025', href: '/works/nightfind-2025' }
+  { id: 2, title: '2025', href: '/works/nightfind-2025' },
+  { id: 3, title: '2026', href: '/works/nightfind-2026' },
 ]
 
 export default function Navigation() {
