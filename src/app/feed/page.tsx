@@ -4,61 +4,146 @@ import './feed.css'
 import Navigation from '@/components/Navigation'
 import Image from 'next/image'
 import DynamicColumns from '@/components/DynamicColumns'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+
+type FeedPost = {
+  id: number
+  images: string[]
+  alt: string
+}
+
+// Base URL for R2 bucket root
+const R2_BASE_URL = 'https://pub-a490d2e7f9254d579a1364365ba09b45.r2.dev'
+
+// New real carousel set uploaded to R2
+const DC_2026_FOLDER = 'fuji-dc-2026-5-10'
+const dcImageFilenames = [
+  'DSCF9003',
+  'DSCF9008',
+  'DSCF9013',
+  'DSCF9023',
+  'DSCF9033',
+  'DSCF9035',
+  'DSCF9038',
+]
+const dcImages = dcImageFilenames.map((filename) => `${R2_BASE_URL}/${DC_2026_FOLDER}/${filename}-720w.webp`)
 
 export default function ProjectSixPage() {
   const [selectedPost, setSelectedPost] = useState<number | null>(null)
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0)
   const [isColumnsReady, setIsColumnsReady] = useState(false)
   
-  // Sample data - in a real app this would come from an API or database
-  const posts = [
-    { id: 1, src: '/placeholder-1.jpg', alt: 'Post 1' },
-    { id: 2, src: '/placeholder-2.jpg', alt: 'Post 2' },
-    { id: 3, src: '/placeholder-3.jpg', alt: 'Post 3' },
-    { id: 4, src: '/placeholder-4.jpg', alt: 'Post 4' },
-    { id: 5, src: '/placeholder-5.jpg', alt: 'Post 5' },
-    { id: 6, src: '/placeholder-6.jpg', alt: 'Post 6' },
-    { id: 7, src: '/homepage-1.jpg', alt: 'Post 7' },
-    { id: 8, src: '/about-image.jpg', alt: 'Post 8' },
-    { id: 9, src: '/homepage-image.jpg', alt: 'Post 9' },
-    { id: 10, src: '/placeholder-1.jpg', alt: 'Post 10' },
-    { id: 11, src: '/placeholder-2.jpg', alt: 'Post 11' },
-    { id: 12, src: '/placeholder-3.jpg', alt: 'Post 12' },
-    { id: 13, src: '/placeholder-4.jpg', alt: 'Post 13' },
-    { id: 14, src: '/placeholder-5.jpg', alt: 'Post 14' },
-    { id: 15, src: '/placeholder-6.jpg', alt: 'Post 15' },
-    // Add more columns for better scrolling
-    { id: 16, src: '/homepage-image.jpg', alt: 'Post 16' },
-    { id: 17, src: '/about-image.jpg', alt: 'Post 17' },
-    { id: 18, src: '/placeholder-1.jpg', alt: 'Post 18' },
-    { id: 19, src: '/placeholder-2.jpg', alt: 'Post 19' },
-    { id: 20, src: '/placeholder-3.jpg', alt: 'Post 20' },
-    { id: 21, src: '/placeholder-4.jpg', alt: 'Post 21' },
-    { id: 22, src: '/placeholder-5.jpg', alt: 'Post 22' },
-    { id: 23, src: '/placeholder-6.jpg', alt: 'Post 23' },
-    { id: 24, src: '/homepage-1.jpg', alt: 'Post 24' },
-    { id: 25, src: '/about-image.jpg', alt: 'Post 25' },
-    { id: 26, src: '/homepage-image.jpg', alt: 'Post 26' },
-    { id: 27, src: '/placeholder-1.jpg', alt: 'Post 27' },
-    { id: 28, src: '/placeholder-2.jpg', alt: 'Post 28' },
-    { id: 29, src: '/placeholder-3.jpg', alt: 'Post 29' },
-    { id: 30, src: '/placeholder-4.jpg', alt: 'Post 30' },
+  // Sample data - in a real app this would come from an API or database.
+  // Cut down to a small set for now; add more posts here as needed.
+  // Each post supports one or more images, similar to an Instagram carousel post.
+  const posts: FeedPost[] = [
+    { id: 1, images: ['/placeholder-1.jpg'], alt: 'Post 1' },
+    { id: 2, images: ['/placeholder-2.jpg'], alt: 'Post 2' },
+    { id: 3, images: ['/placeholder-3.jpg'], alt: 'Post 3' },
+    { id: 4, images: ['/homepage-1.jpg'], alt: 'Post 4' },
+    { id: 5, images: ['/about-image.jpg'], alt: 'Post 5' },
+    { id: 6, images: ['/homepage-image.jpg'], alt: 'Post 6' },
+    { id: 7, images: ['/placeholder-4.jpg'], alt: 'Post 7' },
+    // Simulated carousel post with multiple images, like an Instagram multi-photo post
+    { id: 8, images: ['/homepage-1.jpg', '/about-image.jpg', '/homepage-image.jpg'], alt: 'Post 8 - carousel set' },
+    // Real carousel post from the fuji-dc-2026-5-10 set
+    { id: 9, images: dcImages, alt: 'Post 9 - DC 2026 carousel' },
   ]
 
   const openModal = (postId: number) => {
     setSelectedPost(postId)
+    setSelectedImageIndex(0)
   }
 
   const closeModal = () => {
     setSelectedPost(null)
+    setSelectedImageIndex(0)
   }
 
   const selectedPostData = posts.find(post => post.id === selectedPost)
+  const modalRef = useRef<HTMLDivElement>(null)
+  const sliderRef = useRef<HTMLDivElement>(null)
+  const [slideWidth, setSlideWidth] = useState(0)
+
+  // Measure the slide track once so we can translate by exact pixels. Moving by
+  // index * 100% leaves a fractional-pixel gap that exposes a white hairline at
+  // the outer edges of the first/last slide; integer-pixel translation removes it.
+  useEffect(() => {
+    const measure = () => setSlideWidth(sliderRef.current?.offsetWidth ?? 0)
+    measure()
+    window.addEventListener('resize', measure)
+    return () => window.removeEventListener('resize', measure)
+  }, [selectedPost])
+
+  const goToPreviousImage = () => {
+    if (!selectedPostData || selectedPostData.images.length <= 1) {
+      return
+    }
+
+    setSelectedImageIndex((index) => (index === 0 ? selectedPostData.images.length - 1 : index - 1))
+  }
+
+  const goToNextImage = () => {
+    if (!selectedPostData || selectedPostData.images.length <= 1) {
+      return
+    }
+
+    setSelectedImageIndex((index) => (index === selectedPostData.images.length - 1 ? 0 : index + 1))
+  }
+
+  // Focus the modal when it opens so arrow keys immediately control the carousel.
+  useEffect(() => {
+    if (selectedPost !== null) {
+      modalRef.current?.focus()
+    }
+  }, [selectedPost])
+
+  // Arrow keys / Escape work from anywhere while the modal is open. Bound at
+  // window level so clicking on the (non-focusable) media area can't drop
+  // focus to <body> and silently break keyboard navigation.
+  useEffect(() => {
+    if (selectedPost === null || !selectedPostData) {
+      return
+    }
+
+    const handleModalKeyDown = (event: globalThis.KeyboardEvent) => {
+      if (event.key === 'ArrowLeft') {
+        event.preventDefault()
+        setSelectedImageIndex((index) =>
+          index === 0 ? selectedPostData.images.length - 1 : index - 1
+        )
+      } else if (event.key === 'ArrowRight') {
+        event.preventDefault()
+        setSelectedImageIndex((index) =>
+          index === selectedPostData.images.length - 1 ? 0 : index + 1
+        )
+      } else if (event.key === 'Escape') {
+        event.preventDefault()
+        setSelectedPost(null)
+        setSelectedImageIndex(0)
+      }
+    }
+
+    window.addEventListener('keydown', handleModalKeyDown)
+    return () => window.removeEventListener('keydown', handleModalKeyDown)
+  }, [selectedPost, selectedPostData])
+
+  // Exact column count for the Instagram grid, so the container width always
+  // matches the real grid width (prevents clipping and preserves right-edge spacing).
+  const gridColumns = Math.ceil(posts.length / 3)
 
   return (
     <div className="layout project-six-layout">
       <Navigation />
-      <div id="container" className="ie" style={{ opacity: isColumnsReady ? 1 : 0, transition: 'opacity 0.3s ease-in-out' }}>
+      <div
+        id="container"
+        className="ie"
+        style={{
+          opacity: isColumnsReady ? 1 : 0,
+          transition: 'opacity 0.3s ease-in-out',
+          ['--ig-columns' as string]: gridColumns,
+        }}
+      >
         {!isColumnsReady && (
           <div style={{ 
             position: 'absolute', 
@@ -104,8 +189,13 @@ export default function ProjectSixPage() {
                       <span className="post-number">#{post.id}</span>
                     </div>
                   </div>
+                  {post.images.length > 1 && (
+                    <span className="carousel-indicator" aria-label="Multiple images in this post">
+                      ⧉
+                    </span>
+                  )}
                   <Image
-                    src={post.src}
+                    src={post.images[0]}
                     alt={post.alt}
                     width={200}
                     height={200}
@@ -123,22 +213,63 @@ export default function ProjectSixPage() {
         {/* Modal for viewing individual posts */}
         {selectedPost && selectedPostData && (
           <div className="modal-overlay" onClick={closeModal}>
-            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div
+              className="modal-content"
+              onClick={(e) => e.stopPropagation()}
+              ref={modalRef}
+              tabIndex={-1}
+            >
               <button className="modal-close" onClick={closeModal}>
                 ×
               </button>
-              <div className="modal-image-container">
-                <Image
-                  src={selectedPostData.src}
-                  alt={selectedPostData.alt}
-                  width={600}
-                  height={600}
-                  className="modal-image"
-                />
+              <div className="modal-media">
+                <div
+                  className="modal-slider"
+                  ref={sliderRef}
+                  style={{ transform: `translateX(-${selectedImageIndex * slideWidth}px)` }}
+                >
+                  {selectedPostData.images.map((src, index) => (
+                    <div className="modal-slide" key={src + index}>
+                      <Image
+                        src={src}
+                        alt={`${selectedPostData.alt} image ${index + 1}`}
+                        fill
+                        sizes="(max-width: 800px) 90vw, 800px"
+                        className="modal-slide-image"
+                      />
+                    </div>
+                  ))}
+                </div>
+                {selectedPostData.images.length > 1 && (
+                  <>
+                    <button className="modal-nav-button modal-nav-prev" onClick={goToPreviousImage} aria-label="Previous image">
+                      &#8249;
+                    </button>
+                    <button className="modal-nav-button modal-nav-next" onClick={goToNextImage} aria-label="Next image">
+                      &#8250;
+                    </button>
+                  </>
+                )}
               </div>
+              {selectedPostData.images.length > 1 && (
+                <div className="modal-status">
+                  <div className="modal-progress-track">
+                    <div
+                      className="modal-progress-indicator"
+                      style={{
+                        width: `calc(100% / ${selectedPostData.images.length})`,
+                        left: `calc(${selectedImageIndex / (selectedPostData.images.length - 1)} * (100% - (100% / ${selectedPostData.images.length})))`,
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
               <div className="modal-info">
                 <h3>Post #{selectedPostData.id}</h3>
                 <p>{selectedPostData.alt}</p>
+                {selectedPostData.images.length > 1 && (
+                  <p>Image {selectedImageIndex + 1} of {selectedPostData.images.length}</p>
+                )}
               </div>
             </div>
           </div>

@@ -2,7 +2,7 @@
    PROJECT SIX SPECIFIC STYLES
    ==================================================================== */
 
-/* Project Six - enable body-level horizontal scrollbar like Project Five */
+/* Project Six - single scrollbar owned by the page, not the inner layout box */
 html:has(.project-six-layout),
 body:has(.project-six-layout) {
   overflow-x: auto !important;
@@ -11,12 +11,13 @@ body:has(.project-six-layout) {
   min-width: 100vw;
 }
 
-/* Project Six specific layout - contained scrolling within layout */
+/* Project Six specific layout - single scrollbar; content now fits exactly
+   within #container's authored width, so no clipping or nested scrollbar. */
 .project-six-layout {
   width: fit-content;
   min-width: 100vw;
   height: 100vh;
-  overflow-x: auto;
+  overflow-x: hidden;
   overflow-y: hidden;
   display: flex;
   flex-direction: row;
@@ -42,16 +43,24 @@ body:has(.project-six-layout) {
   /* Container positioned using padding within layout space */
   padding: 40px 40px 90px 280px;
   
-  /* Calculate total width needed for project-six: 240px content + 40px gap + 12 columns + 11 gaps + 40px margin-right */
+  /* Calculate total width needed for project-six.
+     The grid's absolute "left" is measured from .post's own box, and .post
+     itself already starts 280px in (container's own padding-left), so the
+     grid's true left offset from the container edge is 2 * (240px + 40px) =
+     560px, not 280px. Total width = that true left offset + N columns +
+     (N-1) gaps + 80px right margin (matches Wingspan/Nightfind, whose last
+     image has its own 40px trailing margin on top of the container's own
+     40px right padding). */
   --ig-gap: 4px;
+  --ig-columns: 12;
   --ig-height: calc(calc(100vh - 130px) - calc(16pt + 1px + 2.75rem));
   --ig-usable: calc(var(--ig-height) - (2 * var(--ig-gap)));
   --ig-cell: calc(var(--ig-usable) / 3);
   
-  width: calc(240px + 40px + (12 * var(--ig-cell)) + (11 * var(--ig-gap)) + 40px);
-  min-width: calc(240px + 40px + (12 * var(--ig-cell)) + (11 * var(--ig-gap)) + 40px);
+  width: calc((2 * (240px + 40px)) + (var(--ig-columns) * var(--ig-cell)) + ((var(--ig-columns) - 1) * var(--ig-gap)) + 80px);
+  min-width: calc((2 * (240px + 40px)) + (var(--ig-columns) * var(--ig-cell)) + ((var(--ig-columns) - 1) * var(--ig-gap)) + 80px);
   
-  position: static;
+  position: relative;
   height: auto;
   min-height: 100vh;
   
@@ -81,7 +90,6 @@ body:has(.project-six-layout) {
   position: absolute;
   top: calc(16pt + 1px + 2.75rem);
   left: calc(240px + 40px);
-  margin-right: 40px;
 }
 
 .project-six-grid-item,
@@ -145,6 +153,174 @@ body:has(.project-six-layout) {
   font-size: 14px;
   font-weight: bold;
 }
+
+/* Carousel indicator icon shown on grid thumbnails with multiple images */
+.carousel-indicator {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  color: #fff;
+  font-size: 16px;
+  line-height: 1;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Modal gallery controls for multi-image (carousel) posts */
+
+/* Feed modal: static 4:3 frame, sliding image track, and a static
+   thin description panel that never resizes when switching images. */
+
+/* The 4:3 frame is sized height-aware, not just width-aware. 90vw caps very
+   wide screens; the (100vh - 13rem) term caps short screens and RESERVES
+   9rem (144px) of vertical space for the description bar below the media, so
+   the heading + text + image counter always fit inside the viewport and are
+   never pushed past max-height where the media (flex-shrink:0, aspect-ratio
+   4/3) would clip them out of view. */
+.modal-overlay .modal-content {
+  width: min(90vw, calc((100vh - 13rem) * 4 / 3));
+  max-width: 90vw;
+  max-height: calc(100vh - 4rem);
+  display: flex;
+  flex-direction: column;
+  outline: none;
+  background: #fff;
+  overflow: visible;
+}
+
+/* 4:3 frame. Keeps its ratio regardless of image size and never shrinks, so it
+   stays static while images slide within it above the description bar. */
+.modal-media {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: #fff;
+  flex-shrink: 0;
+  flex-grow: 0;
+}
+
+.modal-slider {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.4s ease;
+}
+
+.modal-slide {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  flex: 0 0 100%;
+  background: #fff;
+}
+
+.modal-slide-image {
+  object-fit: contain !important;
+  background: #fff;
+}
+
+/* Static description panel - stays thin and fixed in place (does not move or
+   resize when images switch), but is tall enough to contain its heading,
+   description and image counter. Grows to fit its text, never clips it, and
+   never shows an internal scrollbar. */
+.modal-info {
+  flex-shrink: 0;
+  flex-grow: 0;
+  width: 100%;
+  min-height: 6rem;
+  box-sizing: border-box;
+  padding: 0.9rem 1.5rem;
+  text-align: center;
+  border-top: 1px solid #eee;
+  background: #fff;
+  overflow: visible;
+}
+
+/* ====================================================================
+   FEED MODAL - MOBILE
+   ==================================================================== */
+/* On narrow screens the viewport-height term naturally shrinks the 4:3 frame
+   to match portrait phone widths; these rules keep the description bar
+   centered and unclipped without a nested scrollbar. */
+@media (max-width: 768px) {
+  .modal-overlay .modal-content {
+    width: min(92vw, calc((100vh - 11rem) * 4 / 3));
+    max-width: 92vw;
+    max-height: calc(100vh - 4rem);
+  }
+
+  .modal-info {
+    min-height: 4.5rem;
+    padding: 0.6rem 1rem;
+  }
+}
+
+.modal-image-container {
+  position: relative;
+}
+
+.modal-nav-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 36px;
+  text-align: center;
+}
+
+.modal-nav-prev {
+  left: 12px;
+}
+
+.modal-nav-next {
+  right: 12px;
+}
+
+/* Carousel image-status section: a thin bar that sits in its own strip between
+   the media frame and the description, so it never overlaps the (letterboxed)
+   image. A full-width track renders at low opacity and a short bold segment
+   rides along it to show current position and direction of travel. */
+.modal-status {
+  flex-shrink: 0;
+  flex-grow: 0;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 1.5rem 4px;
+  background: #fff;
+}
+
+.modal-progress-track {
+  position: relative;
+  width: 100%;
+  height: 2px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.modal-progress-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  min-width: 20px;
+  border-radius: 999px;
+  background: #000;
+  opacity: 0.85;
+  transition: left 0.4s ease;
+}
+
 
 /* ====================================================================
    MOBILE RESPONSIVE STYLES
