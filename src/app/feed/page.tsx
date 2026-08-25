@@ -62,18 +62,6 @@ export default function ProjectSixPage() {
 
   const selectedPostData = posts.find(post => post.id === selectedPost)
   const modalRef = useRef<HTMLDivElement>(null)
-  const sliderRef = useRef<HTMLDivElement>(null)
-  const [slideWidth, setSlideWidth] = useState(0)
-
-  // Measure the slide track once so we can translate by exact pixels. Moving by
-  // index * 100% leaves a fractional-pixel gap that exposes a white hairline at
-  // the outer edges of the first/last slide; integer-pixel translation removes it.
-  useEffect(() => {
-    const measure = () => setSlideWidth(sliderRef.current?.offsetWidth ?? 0)
-    measure()
-    window.addEventListener('resize', measure)
-    return () => window.removeEventListener('resize', measure)
-  }, [selectedPost])
 
   const goToPreviousImage = () => {
     if (!selectedPostData || selectedPostData.images.length <= 1) {
@@ -225,8 +213,7 @@ export default function ProjectSixPage() {
               <div className="modal-media">
                 <div
                   className="modal-slider"
-                  ref={sliderRef}
-                  style={{ transform: `translateX(-${selectedImageIndex * slideWidth}px)` }}
+                  style={{ transform: `translateX(-${selectedImageIndex * 100}%)` }}
                 >
                   {selectedPostData.images.map((src, index) => (
                     <div className="modal-slide" key={src + index}>
