@@ -4,7 +4,7 @@ import './feed.css'
 import Navigation from '@/components/Navigation'
 import Image from 'next/image'
 import DynamicColumns from '@/components/DynamicColumns'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 type FeedPost = {
   id: number
@@ -28,93 +28,347 @@ const dcImageFilenames = [
 ]
 const dcImages = dcImageFilenames.map((filename) => `${R2_BASE_URL}/${DC_2026_FOLDER}/${filename}-720w.webp`)
 
+// Sample data - in a real app this would come from an API or database.
+// Cut down to a small set for now; add more posts here as needed.
+// Each post supports one or more images, similar to an Instagram carousel post.
+const posts: FeedPost[] = [
+  { id: 1, images: ['/placeholder-1.jpg'], alt: 'Post 1' },
+  { id: 2, images: ['/placeholder-2.jpg'], alt: 'Post 2' },
+  { id: 3, images: ['/placeholder-3.jpg'], alt: 'Post 3' },
+  { id: 4, images: ['/homepage-1.jpg'], alt: 'Post 4' },
+  { id: 5, images: ['/about-image.jpg'], alt: 'Post 5' },
+  { id: 6, images: ['/homepage-image.jpg'], alt: 'Post 6' },
+  { id: 7, images: ['/placeholder-4.jpg'], alt: 'Post 7' },
+  // Simulated carousel post with multiple images, like an Instagram multi-photo post
+  { id: 8, images: ['/homepage-1.jpg', '/about-image.jpg', '/homepage-image.jpg'], alt: 'Post 8 - carousel set' },
+  // Real carousel post from the fuji-dc-2026-5-10 set
+  { id: 9, images: dcImages, alt: 'DC | May 2026' },
+]
+
+// Load the intrinsic width/height of a remote image so slides can be sized to
+// their real proportions (no letterboxing in the multi-image filmstrip).
+const loadImageRatio = (src: string): Promise<{ w: number; h: number } | null> => {
+  return new Promise((resolve) => {
+    const img = new globalThis.Image()
+    img.onload = () => resolve({ w: img.naturalWidth, h: img.naturalHeight })
+    img.onerror = () => resolve(null)
+    img.src = src
+  })
+}
+
 export default function ProjectSixPage() {
   const [selectedPost, setSelectedPost] = useState<number | null>(null)
-  const [selectedImageIndex, setSelectedImageIndex] = useState(0)
   const [isColumnsReady, setIsColumnsReady] = useState(false)
-  
-  // Sample data - in a real app this would come from an API or database.
-  // Cut down to a small set for now; add more posts here as needed.
-  // Each post supports one or more images, similar to an Instagram carousel post.
-  const posts: FeedPost[] = [
-    { id: 1, images: ['/placeholder-1.jpg'], alt: 'Post 1' },
-    { id: 2, images: ['/placeholder-2.jpg'], alt: 'Post 2' },
-    { id: 3, images: ['/placeholder-3.jpg'], alt: 'Post 3' },
-    { id: 4, images: ['/homepage-1.jpg'], alt: 'Post 4' },
-    { id: 5, images: ['/about-image.jpg'], alt: 'Post 5' },
-    { id: 6, images: ['/homepage-image.jpg'], alt: 'Post 6' },
-    { id: 7, images: ['/placeholder-4.jpg'], alt: 'Post 7' },
-    // Simulated carousel post with multiple images, like an Instagram multi-photo post
-    { id: 8, images: ['/homepage-1.jpg', '/about-image.jpg', '/homepage-image.jpg'], alt: 'Post 8 - carousel set' },
-    // Real carousel post from the fuji-dc-2026-5-10 set
-    { id: 9, images: dcImages, alt: 'Post 9 - DC 2026 carousel' },
-  ]
+  // Currently-selected feed filter (demo only - not wired up yet).
+  const [activeFilter, setActiveFilter] = useState('Latest')
 
   const openModal = (postId: number) => {
     setSelectedPost(postId)
-    setSelectedImageIndex(0)
   }
 
   const closeModal = () => {
     setSelectedPost(null)
-    setSelectedImageIndex(0)
   }
 
   const selectedPostData = posts.find(post => post.id === selectedPost)
   const modalRef = useRef<HTMLDivElement>(null)
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const trackRef = useRef<HTMLDivElement>(null)
+  const dragRef = useRef<{ startClientX: number; startViewOffset: number; lastX: number; active: boolean }>({
+    startClientX: 0,
+    startViewOffset: 0,
+    lastX: 0,
+    active: false,
+  })
 
-  const goToPreviousImage = () => {
-    if (!selectedPostData || selectedPostData.images.length <= 1) {
-      return
+  // Intrinsic ratios for each image in the open post, keyed by src. Used to size
+  // slides to the image's real proportions so no letterboxing occurs in the
+  // multi-image filmstrip (even spacing, uniform gap).
+  const [imageRatios, setImageRatios] = useState<Record<string, { w: number; h: number }>>({})
+  // Top dominant colours across the whole post (most prominent first), used for
+  // the details-bar swatches (from /api/post-colors; R2 pixel reads are CORS-blocked).
+  const [topColors, setTopColors] = useState<string[]>([])
+  // Each image's dominant colour, aligned to the post's image list - drives the
+  // active-colour dot as the carousel is navigated.
+  const [perImageColors, setPerImageColors] = useState<string[]>([])
+  // The image currently in view; drives the active dot's colour. Reset on open.
+  const [activeIndex, setActiveIndex] = useState(0)
+  // Current horizontal offset (px) applied to the track as `translateX(-x)`.
+  const [viewOffset, setViewOffset] = useState(0)
+  // True while the user is dragging the track (disables the ease transition).
+  const [isDragging, setIsDragging] = useState(false)
+  // Scroll progress of the carousel, used to drive the bold indicator bar.
+  const [scrollProgress, setScrollProgress] = useState({ fraction: 0, width: 0 })
+  // Whether the current post's images have been measured. The strip stays hidden
+  // (then fades in) until slide widths are final, so the first image never
+  // renders mis-aligned and then "jumps" once dimensions load.
+  const [mediaReady, setMediaReady] = useState(false)
+  // Throttle so each big wheel input advances exactly one image.
+  const lastMoveRef = useRef(0)
+  // Accumulated wheel scroll; advances only after a full threshold is reached.
+  const wheelAccumRef = useRef(0)
+  // Source-of-truth index for navigation (mirrored in the activeIndex state).
+  const currentIndexRef = useRef(0)
+
+  // Refresh the progress bar from the current offset.
+  const refreshProgress = useCallback((x: number) => {
+    const el = scrollRef.current
+    if (!el) return
+    const max = el.scrollWidth - el.clientWidth
+    setScrollProgress({
+      fraction: max > 0 ? Math.min(1, Math.max(0, x / max)) : 0,
+      width: el.scrollWidth > 0 ? el.clientWidth / el.scrollWidth : 0,
+    })
+  }, [])
+
+  // Each image's horizontal resting position (the translateX amount that brings
+  // that slide to the left edge with the 8px border inset).
+  const slideTargets = useCallback(() => {
+    const track = trackRef.current
+    const slides = track ? Array.from(track.querySelectorAll<HTMLElement>('.modal-strip-slide')) : []
+    return slides.map((s) => s.offsetLeft - 8)
+  }, [])
+
+  // Hard-limit the offset so the track can never scroll past the end of the
+  // last image - the final image stays at the right edge instead of being
+  // pulled to the front and leaving empty space on the right.
+  const clampOffset = useCallback((x: number) => {
+    const el = scrollRef.current
+    const max = el ? Math.max(0, el.scrollWidth - el.clientWidth) : 0
+    return Math.min(max, Math.max(0, x))
+  }, [])
+
+  // Move one step in `dir` (1 = next, -1 = previous). Position is derived from
+  // the tracked index, so it can only ever rest on an image - never between.
+  const moveBy = useCallback((dir: 1 | -1) => {
+    const targets = slideTargets()
+    if (targets.length === 0) return
+    const target = Math.min(targets.length - 1, Math.max(0, currentIndexRef.current + dir))
+    currentIndexRef.current = target
+    setActiveIndex(target)
+    const x = clampOffset(targets[target])
+    setViewOffset(x)
+    refreshProgress(x)
+  }, [refreshProgress, slideTargets, clampOffset])
+
+  // Snap to the image nearest an arbitrary offset (used on drag release), so
+  // the carousel always rests cleanly on an image.
+  const snapToNearest = useCallback((x: number) => {
+    const targets = slideTargets()
+    if (targets.length === 0) return
+    let best = 0
+    let bestDist = Infinity
+    for (let i = 0; i < targets.length; i++) {
+      const d = Math.abs(x - targets[i])
+      if (d < bestDist) {
+        bestDist = d
+        best = i
+      }
     }
+    currentIndexRef.current = best
+    setActiveIndex(best)
+    const tx = clampOffset(targets[best])
+    setViewOffset(tx)
+    refreshProgress(tx)
+  }, [refreshProgress, slideTargets, clampOffset])
 
-    setSelectedImageIndex((index) => (index === 0 ? selectedPostData.images.length - 1 : index - 1))
+  // Pointer drag-to-scroll. Pointer capture keeps the drag smooth and prevents
+  // native image dragging / text selection while pulling the track sideways.
+  const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (!mediaReady) return
+    const el = scrollRef.current
+    if (!el) return
+    dragRef.current = {
+      startClientX: event.clientX,
+      startViewOffset: viewOffset,
+      lastX: viewOffset,
+      active: true,
+    }
+    setIsDragging(true)
+    el.setPointerCapture?.(event.pointerId)
   }
 
-  const goToNextImage = () => {
-    if (!selectedPostData || selectedPostData.images.length <= 1) {
-      return
-    }
-
-    setSelectedImageIndex((index) => (index === selectedPostData.images.length - 1 ? 0 : index + 1))
+  const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragRef.current.active) return
+    const dx = event.clientX - dragRef.current.startClientX
+    const nx = clampOffset(dragRef.current.startViewOffset - dx)
+    dragRef.current.lastX = nx
+    setViewOffset(nx)
+    refreshProgress(nx)
   }
 
-  // Focus the modal when it opens so arrow keys immediately control the carousel.
+  const handlePointerEnd = () => {
+    if (!dragRef.current.active) return
+    const x = dragRef.current.lastX
+    dragRef.current.active = false
+    setIsDragging(false)
+    snapToNearest(x)
+  }
+
+  // Focus the modal and reset the carousel to the start when it opens.
   useEffect(() => {
     if (selectedPost !== null) {
       modalRef.current?.focus()
+      setTopColors([])
+      setPerImageColors([])
+      setActiveIndex(0)
+      setViewOffset(0)
+      setIsDragging(false)
+      setMediaReady(false)
+      currentIndexRef.current = 0
+      wheelAccumRef.current = 0
     }
   }, [selectedPost])
 
-  // Arrow keys / Escape work from anywhere while the modal is open. Bound at
-  // window level so clicking on the (non-focusable) media area can't drop
-  // focus to <body> and silently break keyboard navigation.
+  // Measure image proportions and load the post's dominant colours; only then
+  // reveal the filmstrip so the opening frame is already final.
   useEffect(() => {
     if (selectedPost === null || !selectedPostData) {
+      return
+    }
+
+    let cancelled = false
+    const srcs = selectedPostData.images
+
+    const load = async () => {
+      const isRemote = (s: string) => /^https:\/\//.test(s)
+      const remote = srcs.filter(isRemote)
+      const local = srcs.filter((s) => !isRemote(s))
+
+      const ratioMap: Record<string, { w: number; h: number }> = {}
+      // Local files need no network - measure directly and fast.
+      const localEntries = await Promise.all(
+        local.map(async (src) => [src, await loadImageRatio(src)] as const),
+      )
+      for (const [src, ratio] of localEntries) {
+        if (ratio) {
+          ratioMap[src] = ratio
+        }
+      }
+
+      let data: {
+        colors?: string[]
+        perImage?: string[]
+        ratios?: Record<string, { w: number; h: number }>
+      } = {}
+      if (remote.length > 0) {
+        try {
+          const res = await fetch('/api/post-colors', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ urls: remote }),
+          })
+          data = await res.json()
+        } catch {
+          // non-fatal - colours fall back to grey
+        }
+      }
+
+      if (cancelled) return
+
+      for (const src of remote) {
+        if (data?.ratios?.[src]) {
+          ratioMap[src] = data.ratios[src]
+        }
+      }
+      setImageRatios(ratioMap)
+
+      if (Array.isArray(data?.colors)) {
+        setTopColors(data.colors)
+      }
+      if (Array.isArray(data?.perImage)) {
+        // perImage is aligned to the remote list order; re-align to the full list.
+        const colorBySrc: Record<string, string> = {}
+        remote.forEach((src, i) => {
+          const c = data.perImage?.[i]
+          if (c) {
+            colorBySrc[src] = c
+          }
+        })
+        setPerImageColors(srcs.map((s) => colorBySrc[s] || ''))
+      }
+
+      if (!cancelled) {
+        setMediaReady(true)
+        setViewOffset(0)
+        setActiveIndex(0)
+        currentIndexRef.current = 0
+        requestAnimationFrame(() => refreshProgress(0))
+      }
+    }
+
+    load()
+    return () => {
+      cancelled = true
+    }
+  }, [selectedPost, selectedPostData, refreshProgress])
+
+  // Re-measure once the strip is actually laid out so the progress bar starts
+  // showing the first image instead of a full-width fill. A double rAF runs
+  // after the browser commits the slide layout.
+  useEffect(() => {
+    if (!mediaReady) return
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        refreshProgress(viewOffset)
+      })
+    })
+  }, [mediaReady, refreshProgress, viewOffset])
+
+  // Mouse-wheel / Shift navigation: one image per scroll, throttled so it feels
+  // stepped and "lazy" (no high-sensitivity sweep). Bound natively with
+  // { passive: false } so we can prevent page scrolling behind the modal.
+  useEffect(() => {
+    const el = scrollRef.current
+    if (selectedPost === null || !el) {
+      return
+    }
+
+    const onWheel = (event: WheelEvent) => {
+      const now = Date.now()
+      const dx = event.deltaX
+      const dy = event.deltaY
+      const magnitude = Math.abs(dy) >= Math.abs(dx) ? dy : dx
+      if (magnitude === 0) return
+      event.preventDefault()
+      // Short debounce so a single wheel detent can't double-trigger.
+      if (now - lastMoveRef.current < 100) return
+      // Accumulate scroll; only advance once the user has scrolled a full
+      // threshold (~2x a normal wheel notch), then reset - so it needs roughly
+      // double the scroll input to move to the next image.
+      wheelAccumRef.current += magnitude
+      if (Math.abs(wheelAccumRef.current) < 240) return
+      moveBy(wheelAccumRef.current < 0 ? -1 : 1)
+      wheelAccumRef.current = 0
+      lastMoveRef.current = now
+    }
+
+    el.addEventListener('wheel', onWheel, { passive: false })
+    return () => el.removeEventListener('wheel', onWheel)
+  }, [selectedPost, moveBy])
+
+  // Arrow keys step between images (same path as wheel); Escape closes.
+  useEffect(() => {
+    if (selectedPost === null) {
       return
     }
 
     const handleModalKeyDown = (event: globalThis.KeyboardEvent) => {
       if (event.key === 'ArrowLeft') {
         event.preventDefault()
-        setSelectedImageIndex((index) =>
-          index === 0 ? selectedPostData.images.length - 1 : index - 1
-        )
+        moveBy(-1)
       } else if (event.key === 'ArrowRight') {
         event.preventDefault()
-        setSelectedImageIndex((index) =>
-          index === selectedPostData.images.length - 1 ? 0 : index + 1
-        )
+        moveBy(1)
       } else if (event.key === 'Escape') {
         event.preventDefault()
         setSelectedPost(null)
-        setSelectedImageIndex(0)
       }
     }
 
     window.addEventListener('keydown', handleModalKeyDown)
     return () => window.removeEventListener('keydown', handleModalKeyDown)
-  }, [selectedPost, selectedPostData])
+  }, [selectedPost, moveBy])
 
   // Exact column count for the Instagram grid, so the container width always
   // matches the real grid width (prevents clipping and preserves right-edge spacing).
@@ -148,6 +402,20 @@ export default function ProjectSixPage() {
           <div className="post">
             <div className="info">
               <div className="title section">Feed</div>
+              {/* Example filter buttons - to be wired up for filtering the feed.
+                  Rendered as colored dots like the reference site's colour wheel. */}
+              <div className="feed-filters" aria-label="Filter feed">
+                {(['Latest', 'Personal', 'Commercial', 'School'] as const).map((f) => (
+                  <button
+                    key={f}
+                    type="button"
+                    className={`feed-filter feed-filter--${f.toLowerCase()}${activeFilter === f ? ' feed-filter--active' : ''}`}
+                    title={f}
+                    aria-label={f}
+                    onClick={() => setActiveFilter(f)}
+                  />
+                ))}
+              </div>
               <div className="clear"></div>
             </div>
             
@@ -174,7 +442,7 @@ export default function ProjectSixPage() {
                 >
                   <div className="instagram-post-overlay">
                     <div className="overlay-content">
-                      <span className="post-number">#{post.id}</span>
+                      <span className="post-number">{post.alt}</span>
                     </div>
                   </div>
                   {post.images.length > 1 && (
@@ -202,7 +470,7 @@ export default function ProjectSixPage() {
         {selectedPost && selectedPostData && (
           <div className="modal-overlay" onClick={closeModal}>
             <div
-              className="modal-content"
+              className={isDragging ? 'modal-content dragging' : 'modal-content'}
               onClick={(e) => e.stopPropagation()}
               ref={modalRef}
               tabIndex={-1}
@@ -210,53 +478,96 @@ export default function ProjectSixPage() {
               <button className="modal-close" onClick={closeModal}>
                 ×
               </button>
-              <div className="modal-media">
+              {selectedPostData.images.length > 1 ? (
                 <div
-                  className="modal-slider"
-                  style={{ transform: `translateX(-${selectedImageIndex * 100}%)` }}
+                  className="modal-media"
+                  ref={scrollRef}
+                  onPointerDown={handlePointerDown}
+                  onPointerMove={handlePointerMove}
+                  onPointerUp={handlePointerEnd}
+                  onPointerCancel={handlePointerEnd}
+                  style={{ opacity: mediaReady ? 1 : 0 }}
                 >
-                  {selectedPostData.images.map((src, index) => (
-                    <div className="modal-slide" key={src + index}>
-                      <Image
-                        src={src}
-                        alt={`${selectedPostData.alt} image ${index + 1}`}
-                        fill
-                        sizes="(max-width: 800px) 90vw, 800px"
-                        className="modal-slide-image"
-                      />
+                  {mediaReady && (
+                    <div
+                      ref={trackRef}
+                      className="modal-strip"
+                      style={{ transform: `translateX(${-viewOffset}px)` }}
+                    >
+                      {selectedPostData.images.map((src, index) => {
+                        const ratio = imageRatios[src]
+                        return (
+                          <div
+                            className="modal-strip-slide"
+                            key={src + index}
+                            style={{ aspectRatio: ratio ? `${ratio.w} / ${ratio.h}` : '4 / 3' }}
+                          >
+                            <Image
+                              src={src}
+                              alt={`${selectedPostData.alt} image ${index + 1}`}
+                              fill
+                              sizes="(max-width: 800px) 90vw, 800px"
+                              className="modal-slide-image"
+                              draggable={false}
+                              onDragStart={(e) => e.preventDefault()}
+                            />
+                          </div>
+                        )
+                      })}
                     </div>
-                  ))}
+                  )}
                 </div>
-                {selectedPostData.images.length > 1 && (
-                  <>
-                    <button className="modal-nav-button modal-nav-prev" onClick={goToPreviousImage} aria-label="Previous image">
-                      &#8249;
-                    </button>
-                    <button className="modal-nav-button modal-nav-next" onClick={goToNextImage} aria-label="Next image">
-                      &#8250;
-                    </button>
-                  </>
-                )}
-              </div>
+              ) : (
+                <div className="modal-media modal-media-single">
+                  <div className="modal-single">
+                    <Image
+                      src={selectedPostData.images[0]}
+                      alt={selectedPostData.alt}
+                      fill
+                      sizes="(max-width: 800px) 90vw, 800px"
+                      className="modal-single-image"
+                      draggable={false}
+                      onDragStart={(e) => e.preventDefault()}
+                    />
+                  </div>
+                </div>
+              )}
+
               {selectedPostData.images.length > 1 && (
                 <div className="modal-status">
                   <div className="modal-progress-track">
                     <div
                       className="modal-progress-indicator"
                       style={{
-                        width: `calc(100% / ${selectedPostData.images.length})`,
-                        left: `calc(${selectedImageIndex / (selectedPostData.images.length - 1)} * (100% - (100% / ${selectedPostData.images.length})))`,
+                        width: `${scrollProgress.width * 100}%`,
+                        left: `calc(${scrollProgress.fraction} * (100% - ${scrollProgress.width * 100}%))`,
                       }}
                     />
                   </div>
                 </div>
               )}
-              <div className="modal-info">
-                <h3>Post #{selectedPostData.id}</h3>
-                <p>{selectedPostData.alt}</p>
-                {selectedPostData.images.length > 1 && (
-                  <p>Image {selectedImageIndex + 1} of {selectedPostData.images.length}</p>
-                )}
+
+              <div className="modal-details">
+                <div className="modal-details-title">
+                  <span
+                    className="modal-details-dot"
+                    aria-hidden="true"
+                    style={{ background: perImageColors[activeIndex] || '#45573b' }}
+                  />
+                  <span className="modal-details-title-box">{selectedPostData.alt}</span>
+                </div>
+                <div className="modal-details-cell">Personal</div>
+                <div className="modal-details-cell">
+                  {selectedPostData.images.length}
+                </div>
+                <div className="modal-details-colors" aria-label="Post colours">
+                  {(topColors.length
+                    ? topColors
+                    : Array.from({ length: Math.min(5, selectedPostData.images.length) }, () => '#e0e0e0')
+                  ).map((color, index) => (
+                    <span key={index} className="modal-details-color" style={{ background: color }} />
+                  ))}
+                </div>
               </div>
             </div>
           </div>

@@ -1073,7 +1073,7 @@ body:has(.horizontal-page-container) {
 .instagram-grid-item-full .overlay-content {
   color: white;
   font-size: 12px;
-  font-weight: 500;
+  font-weight: normal;
   text-align: center;
 }
 
@@ -1083,5 +1083,5 @@ body:has(.horizontal-page-container) {
   padding: 4px 8px;
   border-radius: 3px;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: normal;
 }
