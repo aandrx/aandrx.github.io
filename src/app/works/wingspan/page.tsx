@@ -40,6 +40,10 @@ const imageSets: WingspanImageSet[] = [
       'DSCF9063-Edit',
     ],
   },
+  {
+    folder: 'fuji-gt-2026-1-9',
+    filenames: ['DSCF6988-Edit'],
+  },
 ]
 
 const images: WingspanImage[] = imageSets.flatMap(({ folder, filenames }) =>
@@ -138,7 +142,7 @@ export default function WingspanPage() {
               <p>These photographs were made across separate trips, but they share the same impulse: to hold onto brief alignments of weather, light, and distance before they dissolve. Aircraft, streets, and open sky each become different ways of measuring time.</p>
               <p>What interests me most is the tension between scale and intimacy. A plane can dominate the horizon one moment, then vanish into a line of cloud, while a face in a station or a reflection in a window can carry the same sense of vastness.</p>
               <p>As the sequence moves forward, the images shift from grounded scenes toward wider air and city views, building a rhythm of lift, drift, and return. Together they read like fragments of one long route, stitched from places that were never meant to stay still.</p>
-              <p>November 2024, January 2025, June 2026</p>
+              <p>November 2024, January 2025, June 2026, January 2026</p>
             </DynamicColumns>
           </div>
 

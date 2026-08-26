@@ -11,21 +11,35 @@ import React from 'react'
 // Base URL for R2 bucket root
 const R2_BASE_URL = 'https://pub-a490d2e7f9254d579a1364365ba09b45.r2.dev'
 
-// Update this folder when you publish a new Nightfind 2025 set
-const NIGHTFIND_2025_FOLDER = 'nightfind-2024-10-24-30'
-
-// Replace these with your new R2 filenames (without -720w.webp)
-const imageFilenames = [
-  'DSCF9391-Edit',
-  'DSCF9422-Edit',
-  'DSCF9425-Edit',
-  'DSCF9426-Edit',
-  'DSCF9426-Edit-2',
-  'DSCF9430-Edit',
-  'DSCF9432-Edit',
+// Keep image groups by source folder, sorted chronologically (all 2025).
+const imageSets = [
+  {
+    folder: 'fuji-gt-2025-1-15-31',
+    filenames: [
+      'DSCF9903-Edit',
+      'DSCF9905-Edit-2-2',
+      'DSCF9906-Edit',
+      'DSCF9907-Edit-2',
+    ],
+  },
+  {
+    folder: 'fuji-gt-2025-8-11-16-17',
+    filenames: ['DSCF5835-Edit'],
+  },
+  {
+    folder: 'fuji-gt-2025-9-18',
+    filenames: ['DSCF5807-Edit'],
+  },
 ]
 
-const loadSingleImageDimension = (filename: string): Promise<{ width: number; height: number } | null> => {
+const images = imageSets.flatMap(({ folder, filenames }) =>
+  filenames.map((filename) => ({
+    src: `${R2_BASE_URL}/${folder}/${filename}-720w.webp`,
+    alt: `Nightfind 2025 ${filename}`,
+  })),
+)
+
+const loadSingleImageDimension = (src: string): Promise<{ width: number; height: number } | null> => {
   return new Promise((resolve) => {
     const img = new globalThis.Image()
     img.onload = () => {
@@ -35,7 +49,7 @@ const loadSingleImageDimension = (filename: string): Promise<{ width: number; he
       })
     }
     img.onerror = () => resolve(null)
-    img.src = `${R2_BASE_URL}/${NIGHTFIND_2025_FOLDER}/${filename}-720w.webp`
+    img.src = src
   })
 }
 
@@ -55,15 +69,15 @@ export default function Nightfind2025Page() {
       const dimensions: Record<string, { width: number; height: number }> = {}
 
       const results = await Promise.all(
-        imageFilenames.map(async (filename) => {
-          const dimension = await loadSingleImageDimension(filename)
-          return { filename, dimension }
+        images.map(async (image) => {
+          const dimension = await loadSingleImageDimension(image.src)
+          return { image, dimension }
         }),
       )
 
-      for (const { filename, dimension } of results) {
+      for (const { image, dimension } of results) {
         if (dimension) {
-          dimensions[filename] = dimension
+          dimensions[image.src] = dimension
         }
       }
 
@@ -111,25 +125,25 @@ export default function Nightfind2025Page() {
               <p>A continuation of Nightfind, now with sharper contrast and quieter streets.</p>
               <p>Moving between corners of light, waiting for brief moments to settle into frame.</p>
               <p>The routine stayed the same: walk, pause, adjust settings, and follow the night until it opens up.</p>
-              <p>2025</p>
+              <p>2025, January 2025</p>
             </DynamicColumns>
           </div>
 
           {imagesLoaded &&
-            imageFilenames.map((filename) => {
-              const dimensions = imageDimensions[filename]
+            images.map((image) => {
+              const dimensions = imageDimensions[image.src]
 
               if (!dimensions) {
-                console.debug(`No dimensions available for ${filename}`)
+                console.debug(`No dimensions available for ${image.src}`)
                 return null
               }
 
               return (
-                <div key={filename} className="imageElement ie">
+                <div key={image.src} className="imageElement ie">
                   <div className="wp-caption">
                     <Image
-                      src={`${R2_BASE_URL}/${NIGHTFIND_2025_FOLDER}/${filename}-720w.webp`}
-                      alt={`Nightfind 2025 ${filename}`}
+                      src={image.src}
+                      alt={image.alt}
                       width={dimensions.width}
                       height={dimensions.height}
                       className="wp-image-78"

@@ -10,6 +10,8 @@ type FeedPost = {
   id: number
   images: string[]
   alt: string
+  // Short hover label in "Place | year" form (falls back to alt if unset).
+  label?: string
 }
 
 // Base URL for R2 bucket root
@@ -28,10 +30,27 @@ const dcImageFilenames = [
 ]
 const dcImages = dcImageFilenames.map((filename) => `${R2_BASE_URL}/${DC_2026_FOLDER}/${filename}-720w.webp`)
 
+// Sony July 4, 2024 set
+const SONY_JULY4_FOLDER = 'sony-july4-2024-7-4'
+const sonyJuly4Images = ['DSC00858-Edit', 'DSC00876-Edit-Edit-2'].map(
+  (filename) => `${R2_BASE_URL}/${SONY_JULY4_FOLDER}/${filename}-720w.webp`,
+)
+
+// Oregon, Cannon Beach 2024 set (images 1, 3, 4; second image moved to front)
+const OREGON_CANNON_FOLDER = 'oregon-cannon-beach-2024-3-6'
+const oregonCannonImages = ['DSC09716-2', 'DSC09715', 'DSC09720'].map(
+  (filename) => `${R2_BASE_URL}/${OREGON_CANNON_FOLDER}/${filename}-720w.webp`,
+)
+
 // Sample data - in a real app this would come from an API or database.
 // Cut down to a small set for now; add more posts here as needed.
 // Each post supports one or more images, similar to an Instagram carousel post.
 const posts: FeedPost[] = [
+  // Newest first, oldest last.
+  { id: 9, images: dcImages, alt: 'DC | May 2026', label: 'DC | 2026' },
+  { id: 10, images: sonyJuly4Images, alt: 'July 4th | 2024' },
+  { id: 11, images: oregonCannonImages, alt: 'Cannon Beach, Oregon | 2024', label: 'Oregon | 2024' },
+  // Sample placeholders (undated / oldest)
   { id: 1, images: ['/placeholder-1.jpg'], alt: 'Post 1' },
   { id: 2, images: ['/placeholder-2.jpg'], alt: 'Post 2' },
   { id: 3, images: ['/placeholder-3.jpg'], alt: 'Post 3' },
@@ -41,8 +60,6 @@ const posts: FeedPost[] = [
   { id: 7, images: ['/placeholder-4.jpg'], alt: 'Post 7' },
   // Simulated carousel post with multiple images, like an Instagram multi-photo post
   { id: 8, images: ['/homepage-1.jpg', '/about-image.jpg', '/homepage-image.jpg'], alt: 'Post 8 - carousel set' },
-  // Real carousel post from the fuji-dc-2026-5-10 set
-  { id: 9, images: dcImages, alt: 'DC | May 2026' },
 ]
 
 // Load the intrinsic width/height of a remote image so slides can be sized to
@@ -442,7 +459,7 @@ export default function ProjectSixPage() {
                 >
                   <div className="instagram-post-overlay">
                     <div className="overlay-content">
-                      <span className="post-number">{post.alt}</span>
+                      <span className="post-number">{post.label || post.alt}</span>
                     </div>
                   </div>
                   {post.images.length > 1 && (

@@ -246,7 +246,9 @@ body:has(.project-six-layout) {
   flex-direction: column;
   outline: none;
   background: #fff;
-  overflow: visible;
+  /* Clip the media to the content's rounded corners so the top corners are
+     consistently rounded (no flash of square corners as the image fades in). */
+  overflow: hidden;
 }
 
 /* Horizontal filmstrip viewport: a clipped window. Movement is applied to the
