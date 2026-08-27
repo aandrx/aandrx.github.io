@@ -200,6 +200,25 @@ a:hover {
   text-underline-offset: 2pt;
 }
 
+/* Submenu toggle buttons (Nightfind, CSA) should match the anchor rows exactly
+   - strip the native button chrome so the vertical spacing/gaps are uniform. */
+.works-submenu button {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: left;
+  font: inherit;
+  font-size: 9.5pt;
+  font-weight: 300;
+  line-height: 16pt;
+  font-family: Arial, sans-serif;
+  color: var(--wp--preset--color--black, #000);
+  cursor: pointer;
+}
+
 /* ====================================================================
    PROJECT GRID COMPONENTS
    ==================================================================== */

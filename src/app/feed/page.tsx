@@ -50,16 +50,6 @@ const posts: FeedPost[] = [
   { id: 9, images: dcImages, alt: 'DC | May 2026', label: 'DC | 2026' },
   { id: 10, images: sonyJuly4Images, alt: 'July 4th | 2024' },
   { id: 11, images: oregonCannonImages, alt: 'Cannon Beach, Oregon | 2024', label: 'Oregon | 2024' },
-  // Sample placeholders (undated / oldest)
-  { id: 1, images: ['/placeholder-1.jpg'], alt: 'Post 1' },
-  { id: 2, images: ['/placeholder-2.jpg'], alt: 'Post 2' },
-  { id: 3, images: ['/placeholder-3.jpg'], alt: 'Post 3' },
-  { id: 4, images: ['/homepage-1.jpg'], alt: 'Post 4' },
-  { id: 5, images: ['/about-image.jpg'], alt: 'Post 5' },
-  { id: 6, images: ['/homepage-image.jpg'], alt: 'Post 6' },
-  { id: 7, images: ['/placeholder-4.jpg'], alt: 'Post 7' },
-  // Simulated carousel post with multiple images, like an Instagram multi-photo post
-  { id: 8, images: ['/homepage-1.jpg', '/about-image.jpg', '/homepage-image.jpg'], alt: 'Post 8 - carousel set' },
 ]
 
 // Load the intrinsic width/height of a remote image so slides can be sized to
