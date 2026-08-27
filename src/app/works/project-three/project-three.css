@@ -16,6 +16,7 @@ body:has(.project-three-layout) {
   width: fit-content;
   min-width: 100vw;
   height: 100vh;
+  max-height: 100vh;
   overflow-x: auto;
   overflow-y: hidden;
   display: flex;
@@ -32,7 +33,7 @@ body:has(.project-three-layout) {
   position: static;
   width: max-content;
   min-width: 100vw;
-  height: auto;
+  height: 100%;
   min-height: 100vh;
 
   overflow: visible;
@@ -74,7 +75,9 @@ body:has(.project-three-layout) {
   flex-shrink: 0;
   display: inline-block;
   vertical-align: top;
-  height: calc(100vh - 240px);
+  /* Zoom-constant: vh-only so the image keeps a fixed on-screen height while page-zooming (Ctrl+/-); the text below still scales. */
+  max-height: calc(100vh - 25vh);
+  height: calc(100vh - 25vh);
   width: auto;
 }
 
