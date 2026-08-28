@@ -157,7 +157,6 @@ export default function DynamicColumns({
   onRenderComplete,
 }: Readonly<DynamicColumnsProps>) {
   const [columns, setColumns] = useState<React.ReactNode[]>([])
-  const [renderKey, setRenderKey] = useState(0)
   const [isRendering, setIsRendering] = useState(true)
   const firstColumnRef = useRef<HTMLDivElement>(null)
 
@@ -204,7 +203,6 @@ export default function DynamicColumns({
       document.documentElement.style.setProperty('--dynamic-container-width', `${containerWidth}px`)
 
       setColumns(newColumns)
-      setRenderKey((prev) => prev + 1)
 
       // Ensure DOM has updated before signalling completion
       setTimeout(() => {
@@ -224,5 +222,5 @@ export default function DynamicColumns({
     return <div className="columns-loading">Loading...</div>
   }
 
-  return <div key={renderKey}>{columns}</div>
+  return <div>{columns}</div>
 }

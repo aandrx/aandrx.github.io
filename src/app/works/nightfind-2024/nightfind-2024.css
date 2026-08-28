@@ -147,6 +147,7 @@ body:has(.nightfind-2024-layout) {
   /* Mobile images - stack vertically, full width */
   .nightfind-2024-layout .imageElement.ie {
     display: block;
+    max-height: none;
     width: 100% !important;
     height: auto;
     margin-right: 0;

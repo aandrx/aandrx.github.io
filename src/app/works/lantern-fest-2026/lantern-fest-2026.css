@@ -147,6 +147,7 @@ body:has(.lantern-fest-2026-layout) {
   /* Mobile images - stack vertically, full width */
   .lantern-fest-2026-layout .imageElement.ie {
     display: block;
+    max-height: none;
     width: 100% !important;
     height: auto;
     margin-right: 0;

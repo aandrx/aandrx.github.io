@@ -16,7 +16,7 @@ body:has(.project-six-layout) {
 .project-six-layout {
   width: fit-content;
   min-width: 100vw;
-  height: 100vh;
+  height: 100dvh;
   overflow-x: hidden;
   overflow-y: hidden;
   display: flex;
@@ -41,14 +41,12 @@ body:has(.project-six-layout) {
 /* Feed filter buttons - a row of coloured dots like the reference site's
    colour wheel. Sit inside the info band, aligned with the left edge of the
    Instagram grid (240px text column + 40px gap) and vertically centered. */
-.project-six-layout .post .info .feed-filters {
-  position: absolute;
-  left: calc(240px + 40px);
-  top: 50%;
-  transform: translateY(-50%);
+.project-six-layout .feed-filters {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 10px;
+  margin: 6px 0 20px;
 }
 
 .project-six-layout .feed-filter {
@@ -113,7 +111,7 @@ body:has(.project-six-layout) {
      40px right padding). */
   --ig-gap: 4px;
   --ig-columns: 12;
-  --ig-height: calc(calc(100vh - 130px) - calc(16pt + 1px + 2.75rem));
+  --ig-height: calc(calc(100dvh - 130px) - calc(16pt + 1px + 2.75rem));
   --ig-usable: calc(var(--ig-height) - (2 * var(--ig-gap)));
   --ig-cell: calc(var(--ig-usable) / 3);
   
@@ -122,7 +120,7 @@ body:has(.project-six-layout) {
   
   position: relative;
   height: auto;
-  min-height: 100vh;
+  min-height: 100dvh;
   
   overflow: visible;
   background: #fff;
@@ -233,15 +231,15 @@ body:has(.project-six-layout) {
    thin description panel that never resizes when switching images. */
 
 /* The 4:3 frame is sized height-aware, not just width-aware. 90vw caps very
-   wide screens; the (100vh - 13rem) term caps short screens and RESERVES
+   wide screens; the (100dvh - 13rem) term caps short screens and RESERVES
    9rem (144px) of vertical space for the description bar below the media, so
    the heading + text + image counter always fit inside the viewport and are
    never pushed past max-height where the media (flex-shrink:0, aspect-ratio
    4/3) would clip them out of view. */
 .modal-overlay .modal-content {
-  width: min(90vw, round(calc((100vh - 13rem) * 4 / 3), 1px));
+  width: min(90vw, round(calc((100dvh - 13rem) * 4 / 3), 1px));
   max-width: 90vw;
-  max-height: calc(100vh - 4rem);
+  max-height: calc(100dvh - 4rem);
   display: flex;
   flex-direction: column;
   outline: none;
@@ -456,9 +454,9 @@ body:has(.project-six-layout) {
    centered and unclipped without a nested scrollbar. */
 @media (max-width: 768px) {
   .modal-overlay .modal-content {
-    width: min(92vw, round(calc((100vh - 11rem) * 4 / 3), 1px));
+    width: min(92vw, round(calc((100dvh - 11rem) * 4 / 3), 1px));
     max-width: 92vw;
-    max-height: calc(100vh - 4rem);
+    max-height: calc(100dvh - 4rem);
   }
 
   .modal-details {
@@ -499,7 +497,7 @@ body:has(.project-six-layout) {
     width: 100vw;
     min-width: 100vw;
     height: auto;
-    min-height: 100vh;
+    min-height: 100dvh;
     overflow-x: hidden;
     overflow-y: visible;
     display: block;
@@ -528,11 +526,11 @@ body:has(.project-six-layout) {
     margin-bottom: 20px;
   }
 
-  /* Mobile feed filters - stop overlapping; lay them out inline and wrapping. */
-  .project-six-layout .post .info .feed-filters {
+  /* Mobile feed filters - under the text, above the grid: in normal flow. */
+  .project-six-layout .feed-filters {
     position: static;
     transform: none;
-    margin: 8px 0;
+    margin: 8px 0 16px;
     flex-wrap: wrap;
   }
 

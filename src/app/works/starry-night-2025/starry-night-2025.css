@@ -147,6 +147,7 @@ body:has(.starry-night-2025-layout) {
   /* Mobile images - stack vertically, full width */
   .starry-night-2025-layout .imageElement.ie {
     display: block;
+    max-height: none;
     width: 100% !important;
     height: auto;
     margin-right: 0;

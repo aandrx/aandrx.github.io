@@ -135,6 +135,7 @@ body:has(.project-five-layout) {
   /* Mobile images - stack vertically, full width */
   .project-five-layout .imageElement.ie {
     display: block;
+    max-height: none;
     width: 100% !important;
     height: auto;
     margin-right: 0;

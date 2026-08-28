@@ -68,6 +68,12 @@ export default function ProjectSixPage() {
   const [isColumnsReady, setIsColumnsReady] = useState(false)
   // Currently-selected feed filter (demo only - not wired up yet).
   const [activeFilter, setActiveFilter] = useState('Latest')
+  // Bumped after a window resize settles, so the feed content remounts and
+  // re-layouts cleanly after a mobile <-> desktop switch (avoids getting stuck).
+  const [resizeNonce, setResizeNonce] = useState(0)
+  // Fades the feed content in/out when crossing the mobile<->desktop breakpoint.
+  const [contentVisible, setContentVisible] = useState(true)
+  const fadeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const openModal = (postId: number) => {
     setSelectedPost(postId)
@@ -381,6 +387,90 @@ export default function ProjectSixPage() {
   // matches the real grid width (prevents clipping and preserves right-edge spacing).
   const gridColumns = Math.ceil(posts.length / 3)
 
+  // After a window resize settles, remount the feed content so the horizontal
+  // grid and text columns re-layout cleanly after a mobile <-> desktop switch.
+  useEffect(() => {
+    let t: ReturnType<typeof setTimeout>
+    const onResize = () => {
+      clearTimeout(t)
+      t = setTimeout(() => {
+        const c = document.getElementById('container')
+        if (c) void c.offsetHeight // force reflow so dvh/absolute positions settle
+      }, 220)
+    }
+    window.addEventListener('resize', onResize)
+    return () => {
+      clearTimeout(t)
+      window.removeEventListener('resize', onResize)
+    }
+  }, [])
+
+  // Firefox's Alt-menu bar changes the viewport height WITHOUT a window resize;
+  // listen to visualViewport so the layout re-measures and re-flows (fixes
+  // content stuck "too high" after the menu bar shows/hides) instead of only
+  // resolving on a manual refresh.
+  useEffect(() => {
+    const vv = window.visualViewport
+    if (!vv) return
+    let t: ReturnType<typeof setTimeout>
+    const onVvResize = () => {
+      clearTimeout(t)
+      t = setTimeout(() => {
+        const c = document.getElementById('container')
+        if (c) void c.offsetHeight // force reflow so dvh/absolute positions settle
+      }, 220)
+    }
+    vv.addEventListener('resize', onVvResize)
+    return () => {
+      clearTimeout(t)
+      vv.removeEventListener('resize', onVvResize)
+    }
+  }, [])
+
+  // Cross the mobile<->desktop breakpoint: fade the feed out, let it re-layout,
+  // then fade back in. Mirrors the reference's short page-fade and prevents the
+  // layout from appearing "stuck" after switching sizes.
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 768px)')
+    const resetScroll = () => {
+      window.scrollTo(0, 0)
+      document.documentElement.scrollTop = 0
+      document.documentElement.scrollLeft = 0
+      document.body.scrollTop = 0
+      document.body.scrollLeft = 0
+    }
+    const onBreakpoint = () => {
+      // Going back to the wide layout: reset scroll so a scroll position from a
+      // tall mobile scroll doesn't leave the wide layout's top/left cut off.
+      if (!mq.matches) resetScroll()
+      setContentVisible(false)
+      setResizeNonce((n) => n + 1)
+      if (fadeTimeoutRef.current) clearTimeout(fadeTimeoutRef.current)
+      fadeTimeoutRef.current = setTimeout(() => {
+        // Re-assert scroll after the re-layout settles, so nothing stays offset.
+        if (!mq.matches) resetScroll()
+        requestAnimationFrame(() => requestAnimationFrame(() => setContentVisible(true)))
+      }, 350)
+    }
+    mq.addEventListener('change', onBreakpoint)
+    return () => {
+      mq.removeEventListener('change', onBreakpoint)
+      if (fadeTimeoutRef.current) clearTimeout(fadeTimeoutRef.current)
+    }
+  }, [])
+
+  // Stop Firefox from restoring (and sticking) a stored scroll offset on reload,
+  // and always land at the top - otherwise the Feed top can stay clipped even
+  // after a refresh.
+  useEffect(() => {
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual'
+    }
+    window.scrollTo(0, 0)
+    document.documentElement.scrollTop = 0
+    document.body.scrollTop = 0
+  }, [])
+
   return (
     <div className="layout project-six-layout">
       <Navigation />
@@ -388,7 +478,7 @@ export default function ProjectSixPage() {
         id="container"
         className="ie"
         style={{
-          opacity: isColumnsReady ? 1 : 0,
+          opacity: isColumnsReady && contentVisible ? 1 : 0,
           transition: 'opacity 0.3s ease-in-out',
           ['--ig-columns' as string]: gridColumns,
         }}
@@ -406,23 +496,9 @@ export default function ProjectSixPage() {
             Preparing content...
           </div>
         )}
-          <div className="post">
+          <div className="post" key={resizeNonce}>
             <div className="info">
               <div className="title section">Feed</div>
-              {/* Example filter buttons - to be wired up for filtering the feed.
-                  Rendered as colored dots like the reference site's colour wheel. */}
-              <div className="feed-filters" aria-label="Filter feed">
-                {(['Latest', 'Personal', 'Commercial', 'School'] as const).map((f) => (
-                  <button
-                    key={f}
-                    type="button"
-                    className={`feed-filter feed-filter--${f.toLowerCase()}${activeFilter === f ? ' feed-filter--active' : ''}`}
-                    title={f}
-                    aria-label={f}
-                    onClick={() => setActiveFilter(f)}
-                  />
-                ))}
-              </div>
               <div className="clear"></div>
             </div>
             
@@ -437,6 +513,21 @@ export default function ProjectSixPage() {
                 <p>The grid extends infinitely to the right, with the newest content appearing first. As you scroll, you journey through the collection in a cinematic flow.</p>
                 <p>Scroll horizontally to explore the full grid, or click on any image to view it in detail.</p>
               </DynamicColumns>
+            </div>
+
+            {/* Filter buttons - sit under the text, above the grid. On desktop they
+                are absolutely positioned at the grid's edge in the title band. */}
+            <div className="feed-filters" aria-label="Filter feed">
+              {(['Latest', 'Personal', 'Commercial', 'School'] as const).map((f) => (
+                <button
+                  key={f}
+                  type="button"
+                  className={`feed-filter feed-filter--${f.toLowerCase()}${activeFilter === f ? ' feed-filter--active' : ''}`}
+                  title={f}
+                  aria-label={f}
+                  onClick={() => setActiveFilter(f)}
+                />
+              ))}
             </div>
 
             {/* Instagram Grid that spans the full post height */}
