@@ -362,6 +362,7 @@ body:has(.project-six-layout) {
   justify-content: center;
   padding: 10px 8px 2px;
   background: #fff;
+  cursor: pointer;
 }
 
 .modal-progress-track {

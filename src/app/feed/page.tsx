@@ -218,6 +218,17 @@ export default function ProjectSixPage() {
     snapToNearest(x)
   }
 
+  // Click on the progress bar to jump to the image nearest that point.
+  const handleProgressClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    const el = scrollRef.current
+    const track = event.currentTarget
+    if (!el) return
+    const rect = track.getBoundingClientRect()
+    const frac = Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width))
+    const max = Math.max(0, el.scrollWidth - el.clientWidth)
+    snapToNearest(frac * max)
+  }
+
   // Focus the modal and reset the carousel to the start when it opens.
   useEffect(() => {
     if (selectedPost !== null) {
@@ -660,7 +671,7 @@ export default function ProjectSixPage() {
               )}
 
               {selectedPostData.images.length > 1 && (
-                <div className="modal-status">
+                <div className="modal-status" onClick={handleProgressClick} title="Jump to image" aria-label="Jump to image">
                   <div className="modal-progress-track">
                     <div
                       className="modal-progress-indicator"
