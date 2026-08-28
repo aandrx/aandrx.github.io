@@ -24,17 +24,22 @@ body:has(.project-six-layout) {
   position: relative;
 }
 
-/* Project Six specific post container - enable absolute positioning for Instagram grid */
+/* Project Six specific post container - horizontal row like Wingspan: text
+   columns and the grid sit side by side (white-space nowrap). */
 .project-six-layout .post {
   position: relative;
-  width: 100%;
+  white-space: nowrap;
+  width: max-content;
   height: auto;
 }
 
-/* Project Six specific content area - constrain width to allow Instagram grid to float alongside */
+/* Project Six content area - grows to fit its DynamicColumns columns, so text
+   can flow into new side-by-side columns like the Wingspan reference. */
 .project-six-layout .post .content {
-  width: 240px;
-  float: left;
+  display: inline-block;
+  vertical-align: top;
+  white-space: normal;
+  width: max-content;
   margin-right: 40px;
 }
 
@@ -115,14 +120,18 @@ body:has(.project-six-layout) {
   --ig-usable: calc(var(--ig-height) - (2 * var(--ig-gap)));
   --ig-cell: calc(var(--ig-usable) / 3);
   
-  width: calc((2 * (240px + 40px)) + (var(--ig-columns) * var(--ig-cell)) + ((var(--ig-columns) - 1) * var(--ig-gap)) + 80px);
-  min-width: calc((2 * (240px + 40px)) + (var(--ig-columns) * var(--ig-cell)) + ((var(--ig-columns) - 1) * var(--ig-gap)) + 80px);
+  /* Width is content-driven (grows with the text columns + grid) so the feed
+     scrolls horizontally and text can columnize, like Wingspan. */
+  width: max-content;
+  min-width: 100vw;
   
   position: relative;
   height: auto;
   min-height: 100dvh;
-  
-  overflow: visible;
+  /* HARD bottom limit: nothing escapes the viewport bottom when zooming - the
+     grid/images stay bounded and text goes sideways into new columns. */
+  max-height: 100dvh;
+  overflow: hidden;
   background: #fff;
   color: #000;
   font-family: helvetica, arial, sans-serif;
@@ -135,19 +144,19 @@ body:has(.project-six-layout) {
   overflow-wrap: break-word;
 }
 
-/* Instagram Grid Styles */
+/* Instagram Grid Styles - sits in the horizontal row after the text columns
+   (in flow, inline-grid) so the container grows to include it, like Wingspan. */
 .instagram-grid,
 .instagram-grid-full-height {
-  display: grid;
+  display: inline-grid;
   grid-template-rows: repeat(3, var(--ig-cell));
   grid-auto-flow: column;
   grid-auto-columns: var(--ig-cell);
   gap: var(--ig-gap);
   height: var(--ig-height);
   width: fit-content;
-  position: absolute;
-  top: calc(16pt + 1px + 2.75rem);
-  left: calc(240px + 40px);
+  vertical-align: top;
+  position: static;
 }
 
 .project-six-grid-item,
@@ -516,10 +525,12 @@ body:has(.project-six-layout) {
   .project-six-layout .post {
     position: static;
     width: 100%;
+    white-space: normal;
   }
 
   /* Mobile content - full width, no float */
   .project-six-layout .post .content {
+    display: block;
     width: 100% !important;
     float: none;
     margin-right: 0;
