@@ -792,12 +792,12 @@ body:has(.horizontal-page-container) {
   float: left; /* Float left as in reference */
   margin-right: 40px; /* Right margin as in reference */
   box-sizing: border-box;
-  overflow: hidden; /* Hide overflow - this is KEY for height constraint */
+  overflow: visible; /* Don't clip text - DynamicColumns already decides the split */
   word-wrap: break-word; /* Force text wrapping */
   overflow-wrap: break-word; /* Modern word wrapping */
   max-width: 200px; /* Enforce width constraint */
-  height: calc(100vh - 180pt); /* Fixed height based on viewport - this constrains the column */
-  max-height: calc(100vh - 180pt); /* Same as height for strict constraint */
+  height: auto; /* Grow if a single paragraph exceeds the viewport-bound height at high zoom */
+  min-height: calc(100vh - 180pt); /* Normal-case floor so columns align */
 }
 
 /* Second column - only created when text overflows first column */
