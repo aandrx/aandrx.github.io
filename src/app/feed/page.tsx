@@ -110,6 +110,11 @@ export default function ProjectSixPage() {
   const [viewOffset, setViewOffset] = useState(0)
   // True while the user is dragging the track (disables the ease transition).
   const [isDragging, setIsDragging] = useState(false)
+  // Progress-bar scrubbing state (pressing/dragging on the bar disables the
+  // carousel transition so it follows the pointer immediately).
+  const [isScrubbing, setIsScrubbing] = useState(false)
+  const scrubActiveRef = useRef(false)
+  const progressBarRef = useRef<HTMLDivElement>(null)
   // Scroll progress of the carousel, used to drive the bold indicator bar.
   const [scrollProgress, setScrollProgress] = useState({ fraction: 0, width: 0 })
   // Whether the current post's images have been measured. The strip stays hidden
@@ -218,15 +223,34 @@ export default function ProjectSixPage() {
     snapToNearest(x)
   }
 
-  // Click on the progress bar to jump to the image nearest that point.
-  const handleProgressClick = (event: React.MouseEvent<HTMLDivElement>) => {
+  // Scrub the carousel by clicking or dragging on the progress bar. Maps the
+  // pointer's horizontal position to a scroll offset and snaps to the nearest
+  // image; dragging continuously re-targets (transition disabled while scrubbing).
+  const offsetFromX = useCallback((clientX: number) => {
     const el = scrollRef.current
-    const track = event.currentTarget
-    if (!el) return
-    const rect = track.getBoundingClientRect()
-    const frac = Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width))
+    const bar = progressBarRef.current
+    if (!el || !bar) return 0
+    const rect = bar.getBoundingClientRect()
+    const frac = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width))
     const max = Math.max(0, el.scrollWidth - el.clientWidth)
-    snapToNearest(frac * max)
+    return frac * max
+  }, [])
+
+  const handleProgressPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+    scrubActiveRef.current = true
+    setIsScrubbing(true)
+    progressBarRef.current?.setPointerCapture?.(event.pointerId)
+    snapToNearest(offsetFromX(event.clientX))
+  }
+
+  const handleProgressPointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (!scrubActiveRef.current) return
+    snapToNearest(offsetFromX(event.clientX))
+  }
+
+  const handleProgressPointerEnd = () => {
+    scrubActiveRef.current = false
+    setIsScrubbing(false)
   }
 
   // Focus the modal and reset the carousel to the start when it opens.
@@ -607,7 +631,9 @@ export default function ProjectSixPage() {
         {selectedPost && selectedPostData && (
           <div className="modal-overlay" onClick={closeModal}>
             <div
-              className={isDragging ? 'modal-content dragging' : 'modal-content'}
+              className={
+                isDragging ? 'modal-content dragging' : isScrubbing ? 'modal-content scrubbing' : 'modal-content'
+              }
               onClick={(e) => e.stopPropagation()}
               ref={modalRef}
               tabIndex={-1}
@@ -671,7 +697,16 @@ export default function ProjectSixPage() {
               )}
 
               {selectedPostData.images.length > 1 && (
-                <div className="modal-status" onClick={handleProgressClick} title="Jump to image" aria-label="Jump to image">
+                <div
+                  className="modal-status"
+                  ref={progressBarRef}
+                  onPointerDown={handleProgressPointerDown}
+                  onPointerMove={handleProgressPointerMove}
+                  onPointerUp={handleProgressPointerEnd}
+                  onPointerCancel={handleProgressPointerEnd}
+                  title="Drag to scrub"
+                  aria-label="Jump to image"
+                >
                   <div className="modal-progress-track">
                     <div
                       className="modal-progress-indicator"

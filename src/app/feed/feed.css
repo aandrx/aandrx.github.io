@@ -308,7 +308,8 @@ body:has(.project-six-layout) {
 
 /* While actively dragging we disable the transition so the track follows the
    pointer; on release it is re-enabled to ease back to the snapped image. */
-.modal-content.dragging .modal-strip {
+.modal-content.dragging .modal-strip,
+.modal-content.scrubbing .modal-strip {
   transition: none;
 }
 
