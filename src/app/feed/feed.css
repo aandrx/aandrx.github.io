@@ -48,10 +48,11 @@ body:has(.project-six-layout) {
    colour wheel. Sit inside the info band, aligned with the left edge of the
    Instagram grid (240px text column + 40px gap) and vertically centered. */
 /* Desktop filter buttons - live in the title band with the Feed title, aligned
-   to the grid's left edge, vertically centred in the info row. */
+   to the grid's left edge (which tracks the text columns via --grid-left), and
+   vertically centred in the info row. */
 .project-six-layout .feed-filters-desktop {
   position: absolute;
-  left: calc(240px + 40px);
+  left: var(--grid-left, 280px);
   top: 50%;
   transform: translateY(-50%);
   display: flex;

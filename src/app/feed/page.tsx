@@ -519,7 +519,23 @@ export default function ProjectSixPage() {
               <DynamicColumns 
                 columnWidth={200} 
                 columnGap={40}
-                onRenderComplete={() => setIsColumnsReady(true)}
+                onRenderComplete={() => {
+                  setIsColumnsReady(true)
+                  // The grid sits in-flow after the text; track its left edge so the
+                  // title-band filter buttons stay aligned with the grid as the text
+                  // columnizes (more columns on zoom pushes the grid right).
+                  requestAnimationFrame(() => {
+                    const grid = document.querySelector('.instagram-grid-full-height') as HTMLElement | null
+                    const post = document.querySelector('.post') as HTMLElement | null
+                    if (grid && post) {
+                      // Grid's offset from the post's left edge (filters share post left).
+                      document.documentElement.style.setProperty(
+                        '--grid-left',
+                        `${Math.round(grid.getBoundingClientRect().left - post.getBoundingClientRect().left)}px`
+                      )
+                    }
+                  })
+                }}
               >
                 <p>The Horizontal Instagram Feed presents a unique take on social media grid layouts. This implementation flows horizontally across the entire page, creating an immersive scrolling experience.</p>
                 <p>Instead of traditional scrollbars, the entire page scrolls horizontally to reveal more content. Each square maintains perfect proportions while filling the available height.</p>
