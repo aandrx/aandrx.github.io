@@ -499,6 +499,19 @@ export default function ProjectSixPage() {
           <div className="post" key={resizeNonce}>
             <div className="info">
               <div className="title section">Feed</div>
+              {/* Desktop filter buttons - sit in the title band with the Feed title. */}
+              <div className="feed-filters feed-filters-desktop" aria-label="Filter feed">
+                {(['Latest', 'Personal', 'Commercial', 'School'] as const).map((f) => (
+                  <button
+                    key={f}
+                    type="button"
+                    className={`feed-filter feed-filter--${f.toLowerCase()}${activeFilter === f ? ' feed-filter--active' : ''}`}
+                    title={f}
+                    aria-label={f}
+                    onClick={() => setActiveFilter(f)}
+                  />
+                ))}
+              </div>
               <div className="clear"></div>
             </div>
             
@@ -515,9 +528,8 @@ export default function ProjectSixPage() {
               </DynamicColumns>
             </div>
 
-            {/* Filter buttons - sit under the text, above the grid. On desktop they
-                are absolutely positioned at the grid's edge in the title band. */}
-            <div className="feed-filters" aria-label="Filter feed">
+            {/* Mobile filter buttons - under the text, above the grid (hidden on desktop). */}
+            <div className="feed-filters feed-filters-mobile" aria-label="Filter feed">
               {(['Latest', 'Personal', 'Commercial', 'School'] as const).map((f) => (
                 <button
                   key={f}

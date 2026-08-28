@@ -47,12 +47,21 @@ body:has(.project-six-layout) {
 /* Feed filter buttons - a row of coloured dots like the reference site's
    colour wheel. Sit inside the info band, aligned with the left edge of the
    Instagram grid (240px text column + 40px gap) and vertically centered. */
-.project-six-layout .feed-filters {
+/* Desktop filter buttons - live in the title band with the Feed title, aligned
+   to the grid's left edge, vertically centred in the info row. */
+.project-six-layout .feed-filters-desktop {
+  position: absolute;
+  left: calc(240px + 40px);
+  top: 50%;
+  transform: translateY(-50%);
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
   gap: 10px;
-  margin: 6px 0 20px;
+}
+
+/* Mobile duplicate - hidden on desktop; shown under the text on mobile. */
+.project-six-layout .feed-filters-mobile {
+  display: none;
 }
 
 .project-six-layout .feed-filter {
@@ -541,12 +550,17 @@ body:has(.project-six-layout) {
     margin-bottom: 20px;
   }
 
-  /* Mobile feed filters - under the text, above the grid: in normal flow. */
-  .project-six-layout .feed-filters {
-    position: static;
-    transform: none;
-    margin: 8px 0 16px;
+  /* Mobile feed filters - swap which set shows: desktop title-band hidden,
+     mobile set appears under the text, above the grid. */
+  .project-six-layout .feed-filters-desktop {
+    display: none;
+  }
+  .project-six-layout .feed-filters-mobile {
+    display: flex;
     flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin: 8px 0 16px;
   }
 
   /* Mobile Instagram grid - stack vertically with responsive grid */
