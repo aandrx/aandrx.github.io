@@ -30,6 +30,23 @@ const dcImageFilenames = [
 ]
 const dcImages = dcImageFilenames.map((filename) => `${R2_BASE_URL}/${DC_2026_FOLDER}/${filename}-720w.webp`)
 
+const CSA_STARRY_NIGHT_FOLDER = 'fuji-gt-csa-starry-night-filming-2026-9-21-25'
+const csaStarryNightFilenames = [
+  'DSCF2263-Edit-1920w.webp',
+  'DSCF2296-1920w.webp',
+  'DSCF2300-Edit-1920w.webp',
+  'DSCF2314-1920w.webp',
+  'DSCF2315-1920w.webp',
+  'DSCF2320-1920w.webp',
+  'DSCF2324-Edit-1920w.webp',
+  'DSCF2332-1920w.webp',
+  'DSCF2339-1920w.webp',
+  'DSCF2346-1920w.webp',
+]
+const csaStarryNightImages = csaStarryNightFilenames.map(
+  (filename) => `${R2_BASE_URL}/${CSA_STARRY_NIGHT_FOLDER}/${filename}`,
+)
+
 // Sony July 4, 2024 set
 const SONY_JULY4_FOLDER = 'sony-july4-2024-7-4'
 const sonyJuly4Images = ['DSC00858-Edit', 'DSC00876-Edit-Edit-2'].map(
@@ -47,6 +64,7 @@ const oregonCannonImages = ['DSC09716-2', 'DSC09715', 'DSC09720'].map(
 // Each post supports one or more images, similar to an Instagram carousel post.
 const posts: FeedPost[] = [
   // Newest first, oldest last.
+  { id: 12, images: csaStarryNightImages, alt: 'CSA Starry Night Trailer | Sep 21-25, 2026', label: 'CSA Starry Night Trailer | 2026' },
   { id: 9, images: dcImages, alt: 'DC | May 2026', label: 'DC | 2026' },
   { id: 10, images: sonyJuly4Images, alt: 'July 4th | 2024' },
   { id: 11, images: oregonCannonImages, alt: 'Cannon Beach, Oregon | 2024', label: 'Oregon | 2024' },
