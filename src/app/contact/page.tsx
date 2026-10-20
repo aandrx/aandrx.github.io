@@ -50,7 +50,9 @@ export default function ContactPage() {
     }
 
     // Validate email
-    const emailRegex = /^(?!\.)(?!.*\.\.)([A-Za-z0-9_'+\-.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9-]*.)+[A-Za-z]{2,}$/
+    // Keep this pattern linear. The previous nested quantifiers could
+    // backtrack exponentially on crafted input.
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(formData.email)) {
       errors.email = 'Please enter a valid email address'
     }
