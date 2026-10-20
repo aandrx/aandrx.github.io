@@ -37,6 +37,9 @@ jobs:
       - name: Type check
         run: npx tsc --noEmit
 
+      - name: Test image metadata and colors
+        run: npm test
+
       - name: Build project
         run: npm run build
         env:
@@ -49,3 +52,35 @@ jobs:
           echo "Build completed successfully!"
           echo "Deployment will happen automatically on Vercel"
           echo "View your deployment at: https://aandrx.vercel.app or https://aandrx-github-io.vercel.app"
+
+  # Production browser regression gate against an isolated build and disposable Firefox.
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      - name: Cache Puppeteer Firefox
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/puppeteer
+          key: puppeteer-firefox-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            puppeteer-firefox-${{ runner.os }}-
+
+      - name: Run isolated production browser gate
+        run: npm run test:browser:ci

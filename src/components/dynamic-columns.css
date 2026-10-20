@@ -1,0 +1,13 @@
+/* Contain the floated columns rather than letting them escape their wrapper. */
+.dynamic-columns {
+  display: flow-root;
+}
+
+/* Server HTML cannot know the viewport's paragraph distribution. Do not paint
+   the temporary, single-column copy outside the eventual text area's height.
+   Match DynamicColumns' viewport-height budget until measurement completes. */
+.dynamic-columns[data-columns-ready='false'] {
+  max-block-size: max(1px, calc(100vh - 240px));
+  overflow: hidden;
+  visibility: hidden;
+}

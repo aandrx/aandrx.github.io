@@ -6,6 +6,9 @@
 # Testing
 /coverage
 
+# Local publishing cache
+/scripts/.image-cache/
+
 # Next.js
 /.next/
 /out/

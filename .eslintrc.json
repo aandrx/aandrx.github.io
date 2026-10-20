@@ -2,5 +2,43 @@
   "extends": "next/core-web-vitals",
   "rules": {
     "react/no-unescaped-entities": "off"
-  }
+  },
+  "overrides": [
+    {
+      "files": ["src/app/**/page.{ts,tsx}"],
+      "rules": {
+        "no-restricted-syntax": [
+          "error",
+          {
+            "selector": "NewExpression[callee.name='Image']",
+            "message": "Do not construct Image in a route: eager dimension probing blocks the page behind loading. Use ProjectGallery with PortfolioImage and register photos in src/data/image-sources.json."
+          },
+          {
+            "selector": "NewExpression[callee.object.name='globalThis'][callee.property.name='Image']",
+            "message": "Do not construct globalThis.Image in a route: eager dimension probing blocks the page behind loading. Use ProjectGallery with PortfolioImage and register photos in src/data/image-sources.json."
+          },
+          {
+            "selector": "NewExpression[callee.object.name='window'][callee.property.name='Image']",
+            "message": "Do not construct window.Image in a route: eager dimension probing blocks the page behind loading. Use ProjectGallery with PortfolioImage and register photos in src/data/image-sources.json."
+          },
+          {
+            "selector": "NewExpression[callee.object.name='globalThis'][callee.computed=true][callee.property.value='Image']",
+            "message": "Do not construct globalThis['Image'] in a route: eager dimension probing blocks the page behind loading. Use ProjectGallery with PortfolioImage and register photos in src/data/image-sources.json."
+          },
+          {
+            "selector": "NewExpression[callee.object.name='window'][callee.computed=true][callee.property.value='Image']",
+            "message": "Do not construct window['Image'] in a route: eager dimension probing blocks the page behind loading. Use ProjectGallery with PortfolioImage and register photos in src/data/image-sources.json."
+          },
+          {
+            "selector": "NewExpression[callee.object.name='globalThis'][callee.computed=true][callee.property.type='TemplateLiteral'][callee.property.quasis.0.value.cooked='Image']",
+            "message": "Do not construct globalThis[`Image`] in a route: eager dimension probing blocks the page behind loading. Use ProjectGallery with PortfolioImage and register photos in src/data/image-sources.json."
+          },
+          {
+            "selector": "NewExpression[callee.object.name='window'][callee.computed=true][callee.property.type='TemplateLiteral'][callee.property.quasis.0.value.cooked='Image']",
+            "message": "Do not construct window[`Image`] in a route: eager dimension probing blocks the page behind loading. Use ProjectGallery with PortfolioImage and register photos in src/data/image-sources.json."
+          }
+        ]
+      }
+    }
+  ]
 }

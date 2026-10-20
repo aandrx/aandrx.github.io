@@ -169,6 +169,10 @@ body:has(.project-six-layout) {
 
 .project-six-grid-item,
 .instagram-grid-item-full {
+  padding: 0;
+  border: 0;
+  font: inherit;
+  text-align: inherit;
   cursor: pointer;
   overflow: hidden;
   position: relative;
@@ -349,6 +353,8 @@ body:has(.project-six-layout) {
   object-fit: contain !important;
   background: #fff;
 }
+.modal-strip-single { width: 100%; }
+.modal-strip-single .modal-strip-slide { width: 100%; }
 
 /* Scroll-progress indicator: a thin full-width track at low opacity with a
    shorter bold segment that represents the visible window and slides across it
@@ -389,8 +395,34 @@ body:has(.project-six-layout) {
     width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.modal-content.dragging .modal-progress-indicator {
+.modal-content.dragging .modal-progress-indicator,
+.modal-content.scrubbing .modal-progress-indicator {
   transition: none;
+}
+
+.modal-status { touch-action: none; }
+.instagram-grid-item-full:focus-visible,
+.modal-status:focus-visible,
+.modal-close:focus-visible {
+  outline: 2px solid #555;
+  outline-offset: -3px;
+}
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .modal-strip,
+  .modal-progress-indicator,
+  .modal-details-dot,
+  .modal-media { transition: none; }
 }
 
 /* Details bar at the bottom of the modal, modelled on the reference site's

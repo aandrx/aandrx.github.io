@@ -17,8 +17,9 @@ const nightfindProjects = [
   { id: 3, title: '2026', href: '/works/nightfind-2026' },
 ]
 
-// CSA section - descending (newest on top): Lantern Fest 2026, Starry Night 2025.
+// CSA section - descending (newest on top): Starry Night 2026, Lantern Fest 2026, Starry Night 2025.
 const csaProjects = [
+  { id: 3, title: 'Starry Night 2026', href: '/works/starry-night-2026' },
   { id: 2, title: 'Lantern Fest 2026', href: '/works/lantern-fest-2026' },
   { id: 1, title: 'Starry Night 2025', href: '/works/starry-night-2025' },
 ]

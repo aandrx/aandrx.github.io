@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test": "node --test tests/*.test.mjs",
+    "test:browser": "node tests/image-loading.browser.mjs",
+    "test:browser:ci": "node scripts/run-browser-tests.mjs",
+    "images:generate": "node scripts/generate-image-metadata.mjs"
   },
   "dependencies": {
     "@prisma/client": "^6.18.0",
@@ -25,6 +29,7 @@
     "eslint": "^8",
     "eslint-config-next": "^15.5.12",
     "postcss": "^8",
+    "puppeteer-core": "^24.43.1",
     "tailwindcss": "^3.3.0",
     "typescript": "^5"
   }

@@ -1,0 +1,41 @@
+[
+  {
+    "id": 13,
+    "folder": "starrynight-2026-10-15",
+    "filenames": ["DSCF3474-Edit", "DSCF2729", "DSCF2972", "DSCF2993", "DSCF3188", "DSCF3229", "DSCF3413-Edit", "DSCF3434-Edit", "DSCF3436-Edit", "DSCF3452-Edit", "DSCF3455-Edit", "DSCF3471-Edit", "DSCF3472-Edit", "DSCF3473-Edit", "DSCF3629-Edit", "DSCF3713", "DSCF3760", "DSCF3772-Edit", "DSCF3774-Edit", "DSCF3775-Edit", "DSCF3780-Edit"],
+    "cover": "DSCF3474-Edit",
+    "alt": "CSA Starry Night 2026 | Oct 15, 2026",
+    "label": "CSA Starry Night 2026 | 2026"
+  },
+  {
+    "id": 12,
+    "folder": "fuji-gt-csa-starry-night-filming-2026-9-21-25",
+    "filenames": ["DSCF2263-Edit", "DSCF2296", "DSCF2300-Edit", "DSCF2314", "DSCF2315", "DSCF2320", "DSCF2324-Edit", "DSCF2332", "DSCF2339", "DSCF2346"],
+    "cover": "DSCF2263-Edit",
+    "alt": "CSA Starry Night Trailer | Sep 21-25, 2026",
+    "label": "CSA Starry Night Trailer | 2026"
+  },
+  {
+    "id": 9,
+    "folder": "fuji-dc-2026-5-10",
+    "filenames": ["DSCF9003", "DSCF9008", "DSCF9013", "DSCF9023", "DSCF9033", "DSCF9035", "DSCF9038"],
+    "cover": "DSCF9003",
+    "alt": "DC | May 2026",
+    "label": "DC | 2026"
+  },
+  {
+    "id": 10,
+    "folder": "sony-july4-2024-7-4",
+    "filenames": ["DSC00858-Edit", "DSC00876-Edit-Edit-2"],
+    "cover": "DSC00858-Edit",
+    "alt": "July 4th | 2024"
+  },
+  {
+    "id": 11,
+    "folder": "oregon-cannon-beach-2024-3-6",
+    "filenames": ["DSC09716-2", "DSC09715", "DSC09720"],
+    "cover": "DSC09716-2",
+    "alt": "Cannon Beach, Oregon | 2024",
+    "label": "Oregon | 2024"
+  }
+]

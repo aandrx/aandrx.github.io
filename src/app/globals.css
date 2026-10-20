@@ -80,6 +80,16 @@ a:hover {
   box-sizing: border-box; /* Standard box model */
 }
 
+/* Project galleries keep their fixed horizontal composition, but a short
+   viewport or high zoom can make one unbreakable paragraph taller than the
+   layout. Allow vertical scrolling only when that overflow actually exists;
+   mobile layouts already scroll through the document and keep their own rules. */
+@media (min-width: 769px) {
+  .layout.portfolio-gallery-layout {
+    overflow-y: auto;
+  }
+}
+
 .sidebar {
   width: 230px;
   padding: 40px;

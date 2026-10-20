@@ -1,45 +1,15 @@
 'use client'
 
 import React, { useEffect, useRef, useState } from 'react'
+import { extractParagraphs } from '@/lib/column-content'
+import './dynamic-columns.css'
 
 interface DynamicColumnsProps {
-  children: React.ReactNode
+  children?: React.ReactNode
+  paragraphs?: readonly string[]
   columnWidth?: number
   columnGap?: number
   onRenderComplete?: () => void
-}
-
-// Helper to extract plain text from React nodes (used for <p> content)
-function extractText(node: React.ReactNode): string {
-  if (typeof node === 'string') return node
-  if (typeof node === 'number') return node.toString()
-  if (React.isValidElement(node)) {
-    return extractText((node.props as { children?: React.ReactNode }).children)
-  }
-  if (Array.isArray(node)) {
-    return node.map(extractText).join('')
-  }
-  return ''
-}
-
-// Extract each <p> as its own paragraph string, preserving original boundaries
-function extractParagraphs(node: React.ReactNode): string[] {
-  if (React.isValidElement(node)) {
-    const type = node.type as string
-    if (type === 'p') {
-      const text = extractText((node.props as { children?: React.ReactNode }).children)
-      return [text.trim()]
-    }
-    if (type === 'br') {
-      return ['']
-    }
-    // Recurse into wrapper elements
-    return extractParagraphs((node.props as { children?: React.ReactNode }).children)
-  }
-  if (Array.isArray(node)) {
-    return node.flatMap((child) => extractParagraphs(child))
-  }
-  return []
 }
 
 // Create measurement HTML from an ordered list of paragraph strings
@@ -47,7 +17,7 @@ function createMeasurementHTMLFromParagraphs(paragraphs: string[], columnWidth: 
   return paragraphs
     .map((p) =>
       p.trim()
-        ? `<p style="margin: 0 0 16pt 0; font-size: 8pt; line-height: 16pt; word-wrap: break-word; max-width: ${columnWidth}px;">${p}</p>`
+        ? `<p style="margin: 0 0 16pt 0; font-size: 8pt; line-height: 16pt; word-wrap: break-word; max-width: ${columnWidth}px;">${p.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>`
         : `<p style="margin: 0 0 16pt 0; font-size: 8pt; line-height: 16pt;">&nbsp;</p>`
     )
     .join('')
@@ -115,9 +85,8 @@ function distributeParagraphsIntoColumns(
   const newColumns: React.ReactNode[] = []
   let remainingParagraphs = [...paragraphs]
   let columnIndex = 0
-  const MAX_COLUMNS = 10
 
-  while (remainingParagraphs.length > 0 && columnIndex < MAX_COLUMNS) {
+  while (remainingParagraphs.length > 0) {
     const columnParagraphs = buildSingleColumnFromParagraphs(
       remainingParagraphs,
       measuringDiv,
@@ -152,75 +121,62 @@ function calculateContainerWidth(columnCount: number, columnWidth: number, colum
 
 export default function DynamicColumns({
   children,
+  paragraphs: providedParagraphs,
   columnWidth = 200,
   columnGap = 40,
   onRenderComplete,
 }: Readonly<DynamicColumnsProps>) {
-  const [columns, setColumns] = useState<React.ReactNode[]>([])
-  const [isRendering, setIsRendering] = useState(true)
+  const [layout, setLayout] = useState<{ signature: string; columns: React.ReactNode[] }>({ signature: '', columns: [] })
   const firstColumnRef = useRef<HTMLDivElement>(null)
+  const completionRef = useRef(onRenderComplete)
+  // JSX identity and callback identity are not layout inputs.
+  const paragraphSignature = JSON.stringify(providedParagraphs ?? extractParagraphs(children))
+  const ready = layout.signature === paragraphSignature || paragraphSignature === '[]'
+
+  useEffect(() => { completionRef.current = onRenderComplete }, [onRenderComplete])
 
   useEffect(() => {
+    const paragraphs: string[] = JSON.parse(paragraphSignature)
+    let resizeFrame = 0
     const columnizeContent = () => {
-      setIsRendering(true)
-
-      const paragraphs = extractParagraphs(children)
-
-      if (paragraphs.length === 0) {
-        setColumns([<div key={0} className="first column ie">{children}</div>])
-        return
-      }
-
-      // Calculate max column height based on viewport
-      const viewportHeight = window.innerHeight
-      const containerPadding = 80
-      const infoSectionHeight = 60
-      const maxColumnHeight = viewportHeight - containerPadding - infoSectionHeight - 100
-
-      // Create off-screen measuring div
+      if (!paragraphs.length) { setLayout({ signature: paragraphSignature, columns: [] }); return }
+      const maxColumnHeight = Math.max(1, window.innerHeight - 240)
       const measuringDiv = document.createElement('div')
-      measuringDiv.style.position = 'absolute'
-      measuringDiv.style.left = '-9999px'
-      measuringDiv.style.width = `${columnWidth}px`
-      measuringDiv.style.fontSize = '8pt'
-      measuringDiv.style.lineHeight = '16pt'
-      measuringDiv.style.fontFamily = 'helvetica, arial, sans-serif'
-      measuringDiv.style.visibility = 'hidden'
+      Object.assign(measuringDiv.style, {
+        position: 'absolute', left: '-9999px', width: `${columnWidth}px`,
+        fontSize: '8pt', lineHeight: '16pt', fontFamily: 'helvetica, arial, sans-serif', visibility: 'hidden',
+      })
       document.body.appendChild(measuringDiv)
-
-      const newColumns = distributeParagraphsIntoColumns(
-        paragraphs,
-        measuringDiv,
-        columnWidth,
-        maxColumnHeight,
-        firstColumnRef
-      )
-
-      measuringDiv.remove()
-
-      // Update CSS custom property to adjust container width based on column count
-      const containerWidth = calculateContainerWidth(newColumns.length, columnWidth, columnGap)
-      document.documentElement.style.setProperty('--dynamic-container-width', `${containerWidth}px`)
-
-      setColumns(newColumns)
-
-      // Ensure DOM has updated before signalling completion
-      setTimeout(() => {
-        setIsRendering(false)
-        onRenderComplete?.()
-      }, 10)
+      try {
+        const next = distributeParagraphsIntoColumns(paragraphs, measuringDiv, columnWidth, maxColumnHeight, firstColumnRef)
+        document.documentElement.style.setProperty('--dynamic-container-width', `${calculateContainerWidth(next.length, columnWidth, columnGap)}px`)
+        setLayout({ signature: paragraphSignature, columns: next })
+      } finally { measuringDiv.remove() }
     }
-
+    const onResize = () => {
+      cancelAnimationFrame(resizeFrame)
+      resizeFrame = requestAnimationFrame(columnizeContent)
+    }
     columnizeContent()
-    window.addEventListener('resize', columnizeContent)
-    return () => {
-      window.removeEventListener('resize', columnizeContent)
-    }
-  }, [children, columnWidth, columnGap, onRenderComplete])
+    window.addEventListener('resize', onResize)
+    return () => { cancelAnimationFrame(resizeFrame); window.removeEventListener('resize', onResize) }
+  }, [paragraphSignature, columnWidth, columnGap])
 
-  if (isRendering && columns.length === 0) {
-    return <div className="columns-loading">Loading...</div>
-  }
+  useEffect(() => {
+    if (!ready) return
+    const frame = requestAnimationFrame(() => completionRef.current?.())
+    return () => cancelAnimationFrame(frame)
+  }, [layout, ready])
 
-  return <div>{columns}</div>
+  // Keep the server-rendered fallback constrained until its paragraphs have
+  // been distributed. Only text waits for measurement, never for image loads.
+  return (
+    <div className="dynamic-columns" data-columns-ready={ready} aria-busy={!ready}>
+      {ready && layout.columns.length ? layout.columns : (
+        <div className="first column ie">
+          {providedParagraphs ? providedParagraphs.map((text, index) => <p key={index}>{text || '\u00a0'}</p>) : children}
+        </div>
+      )}
+    </div>
+  )
 }
