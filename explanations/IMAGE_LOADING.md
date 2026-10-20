@@ -6,7 +6,7 @@
 - The first project photo is eager. Other photos become eligible within half a viewport of the visible region, horizontally or vertically.
 - The feed uses independent 720w covers. Changing a cover does not reorder a carousel.
 - A carousel immediately lays out every slide using published dimensions. Only visible and nearby photos are requested. Direct scrubbing, arrow keys, Home/End, wheel and dragging work before the photos load.
-- Photos fade independently. A slow or failed image never blocks another image. Unloaded slots reserve their final geometry without painting a grey block, so photos appear from the page background rather than flashing a placeholder. Failed photos and downloads exceeding 30 seconds have a retry action. Reduced-motion preferences disable transitions.
+- Photos fade independently. Gallery and feed covers use a slower 600ms entrance, while carousel slides keep a 240ms fade so navigation stays responsive. A slow or failed image never blocks another image. Unloaded slots reserve their final geometry without painting a grey block, so photos appear from the page background rather than flashing a placeholder. Failed photos and downloads exceeding 30 seconds have a retry action. Reduced-motion preferences disable transitions.
 - The active color dot and whole-post palette are available immediately. Browsing does not call the color API.
 
 ## Image delivery
