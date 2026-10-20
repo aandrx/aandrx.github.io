@@ -61,7 +61,7 @@ page.on('request', (request) => {
   request.continue().catch(() => {})
 })
 
-async function verifyHydration(route, viewport) {
+async function verifyHydration(route, viewport, assertPlaceholder = false) {
   await page.setViewport(viewport)
   // Freeze hydration to exercise the actual first-painted/server-rendered text,
   // not just the already-measured DOM that normally appears in fast tests.
@@ -78,12 +78,16 @@ async function verifyHydration(route, viewport) {
       text: [...root.querySelectorAll('p')].map((p) => p.textContent.trim()),
       titleVisible: getComputedStyle(document.querySelector('.title.section')).visibility === 'visible',
       photos: document.querySelectorAll('.portfolio-photo').length,
+      photoBackground: getComputedStyle(document.querySelector('.portfolio-photo')).backgroundColor,
     }
   })
   assert.ok(before.height <= before.limit + 1, `${route}: pending text escaped its height limit`)
   assert.equal(before.overflow, 'hidden')
   assert.equal(before.titleVisible, true)
   assert.ok(before.photos > 0)
+  if (assertPlaceholder) {
+    assert.equal(before.photoBackground, 'rgba(0, 0, 0, 0)', `${route}: unloaded photo slots paint a visible grey placeholder`)
+  }
   holdScripts = false
   await Promise.all(pendingScripts.map((request) => request.continue().catch(() => {})))
   pendingScripts = []
@@ -295,7 +299,7 @@ async function verifyControlledLongParagraph(route) {
 
 try {
   const routes = ['starry-night-2026', 'starry-night-2025']
-  for (const route of routes) await verifyHydration(route, { width: 1280, height: 800 })
+  for (const route of routes) await verifyHydration(route, { width: 1280, height: 800 }, true)
   await Promise.all(pending.map(deliverImage))
   pending = []
   console.log('PASS: both Starry Night pages constrain first paint, preserve all text and reveal measured columns without waiting for photos')
@@ -320,6 +324,7 @@ try {
   await page.goto(`${baseUrl}/feed/`, { waitUntil: 'domcontentloaded' })
   await page.waitForSelector('.instagram-grid-item-full')
   await page.waitForFunction(() => document.documentElement.style.getPropertyValue('--grid-left') !== '')
+  assert.equal(await page.$eval('.instagram-grid-item-full', (item) => getComputedStyle(item).backgroundColor), 'rgb(255, 255, 255)')
   await delay(50)
   const cover = await page.$eval('.instagram-grid-item-full img', (img) => img.src)
   assert.ok(cover.includes('-720w.webp'), cover)

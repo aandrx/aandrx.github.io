@@ -178,7 +178,7 @@ body:has(.project-six-layout) {
   position: relative;
   width: var(--ig-cell);
   height: var(--ig-cell);
-  background: #f0f0f0;
+  background: #fff;
   display: flex;
   align-items: center;
   justify-content: center;

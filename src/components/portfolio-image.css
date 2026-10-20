@@ -1,7 +1,9 @@
 .portfolio-photo {
   display: block;
   position: relative;
-  background: #f5f5f3;
+  /* Reserve the slot without painting a grey block during first paint or lazy
+     loading. Loaded photos fade in from the page background. */
+  background: transparent;
   overflow: hidden;
 }
 .portfolio-photo-gallery {
@@ -28,6 +30,7 @@
   transition: opacity 240ms ease;
 }
 .portfolio-photo.photo-ready { background: #fff; }
+.portfolio-photo.photo-failed { background: #fff; }
 .portfolio-photo.photo-ready img {
   opacity: 1;
   transition-delay: var(--photo-delay, 0ms);
