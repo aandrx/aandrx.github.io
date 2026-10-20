@@ -14,7 +14,7 @@ Personal portfolio and photo journal. Live at [aandrx.vercel.app](https://aandrx
 
 ## Local development
 
-Requirements: Node 20.9 or newer, npm and curl. Firefox is downloaded automatically by the isolated browser test.
+Requirements: Node 20.17 or newer, npm and curl. Firefox is downloaded automatically by the isolated browser test.
 
 ```bash
 npm install
@@ -33,10 +33,17 @@ Open [http://localhost:3000](http://localhost:3000). Public pages use generated 
 | `npm run build` | Create a production build |
 | `npm start` | Serve the production build |
 | `npm run lint` | Run ESLint |
+| `npm run lint:staged` | Lint and auto-fix staged JavaScript and TypeScript files |
 | `npm test` | Run metadata, publisher and route-policy tests without network access |
 | `npm run test:browser` | Run the browser suite against an existing site and BiDi Firefox |
 | `npm run test:browser:ci` | Build and test an isolated production copy, then clean up |
 | `npm run images:generate` | Refresh generated image metadata and post palettes |
+
+## Git hooks
+
+`npm install` installs Husky. The pre-commit hook runs `lint-staged`, which lints staged JavaScript and TypeScript files with ESLint `--fix` and re-stages any fixes. A failing lint blocks the commit. CI still runs the full repository lint.
+
+Use `git commit --no-verify` only when you intentionally need to bypass the hook.
 
 ## Dependency notes
 
