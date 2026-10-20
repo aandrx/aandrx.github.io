@@ -38,6 +38,12 @@ Open [http://localhost:3000](http://localhost:3000). Public pages use generated 
 | `npm run test:browser:ci` | Build and test an isolated production copy, then clean up |
 | `npm run images:generate` | Refresh generated image metadata and post palettes |
 
+## Dependency notes
+
+Next 15 pins an older PostCSS with known advisories. `package.json` overrides that nested dependency to `8.5.31`; the production build and browser gate validate the result. Remove the override when the project moves to Next 16.
+
+Prisma's CLI and config packages are build tooling. The runtime client used by the API routes is `@prisma/client`.
+
 ## Image pipeline
 
 Photos are hosted on R2 in matching 720w and 1920w WebP variants. The site reads dimensions, colours and content revisions from generated data, so pages never download an image just to measure it.
