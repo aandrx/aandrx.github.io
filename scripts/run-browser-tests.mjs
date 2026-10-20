@@ -1,5 +1,5 @@
 import puppeteer from 'puppeteer-core'
-import { install, computeExecutablePath, Browser, detectBrowserPlatform } from '@puppeteer/browsers'
+import { install, computeExecutablePath, resolveBuildId, Browser, detectBrowserPlatform } from '@puppeteer/browsers'
 import { spawn } from 'node:child_process'
 import { once } from 'node:events'
 import { access, cp, mkdtemp, rm, symlink } from 'node:fs/promises'
@@ -11,6 +11,9 @@ import { fileURLToPath } from 'node:url'
 import { setTimeout as delay } from 'node:timers/promises'
 
 const root = fileURLToPath(new URL('../', import.meta.url))
+// Puppeteer's bundled Firefox revision can lag behind the BiDi fixes this suite
+// needs. Keep a verified stable build; override for a local experiment.
+const firefoxTag = process.env.PUPPETEER_FIREFOX_BUILD_ID ?? 'stable_154.0.1'
 const dummyDatabaseUrl = 'postgresql://dummy:dummy@127.0.0.1:5432/dummy'
 const buildEnv = {
   ...process.env,
@@ -131,7 +134,7 @@ async function firefoxExecutable() {
   if (process.env.FIREFOX_BIN) return process.env.FIREFOX_BIN
   const platform = detectBrowserPlatform()
   if (!platform) throw new Error(`Cannot resolve Puppeteer Firefox for ${os.platform()} (${os.arch()})`)
-  const buildId = puppeteer.PUPPETEER_REVISIONS.firefox
+  const buildId = await resolveBuildId(Browser.FIREFOX, platform, firefoxTag)
   const cacheDir = process.env.PUPPETEER_CACHE_DIR ?? path.join(os.homedir(), '.cache', 'puppeteer')
   const executablePath = computeExecutablePath({ browser: Browser.FIREFOX, buildId, cacheDir, platform })
   try {
