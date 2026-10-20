@@ -71,7 +71,7 @@ For manual browser testing, run the site and a Firefox instance with WebDriver B
 - `build` runs ESLint, TypeScript, the test suite and a production build with dummy database URLs.
 - `browser` runs the isolated production browser gate with a cached Firefox build.
 
-`.github/workflows/codeql.yml` runs GitHub CodeQL security analysis on pushes, pull requests and a weekly schedule. Dependabot checks npm and GitHub Actions weekly, grouping npm minor and patch updates.
+`.github/workflows/codeql.yml` runs GitHub CodeQL security analysis on pushes, pull requests and a weekly schedule. `.github/workflows/dependency-review.yml` checks pull requests for high-severity dependency changes. Dependabot checks npm and GitHub Actions weekly, grouping npm minor and patch updates.
 
 Vercel deploys from `main`. Production promotion waits for the `build`, `browser` and `Analyze JavaScript and TypeScript` Deployment Checks. The legacy GitHub Pages site is not updated. The public `images.unoptimized` setting keeps remote R2 variants on their own URLs instead of routing them through the Next image optimizer.
 
