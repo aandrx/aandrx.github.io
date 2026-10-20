@@ -14,7 +14,7 @@ export default function Nightfind2025Page() {
       <p>A continuation of Nightfind, now with sharper contrast and quieter streets.</p>
       <p>Moving between corners of light, waiting for brief moments to settle into frame.</p>
       <p>The routine stayed the same: walk, pause, adjust settings, and follow the night until it opens up.</p>
-      <p>2025, January 2025</p>
+      <p>January 15-31, August 11-17, September 18, 2025</p>
     </ProjectGallery>
   )
 }
