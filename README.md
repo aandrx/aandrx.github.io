@@ -40,7 +40,7 @@ Open [http://localhost:3000](http://localhost:3000). Public pages use generated 
 
 ## Dependency notes
 
-Next 15 pins an older PostCSS with known advisories. `package.json` overrides that nested dependency to `8.5.31`; the production build and browser gate validate the result. Remove the override when the project moves to Next 16.
+Next 15 pins an older PostCSS and Tailwind 3 pins an older selector parser, both with known advisories. `package.json` overrides them to `8.5.31` and `7.1.6`; the production build and browser gate validate the result. Remove those overrides when the project moves to Next 16 and Tailwind 4.
 
 Prisma's CLI and config packages are build tooling. The runtime client used by the API routes is `@prisma/client`.
 
