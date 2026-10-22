@@ -151,7 +151,7 @@ export default function FeedCarousel({ post, onClose }: { post: FeedPost; onClos
     }
   }, [])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!wheeling) paintTrack(position.offset)
   }, [paintTrack, position.offset, viewportWidth, wheeling])
 
