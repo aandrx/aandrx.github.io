@@ -404,7 +404,7 @@ try {
   const mediaBounds = await (await page.$('.modal-media')).boundingBox()
   const pageScrollBeforeWheel = await page.evaluate(() => window.scrollX)
   await page.mouse.move(mediaBounds.x + mediaBounds.width / 2, mediaBounds.y + mediaBounds.height / 2)
-  await page.mouse.wheel({ deltaY: 250 })
+  await page.mouse.wheel({ deltaY: 80 })
   await page.waitForFunction(() => document.querySelector('[role="slider"]').getAttribute('aria-valuenow') === '2')
   await delay(700)
   assert.equal(await page.evaluate(() => window.scrollX), pageScrollBeforeWheel)

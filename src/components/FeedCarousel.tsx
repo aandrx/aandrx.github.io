@@ -25,6 +25,8 @@ export default function FeedCarousel({ post, onClose }: { post: FeedPost; onClos
   const wheelIdle = useRef<ReturnType<typeof setTimeout> | null>(null)
   const wheelTarget = useRef(0)
   const wheelCurrent = useRef(0)
+  const wheelStartIndex = useRef(0)
+  const wheelDirection = useRef(0)
   const wheelingRef = useRef(false)
   const measuredTargets = useRef<number[]>([])
   const assets = post.images.map(getPortfolioAsset)
@@ -56,6 +58,24 @@ export default function FeedCarousel({ post, onClose }: { post: FeedPost; onClos
   const nearest = useCallback((offset: number) => {
     jumpTo(nearestIndex(offset))
   }, [nearestIndex, jumpTo])
+
+  const wheelSnapIndex = useCallback((offset: number) => {
+    const points = targets()
+    if (!points.length) return 0
+    const startIndex = Math.max(0, Math.min(points.length - 1, wheelStartIndex.current))
+    const start = points[startIndex]
+    const nearest = nearestIndex(offset)
+    if (wheelDirection.current > 0) {
+      const nextIndex = Math.min(points.length - 1, startIndex + 1)
+      const gap = points[nextIndex] - start
+      if (gap > 0 && offset > start + gap * 0.2) return Math.max(nearest, nextIndex)
+    } else if (wheelDirection.current < 0) {
+      const previousIndex = Math.max(0, startIndex - 1)
+      const gap = start - points[previousIndex]
+      if (gap > 0 && offset < start - gap * 0.2) return Math.min(nearest, previousIndex)
+    }
+    return nearest
+  }, [nearestIndex, targets])
 
   const paintTrack = useCallback((offset: number) => {
     const track = trackRef.current
@@ -91,11 +111,11 @@ export default function FeedCarousel({ post, onClose }: { post: FeedPost; onClos
     wheelingRef.current = false
     if (snap) {
       const points = targets()
-      const index = nearestIndex(wheelTarget.current)
+      const index = wheelSnapIndex(wheelTarget.current)
       update(points[index] ?? 0, index)
     }
     setWheeling(false)
-  }, [nearestIndex, targets, update])
+  }, [targets, update, wheelSnapIndex])
 
   const stepWheel = useCallback(() => {
     wheelFrame.current = 0
@@ -167,12 +187,14 @@ export default function FeedCarousel({ post, onClose }: { post: FeedPost; onClos
       if (!wheelingRef.current) {
         wheelingRef.current = true
         setWheeling(true)
+        wheelStartIndex.current = positionRef.current.index
         wheelCurrent.current = currentTrackOffset()
         wheelTarget.current = wheelCurrent.current
         paintTrack(wheelCurrent.current)
       }
 
       const delta = magnitude * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? el.clientHeight : 1) * 1.6
+      wheelDirection.current = delta > 0 ? 1 : delta < 0 ? -1 : 0
       wheelTarget.current = Math.max(0, Math.min(maxOffset(), wheelTarget.current + delta))
       if (wheelIdle.current) clearTimeout(wheelIdle.current)
       wheelIdle.current = setTimeout(() => {
