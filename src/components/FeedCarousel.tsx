@@ -135,10 +135,20 @@ export default function FeedCarousel({ post, onClose }: { post: FeedPost; onClos
     if (!wheelingRef.current) return
     const points = targets()
     const index = wheelSnapIndex(wheelTarget.current)
-    wheelSettling.current = true
     wheelTarget.current = Math.max(0, Math.min(maxOffset(), points[index] ?? wheelCurrent.current))
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      wheelCurrent.current = wheelTarget.current
+      paintTrack(wheelCurrent.current)
+      const settledIndex = wheelSnapIndex(wheelTarget.current)
+      update(points[settledIndex] ?? 0, settledIndex)
+      wheelSettling.current = false
+      wheelingRef.current = false
+      setWheeling(false)
+      return
+    }
+    wheelSettling.current = true
     if (!wheelFrame.current) wheelFrame.current = requestAnimationFrame(stepWheel)
-  }, [maxOffset, stepWheel, targets, wheelSnapIndex])
+  }, [maxOffset, paintTrack, stepWheel, targets, update, wheelSnapIndex])
 
   const cancelWheel = useCallback(() => {
     if (wheelIdle.current) {
