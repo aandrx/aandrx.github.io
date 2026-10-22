@@ -479,7 +479,12 @@ try {
   assert.equal(unknown.status, 400)
   const oversized = await fetch(`${baseUrl}/api/post-colors/`, { method: 'POST', body: JSON.stringify({ urls: [], padding: 'x'.repeat(40000) }) })
   assert.equal(oversized.status, 413)
+  const contactRead = await fetch(`${baseUrl}/api/contact/`)
+  assert.equal(contactRead.status, 405)
+  const newsletterDelete = await fetch(`${baseUrl}/api/newsletter/`, { method: 'DELETE' })
+  assert.equal(newsletterDelete.status, 405)
   console.log('PASS: unregistered URLs and oversized requests rejected')
+  console.log('PASS: unauthenticated contact read and newsletter delete endpoints remain closed')
 } catch (error) {
   console.error('Browser failure diagnostics:', JSON.stringify({ imageFailures, photos: await page.evaluate(() => [...document.querySelectorAll('.portfolio-photo')].slice(0, 3).map((el) => ({ key: el.dataset.imageKey, state: el.className, image: el.querySelector('img')?.currentSrc, complete: el.querySelector('img')?.complete, width: el.querySelector('img')?.naturalWidth }))) }))
   throw error

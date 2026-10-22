@@ -55,24 +55,3 @@ export async function POST(request: NextRequest) {
     )
   }
 }
-
-// Optional: GET endpoint to retrieve submissions (for admin use)
-export async function GET(request: NextRequest) {
-  try {
-    const prisma = getPrismaClient()
-    const submissions = await prisma.contactSubmission.findMany({
-      orderBy: { createdAt: 'desc' },
-      take: 50, // Limit to last 50 submissions
-    })
-    
-    return NextResponse.json(submissions)
-  } catch (error) {
-    console.error('Error fetching submissions', {
-      error: error instanceof Error ? error.message : String(error),
-    })
-    return NextResponse.json(
-      { error: 'Failed to fetch submissions' },
-      { status: 500 }
-    )
-  }
-}
