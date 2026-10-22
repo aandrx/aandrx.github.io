@@ -27,6 +27,7 @@ export default function FeedCarousel({ post, onClose }: { post: FeedPost; onClos
   const wheelCurrent = useRef(0)
   const wheelStartIndex = useRef(0)
   const wheelDirection = useRef(0)
+  const wheelSettling = useRef(false)
   const wheelingRef = useRef(false)
   const measuredTargets = useRef<number[]>([])
   const assets = post.images.map(getPortfolioAsset)
@@ -68,11 +69,11 @@ export default function FeedCarousel({ post, onClose }: { post: FeedPost; onClos
     if (wheelDirection.current > 0) {
       const nextIndex = Math.min(points.length - 1, startIndex + 1)
       const gap = points[nextIndex] - start
-      if (gap > 0 && offset > start + gap * 0.35) return Math.max(nearest, nextIndex)
+      if (gap > 0 && offset > start + gap * 0.25) return Math.max(nearest, nextIndex)
     } else if (wheelDirection.current < 0) {
       const previousIndex = Math.max(0, startIndex - 1)
       const gap = start - points[previousIndex]
-      if (gap > 0 && offset < start - gap * 0.35) return Math.min(nearest, previousIndex)
+      if (gap > 0 && offset < start - gap * 0.25) return Math.min(nearest, previousIndex)
     }
     return nearest
   }, [nearestIndex, targets])
@@ -100,40 +101,60 @@ export default function FeedCarousel({ post, onClose }: { post: FeedPost; onClos
     return positionRef.current.offset
   }, [])
 
-  const stopWheel = useCallback((snap: boolean) => {
-    if (wheelIdle.current) {
-      clearTimeout(wheelIdle.current)
-      wheelIdle.current = null
-    }
-    cancelAnimationFrame(wheelFrame.current)
-    wheelFrame.current = 0
-    if (!wheelingRef.current) return
-    wheelingRef.current = false
-    if (snap) {
-      const points = targets()
-      const index = wheelSnapIndex(wheelTarget.current)
-      update(points[index] ?? 0, index)
-    }
-    setWheeling(false)
-  }, [targets, update, wheelSnapIndex])
-
   const stepWheel = useCallback(() => {
     wheelFrame.current = 0
     const target = wheelTarget.current
     const difference = target - wheelCurrent.current
-    wheelCurrent.current = Math.abs(difference) < 0.5
+    const factor = wheelSettling.current ? 0.12 : 0.24
+    wheelCurrent.current = Math.abs(difference) < 0.4
       ? target
-      : wheelCurrent.current + difference * 0.25
+      : wheelCurrent.current + difference * factor
     paintTrack(wheelCurrent.current)
     const index = nearestIndex(wheelCurrent.current)
     if (index !== positionRef.current.index) {
       const points = targets()
       update(points[index] ?? 0, index)
     }
-    if (Math.abs(target - wheelCurrent.current) >= 0.5) {
+    if (wheelSettling.current && Math.abs(target - wheelCurrent.current) < 0.4) {
+      wheelCurrent.current = target
+      paintTrack(target)
+      const points = targets()
+      const settledIndex = wheelSnapIndex(target)
+      update(points[settledIndex] ?? 0, settledIndex)
+      wheelSettling.current = false
+      wheelingRef.current = false
+      setWheeling(false)
+      return
+    }
+    if (Math.abs(target - wheelCurrent.current) >= 0.4) {
       wheelFrame.current = requestAnimationFrame(stepWheel)
     }
-  }, [nearestIndex, paintTrack, targets, update])
+  }, [nearestIndex, paintTrack, targets, update, wheelSnapIndex])
+
+  const settleWheel = useCallback(() => {
+    if (!wheelingRef.current) return
+    const points = targets()
+    const index = wheelSnapIndex(wheelTarget.current)
+    wheelSettling.current = true
+    wheelTarget.current = points[index] ?? wheelCurrent.current
+    if (!wheelFrame.current) wheelFrame.current = requestAnimationFrame(stepWheel)
+  }, [stepWheel, targets, wheelSnapIndex])
+
+  const cancelWheel = useCallback(() => {
+    if (wheelIdle.current) {
+      clearTimeout(wheelIdle.current)
+      wheelIdle.current = null
+    }
+    cancelAnimationFrame(wheelFrame.current)
+    wheelFrame.current = 0
+    wheelSettling.current = false
+    if (!wheelingRef.current) return
+    wheelingRef.current = false
+    const points = targets()
+    const index = nearestIndex(wheelCurrent.current)
+    update(points[index] ?? 0, index)
+    setWheeling(false)
+  }, [nearestIndex, targets, update])
 
   useLayoutEffect(() => {
     const viewport = viewportRef.current
@@ -186,11 +207,16 @@ export default function FeedCarousel({ post, onClose }: { post: FeedPost; onClos
 
       if (!wheelingRef.current) {
         wheelingRef.current = true
+        wheelSettling.current = false
         setWheeling(true)
         wheelStartIndex.current = positionRef.current.index
         wheelCurrent.current = currentTrackOffset()
         wheelTarget.current = wheelCurrent.current
         paintTrack(wheelCurrent.current)
+      } else if (wheelSettling.current) {
+        wheelSettling.current = false
+        wheelStartIndex.current = positionRef.current.index
+        wheelTarget.current = wheelCurrent.current
       }
 
       const delta = magnitude * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? el.clientHeight : 1) * 1.6
@@ -199,7 +225,7 @@ export default function FeedCarousel({ post, onClose }: { post: FeedPost; onClos
       if (wheelIdle.current) clearTimeout(wheelIdle.current)
       wheelIdle.current = setTimeout(() => {
         wheelIdle.current = null
-        stopWheel(true)
+        settleWheel()
       }, 140)
       if (!wheelFrame.current) wheelFrame.current = requestAnimationFrame(stepWheel)
     }
@@ -214,7 +240,7 @@ export default function FeedCarousel({ post, onClose }: { post: FeedPost; onClos
       wheelFrame.current = 0
       wheelingRef.current = false
     }
-  }, [currentTrackOffset, maxOffset, paintTrack, post.images.length, stepWheel, stopWheel])
+  }, [currentTrackOffset, maxOffset, paintTrack, post.images.length, settleWheel, stepWheel])
 
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (event.key === 'Escape') { event.preventDefault(); onClose(); return }
@@ -228,17 +254,17 @@ export default function FeedCarousel({ post, onClose }: { post: FeedPost; onClos
     }
     if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) {
       event.preventDefault()
-      stopWheel(true)
+      cancelWheel()
       moveBy(event.key === 'ArrowLeft' || event.key === 'ArrowUp' ? -1 : 1)
     } else if (event.key === 'Home' || event.key === 'End') {
       event.preventDefault()
-      stopWheel(true)
+      cancelWheel()
       jumpTo(event.key === 'Home' ? 0 : post.images.length - 1)
     }
   }
   const pointerDown = (event: PointerEvent<HTMLDivElement>) => {
     if (event.button !== 0 || (event.target as HTMLElement).closest('button')) return
-    stopWheel(true)
+    cancelWheel()
     drag.current = { x: event.clientX, offset: positionRef.current.offset, active: true }
     setDragging(true)
     event.currentTarget.setPointerCapture(event.pointerId)
@@ -290,7 +316,7 @@ export default function FeedCarousel({ post, onClose }: { post: FeedPost; onClos
           <div ref={progressRef} className="modal-status" role="slider" tabIndex={0} aria-label="Choose photo"
             aria-valuemin={1} aria-valuemax={post.images.length} aria-valuenow={position.index + 1}
             aria-valuetext={`Photo ${position.index + 1} of ${post.images.length}`}
-            onPointerDown={(event) => { stopWheel(true); scrub.current = true; setScrubbing(true); event.currentTarget.setPointerCapture(event.pointerId); scrubTo(event.clientX) }}
+            onPointerDown={(event) => { cancelWheel(); scrub.current = true; setScrubbing(true); event.currentTarget.setPointerCapture(event.pointerId); scrubTo(event.clientX) }}
             onPointerMove={(event) => { if (scrub.current) scrubTo(event.clientX) }} onPointerUp={scrubEnd} onPointerCancel={scrubEnd}>
             <div className="modal-progress-track"><div ref={indicatorRef} className="modal-progress-indicator" /></div>
           </div>
