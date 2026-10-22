@@ -307,13 +307,15 @@ body:has(.project-six-layout) {
   height: 100%;
   width: max-content;
   will-change: transform;
+  transform: translateX(calc(-1 * var(--modal-offset, 0px)));
   transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* While actively dragging we disable the transition so the track follows the
    pointer; on release it is re-enabled to ease back to the snapped image. */
 .modal-content.dragging .modal-strip,
-.modal-content.scrubbing .modal-strip {
+.modal-content.scrubbing .modal-strip,
+.modal-content.wheeling .modal-strip {
   transition: none;
 }
 
@@ -396,7 +398,8 @@ body:has(.project-six-layout) {
 }
 
 .modal-content.dragging .modal-progress-indicator,
-.modal-content.scrubbing .modal-progress-indicator {
+.modal-content.scrubbing .modal-progress-indicator,
+.modal-content.wheeling .modal-progress-indicator {
   transition: none;
 }
 

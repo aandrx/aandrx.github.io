@@ -15,12 +15,17 @@ export default function FeedCarousel({ post, onClose }: { post: FeedPost; onClos
   const [position, setPosition] = useState({ offset: 0, index: 0 })
   const positionRef = useRef(position)
   const [viewportWidth, setViewportWidth] = useState(0)
-  const [trackWidth, setTrackWidth] = useState(0)
   const [dragging, setDragging] = useState(false)
   const [scrubbing, setScrubbing] = useState(false)
+  const [wheeling, setWheeling] = useState(false)
+  const indicatorRef = useRef<HTMLDivElement>(null)
   const drag = useRef<{ x: number; offset: number; active: boolean }>({ x: 0, offset: 0, active: false })
   const scrub = useRef(false)
-  const wheel = useRef({ amount: 0, last: 0 })
+  const wheelFrame = useRef(0)
+  const wheelIdle = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const wheelTarget = useRef(0)
+  const wheelCurrent = useRef(0)
+  const wheelingRef = useRef(false)
   const measuredTargets = useRef<number[]>([])
   const assets = post.images.map(getPortfolioAsset)
 
@@ -38,16 +43,77 @@ export default function FeedCarousel({ post, onClose }: { post: FeedPost; onClos
     if (target >= 0) update(points[target], target)
   }, [targets, update])
   const moveBy = useCallback((direction: number) => jumpTo(positionRef.current.index + direction), [jumpTo])
-  const nearest = useCallback((offset: number) => {
+  const nearestIndex = useCallback((offset: number) => {
     const points = targets()
     const max = maxOffset()
-    if (offset >= max && max > 0) { jumpTo(points.length - 1); return }
+    if (offset >= max && max > 0) return Math.max(0, points.length - 1)
     let best = 0
     points.forEach((point, index) => {
       if (Math.abs(point - offset) < Math.abs(points[best] - offset)) best = index
     })
-    jumpTo(best)
-  }, [targets, maxOffset, jumpTo])
+    return best
+  }, [targets, maxOffset])
+  const nearest = useCallback((offset: number) => {
+    jumpTo(nearestIndex(offset))
+  }, [nearestIndex, jumpTo])
+
+  const paintTrack = useCallback((offset: number) => {
+    const track = trackRef.current
+    const viewport = viewportRef.current
+    if (!track) return
+    track.style.setProperty('--modal-offset', `${offset}px`)
+    const indicator = indicatorRef.current
+    if (!indicator || !viewport) return
+    const max = Math.max(0, track.scrollWidth - viewport.clientWidth)
+    const width = track.scrollWidth ? Math.min(1, viewport.clientWidth / track.scrollWidth) : 1
+    const fraction = max ? offset / max : 0
+    indicator.style.width = `${width * 100}%`
+    indicator.style.left = `${fraction * (1 - width) * 100}%`
+  }, [])
+
+  const currentTrackOffset = useCallback(() => {
+    const track = trackRef.current
+    const transform = track ? getComputedStyle(track).transform : ''
+    if (transform && transform !== 'none') {
+      try { return -new DOMMatrixReadOnly(transform).m41 } catch { /* use state fallback */ }
+    }
+    return positionRef.current.offset
+  }, [])
+
+  const stopWheel = useCallback((snap: boolean) => {
+    if (wheelIdle.current) {
+      clearTimeout(wheelIdle.current)
+      wheelIdle.current = null
+    }
+    cancelAnimationFrame(wheelFrame.current)
+    wheelFrame.current = 0
+    if (!wheelingRef.current) return
+    wheelingRef.current = false
+    if (snap) {
+      const points = targets()
+      const index = nearestIndex(wheelTarget.current)
+      update(points[index] ?? 0, index)
+    }
+    setWheeling(false)
+  }, [nearestIndex, targets, update])
+
+  const stepWheel = useCallback(() => {
+    wheelFrame.current = 0
+    const target = wheelTarget.current
+    const difference = target - wheelCurrent.current
+    wheelCurrent.current = Math.abs(difference) < 0.5
+      ? target
+      : wheelCurrent.current + difference * 0.25
+    paintTrack(wheelCurrent.current)
+    const index = nearestIndex(wheelCurrent.current)
+    if (index !== positionRef.current.index) {
+      const points = targets()
+      update(points[index] ?? 0, index)
+    }
+    if (Math.abs(target - wheelCurrent.current) >= 0.5) {
+      wheelFrame.current = requestAnimationFrame(stepWheel)
+    }
+  }, [nearestIndex, paintTrack, targets, update])
 
   useLayoutEffect(() => {
     const viewport = viewportRef.current
@@ -56,7 +122,6 @@ export default function FeedCarousel({ post, onClose }: { post: FeedPost; onClos
     const measure = () => {
       measuredTargets.current = Array.from(track.children).map((slide) => (slide as HTMLElement).offsetLeft - 8)
       setViewportWidth(viewport.clientWidth)
-      setTrackWidth(track.scrollWidth)
       jumpTo(positionRef.current.index)
     }
     measure()
@@ -87,22 +152,47 @@ export default function FeedCarousel({ post, onClose }: { post: FeedPost; onClos
   }, [])
 
   useEffect(() => {
+    if (!wheeling) paintTrack(position.offset)
+  }, [paintTrack, position.offset, viewportWidth, wheeling])
+
+  useEffect(() => {
     const el = viewportRef.current
-    if (!el) return
+    if (!el || post.images.length < 2) return
     const onWheel = (event: WheelEvent) => {
+      if (event.defaultPrevented || event.ctrlKey || event.metaKey) return
       const magnitude = Math.abs(event.deltaY) >= Math.abs(event.deltaX) ? event.deltaY : event.deltaX
       if (!magnitude) return
       event.preventDefault()
-      const now = Date.now()
-      if (now - wheel.current.last < 100) return
-      wheel.current.amount += magnitude * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? el.clientHeight : 1)
-      if (Math.abs(wheel.current.amount) < 240) return
-      moveBy(wheel.current.amount < 0 ? -1 : 1)
-      wheel.current = { amount: 0, last: now }
+
+      if (!wheelingRef.current) {
+        wheelingRef.current = true
+        setWheeling(true)
+        wheelCurrent.current = currentTrackOffset()
+        wheelTarget.current = wheelCurrent.current
+        paintTrack(wheelCurrent.current)
+      }
+
+      const delta = magnitude * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? el.clientHeight : 1) * 1.6
+      wheelTarget.current = Math.max(0, Math.min(maxOffset(), wheelTarget.current + delta))
+      if (wheelIdle.current) clearTimeout(wheelIdle.current)
+      wheelIdle.current = setTimeout(() => {
+        wheelIdle.current = null
+        stopWheel(true)
+      }, 140)
+      if (!wheelFrame.current) wheelFrame.current = requestAnimationFrame(stepWheel)
     }
     el.addEventListener('wheel', onWheel, { passive: false })
-    return () => el.removeEventListener('wheel', onWheel)
-  }, [moveBy])
+    return () => {
+      el.removeEventListener('wheel', onWheel)
+      if (wheelIdle.current) {
+        clearTimeout(wheelIdle.current)
+        wheelIdle.current = null
+      }
+      cancelAnimationFrame(wheelFrame.current)
+      wheelFrame.current = 0
+      wheelingRef.current = false
+    }
+  }, [currentTrackOffset, maxOffset, paintTrack, post.images.length, stepWheel, stopWheel])
 
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (event.key === 'Escape') { event.preventDefault(); onClose(); return }
@@ -116,14 +206,17 @@ export default function FeedCarousel({ post, onClose }: { post: FeedPost; onClos
     }
     if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) {
       event.preventDefault()
+      stopWheel(true)
       moveBy(event.key === 'ArrowLeft' || event.key === 'ArrowUp' ? -1 : 1)
     } else if (event.key === 'Home' || event.key === 'End') {
       event.preventDefault()
+      stopWheel(true)
       jumpTo(event.key === 'Home' ? 0 : post.images.length - 1)
     }
   }
   const pointerDown = (event: PointerEvent<HTMLDivElement>) => {
     if (event.button !== 0 || (event.target as HTMLElement).closest('button')) return
+    stopWheel(true)
     drag.current = { x: event.clientX, offset: positionRef.current.offset, active: true }
     setDragging(true)
     event.currentTarget.setPointerCapture(event.pointerId)
@@ -143,19 +236,16 @@ export default function FeedCarousel({ post, onClose }: { post: FeedPost; onClos
     if (rect?.width) nearest(Math.min(1, Math.max(0, (clientX - rect.left) / rect.width)) * maxOffset())
   }
   const scrubEnd = () => { scrub.current = false; setScrubbing(false) }
-  const max = Math.max(0, trackWidth - viewportWidth)
-  const fraction = max ? position.offset / max : 0
-  const indicatorWidth = trackWidth ? Math.min(1, viewportWidth / trackWidth) : 1
   const points = targets()
 
   return (
     <div className="modal-overlay" onClick={(event) => { if (event.target === event.currentTarget) onClose() }}>
       <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1}
-        className={`modal-content${dragging ? ' dragging' : ''}${scrubbing ? ' scrubbing' : ''}`} onKeyDown={onKeyDown}>
+        className={`modal-content${dragging ? ' dragging' : ''}${scrubbing ? ' scrubbing' : ''}${wheeling ? ' wheeling' : ''}`} onKeyDown={onKeyDown}>
         <button ref={closeRef} className="modal-close" type="button" onClick={onClose} aria-label="Close photo carousel">×</button>
         <div className={`modal-media${post.images.length === 1 ? ' modal-media-single' : ''}`} ref={viewportRef} onPointerDown={pointerDown} onPointerMove={pointerMove}
           onPointerUp={pointerEnd} onPointerCancel={pointerEnd}>
-          <div ref={trackRef} className={`modal-strip${post.images.length === 1 ? ' modal-strip-single' : ''}`} style={{ transform: `translateX(${-position.offset}px)` }}>
+          <div ref={trackRef} className={`modal-strip${post.images.length === 1 ? ' modal-strip-single' : ''}`}>
             {post.images.map((src, index) => {
               const asset = assets[index]
               const start = points[index] ?? 0
@@ -178,9 +268,9 @@ export default function FeedCarousel({ post, onClose }: { post: FeedPost; onClos
           <div ref={progressRef} className="modal-status" role="slider" tabIndex={0} aria-label="Choose photo"
             aria-valuemin={1} aria-valuemax={post.images.length} aria-valuenow={position.index + 1}
             aria-valuetext={`Photo ${position.index + 1} of ${post.images.length}`}
-            onPointerDown={(event) => { scrub.current = true; setScrubbing(true); event.currentTarget.setPointerCapture(event.pointerId); scrubTo(event.clientX) }}
+            onPointerDown={(event) => { stopWheel(true); scrub.current = true; setScrubbing(true); event.currentTarget.setPointerCapture(event.pointerId); scrubTo(event.clientX) }}
             onPointerMove={(event) => { if (scrub.current) scrubTo(event.clientX) }} onPointerUp={scrubEnd} onPointerCancel={scrubEnd}>
-            <div className="modal-progress-track"><div className="modal-progress-indicator" style={{ width: `${indicatorWidth * 100}%`, left: `${fraction * (1 - indicatorWidth) * 100}%` }} /></div>
+            <div className="modal-progress-track"><div ref={indicatorRef} className="modal-progress-indicator" /></div>
           </div>
         )}
         <span className="visually-hidden" role="status" aria-live="polite">Photo {position.index + 1} of {post.images.length}</span>
