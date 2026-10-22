@@ -398,6 +398,26 @@ try {
   await delay(700)
   const finalEdge = await page.evaluate(() => Math.abs(document.querySelector('.modal-media').getBoundingClientRect().right - document.querySelector('.modal-strip-slide:last-child').getBoundingClientRect().right))
   assert.ok(finalEdge <= 9, String(finalEdge))
+  const endMedia = await page.$('.modal-media')
+  const endBounds = await endMedia.boundingBox()
+  await page.mouse.move(endBounds.x + endBounds.width / 2, endBounds.y + endBounds.height / 2)
+  await page.mouse.wheel({ deltaY: 150 })
+  await delay(700)
+  const endOverscroll = await page.evaluate(() => {
+    const track = document.querySelector('.modal-strip')
+    const media = document.querySelector('.modal-media')
+    const offset = -new DOMMatrixReadOnly(getComputedStyle(track).transform).m41
+    return {
+      offset,
+      max: track.scrollWidth - media.clientWidth,
+      index: document.querySelector('[role="slider"]').getAttribute('aria-valuenow'),
+      edgeGap: Math.abs(media.getBoundingClientRect().right - document.querySelector('.modal-strip-slide:last-child').getBoundingClientRect().right),
+    }
+  })
+  assert.ok(endOverscroll.offset <= endOverscroll.max + 1, `wheel past the end exceeded the track maximum (${endOverscroll.offset} > ${endOverscroll.max})`)
+  assert.equal(endOverscroll.index, '21')
+  assert.ok(endOverscroll.edgeGap <= 9, `wheel past the end left blank space after the last image (${endOverscroll.edgeGap})`)
+  console.log('PASS: wheel cannot scroll beyond the last carousel image')
   await page.keyboard.press('Home')
   await page.waitForFunction(() => document.querySelector('[role="slider"]')?.getAttribute('aria-valuenow') === '1')
   await delay(700)
