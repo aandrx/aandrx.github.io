@@ -68,11 +68,11 @@ export default function FeedCarousel({ post, onClose }: { post: FeedPost; onClos
     if (wheelDirection.current > 0) {
       const nextIndex = Math.min(points.length - 1, startIndex + 1)
       const gap = points[nextIndex] - start
-      if (gap > 0 && offset > start + gap * 0.2) return Math.max(nearest, nextIndex)
+      if (gap > 0 && offset > start + gap * 0.35) return Math.max(nearest, nextIndex)
     } else if (wheelDirection.current < 0) {
       const previousIndex = Math.max(0, startIndex - 1)
       const gap = start - points[previousIndex]
-      if (gap > 0 && offset < start - gap * 0.2) return Math.min(nearest, previousIndex)
+      if (gap > 0 && offset < start - gap * 0.35) return Math.min(nearest, previousIndex)
     }
     return nearest
   }, [nearestIndex, targets])
