@@ -29,7 +29,7 @@
     "@types/react-dom": "^18",
     "autoprefixer": "^10.6.1",
     "eslint": "^8",
-    "eslint-config-next": "^15.5.28",
+    "eslint-config-next": "^16.4.2",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
     "postcss": "^8",
