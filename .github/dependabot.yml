@@ -9,6 +9,30 @@ updates:
       timezone: "America/New_York"
     open-pull-requests-limit: 5
     groups:
+      react:
+        patterns:
+          - "react"
+          - "react-dom"
+          - "@types/react"
+          - "@types/react-dom"
+      next-lint:
+        patterns:
+          - "next"
+          - "eslint-config-next"
+          - "eslint"
+      prisma:
+        patterns:
+          - "prisma"
+          - "@prisma/client"
+      tailwind:
+        patterns:
+          - "tailwindcss"
+          - "postcss"
+          - "autoprefixer"
+      browser-tools:
+        patterns:
+          - "puppeteer-core"
+          - "@puppeteer/browsers"
       minor-and-patch:
         update-types:
           - "minor"
