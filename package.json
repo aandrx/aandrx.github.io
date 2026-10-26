@@ -23,7 +23,7 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
-    "@puppeteer/browsers": "^3.2.5",
+    "@puppeteer/browsers": "^3.2.6",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
@@ -34,7 +34,7 @@
     "lint-staged": "^16.4.0",
     "postcss": "^8",
     "prisma": "^6.19.3",
-    "puppeteer-core": "^25.14.0",
+    "puppeteer-core": "^25.16.0",
     "tailwindcss": "^3.3.0",
     "typescript": "^5"
   },
