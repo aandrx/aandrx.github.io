@@ -174,6 +174,12 @@ try {
   await page.evaluate(() => window.scrollTo(0, 0))
   await page.waitForFunction(() => !document.querySelector('.mock-museum')?.classList.contains('is-at-bottom'))
 
+  await page.click('.museum-nav a[href="#projects"]')
+  await page.waitForFunction(() => Math.abs((document.querySelector('#projects')?.getBoundingClientRect().top ?? 0) - 90) <= 2)
+  await page.waitForFunction(() => getComputedStyle(document.querySelector('.museum-caption')).opacity === '0')
+  assert.equal(await page.evaluate(() => getComputedStyle(document.querySelector('.museum-caption')).opacity), '0', 'Work anchor hides the carousel caption')
+  await page.evaluate(() => window.scrollTo(0, 0))
+
   const moreButtons = await page.$$('.museum-more')
   assert.equal(moreButtons.length, 2, 'museum exposes Projects and Feed More controls')
   for (const [selector, isProjects] of [['#projects .museum-more', true], ['#feed .museum-more', false]]) {

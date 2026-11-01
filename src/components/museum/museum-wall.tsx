@@ -237,12 +237,14 @@ export function MuseumWall({ items, selected, onSelect, reduced, fallbackClass, 
     const render = () => {
       frameId = requestAnimationFrame(render)
       const delta = Math.min(clock.getDelta(), 0.05)
-      const lambda = reducedRef.current ? 1000 : 6
+      // Reduced motion shortens the slide instead of removing it, so switching
+      // between photographs remains legible without parallax or scale drift.
+      const lambda = reducedRef.current ? 12 : 6
       const targetX = -(selectedRef.current - centerIndex) * SPACING
       const selectedItem = items[selectedRef.current] ?? items[0]
       const targetZ = fitDepth(selectedItem)
       photosGroup.position.x = THREE.MathUtils.damp(photosGroup.position.x, targetX, lambda, delta)
-      camera.position.z = THREE.MathUtils.damp(camera.position.z, targetZ, reducedRef.current ? 1000 : 4, delta)
+      camera.position.z = THREE.MathUtils.damp(camera.position.z, targetZ, reducedRef.current ? 10 : 4, delta)
       if (!reducedRef.current) {
         camera.position.x = THREE.MathUtils.damp(camera.position.x, pointer.x * 0.24, 4, delta)
         camera.position.y = THREE.MathUtils.damp(camera.position.y, 0.28 + pointer.y * 0.1, 4, delta)

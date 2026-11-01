@@ -57,6 +57,7 @@ try {
   assert.doesNotMatch(personal, /noindex/i, 'personal home is indexable')
   assert.doesNotMatch(notes, /noindex/i, 'notes index is indexable')
   const sitemap = await fetch(`${baseURL}/sitemap.xml`).then((response) => response.text())
+  assert.match(sitemap, /<loc>https:\/\/www\.andrxwliu\.me\/<\/loc>/, 'sitemap uses the canonical domain')
   assert.match(sitemap, /<loc>.*\/feed\/<\/loc>/, 'sitemap includes the personal feed')
   assert.match(sitemap, /<loc>.*\/photo\/works\/wingspan\/<\/loc>/, 'sitemap includes photography works')
 

@@ -445,6 +445,7 @@ export default function MuseumMockupPage() {
   const [organizationsOpen, setOrganizationsOpen] = useState(true)
   const [scrollHint, setScrollHint] = useState(1)
   const [atBottom, setAtBottom] = useState(false)
+  const [pastStage, setPastStage] = useState(false)
   const [galleryReady, setGalleryReady] = useState(false)
   const reduced = useReducedMotion()
   useEffect(() => {
@@ -454,6 +455,7 @@ export default function MuseumMockupPage() {
   useEffect(() => {
     const update = () => {
       const lower = document.querySelector('.museum-columns')
+      const stage = document.querySelector('.museum-stage')
       if (!lower) return
       const top = lower.getBoundingClientRect().top
       const start = window.innerHeight
@@ -461,6 +463,7 @@ export default function MuseumMockupPage() {
       setScrollHint(Math.max(0, Math.min(1, (top - end) / (start - end))))
       const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight)
       setAtBottom(window.scrollY >= maxScroll - 48)
+      setPastStage(!!stage && stage.getBoundingClientRect().bottom < 120)
     }
     const restore = () => {
       const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight)
@@ -498,7 +501,7 @@ export default function MuseumMockupPage() {
   const selectedItem = GALLERY[selected]
 
   return (
-    <main id="top" className={`mock-museum${atBottom ? ' is-at-bottom' : ''}`} aria-busy={!galleryReady}>
+    <main id="top" className={`mock-museum${atBottom ? ' is-at-bottom' : ''}${pastStage ? ' is-past-stage' : ''}`} aria-busy={!galleryReady}>
       <style>{`
         html:has(.mock-museum), body:has(.mock-museum) { overflow-x: hidden !important; overflow-y: auto !important; background: #fff; }
         body:has(.mock-museum) { color: #000; }
@@ -527,7 +530,8 @@ export default function MuseumMockupPage() {
         .museum-loading.is-ready { opacity: 0; pointer-events: none; }
         .museum-under { max-width: 960px; margin: 0 auto; }
         .museum-caption { position: absolute; left: 0; right: 0; bottom: 35px; z-index: 2; text-align: center; pointer-events: none; transition: opacity .2s ease; }
-        .mock-museum.is-at-bottom .museum-caption { opacity: 0; }
+        .mock-museum.is-at-bottom .museum-caption,
+        .mock-museum.is-past-stage .museum-caption { opacity: 0; }
         .museum-caption strong { display: block; color: #000; font: 400 16px/1.4 "Helvetica Neue", Helvetica, Arial, sans-serif; }
         .museum-caption span { display: block; color: #666; font: 400 14px/1.4 "Helvetica Neue", Helvetica, Arial, sans-serif; }
         .museum-top-fade { position: fixed; top: 0; left: 0; z-index: 30; width: 100vw; height: 120px; background: linear-gradient(to bottom, #fff 0%, #fff 75%, rgba(255,255,255,0) 100%); opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .25s ease, visibility 0s .25s; }
@@ -569,6 +573,7 @@ export default function MuseumMockupPage() {
         .museum-experience-when time, .museum-experience-date { color: #000; font: 400 16px/1.4 "Helvetica Neue", Helvetica, Arial, sans-serif; white-space: nowrap; }
         .museum-experience-when span { color: #666; font: 400 13px/1.4 "Helvetica Neue", Helvetica, Arial, sans-serif; white-space: nowrap; }
         .museum-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; max-width: 960px; margin: 24px auto 0; padding-top: 0; }
+        #projects, #feed, #experience { scroll-margin-top: 90px; }
         .museum-column { display: flex; flex-direction: column; min-width: 0; }
         .museum-column h2 { margin: 0; padding: 4px 0; border-bottom: 1px solid #e3e3e3; font: 400 18px/24px "Helvetica Neue", Helvetica, Arial, sans-serif; }
         .museum-column h2 a { color: inherit; text-decoration: none; }
