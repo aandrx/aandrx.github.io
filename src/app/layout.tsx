@@ -8,7 +8,7 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.andrxwliu.me'
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: 'Andrew Liu',
-  description: 'my portfolio',
+  description: 'Computational Media student at Georgia Tech. Software, systems, and photographs.',
   icons: {
     icon: '/favicon-light.png',
   },

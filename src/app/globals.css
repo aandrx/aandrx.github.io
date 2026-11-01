@@ -23,6 +23,7 @@
 :root {
   /* Dynamic container width - updated by DynamicColumns component */
   --dynamic-container-width: 1200px;
+  --site-top-gap: 6px;
 }
 
 /* ====================================================================
@@ -92,7 +93,7 @@ a:hover {
 
 .sidebar {
   width: 230px;
-  padding: 40px;
+  padding: calc(40px + var(--site-top-gap)) 40px 40px;
   border-right: none;
   position: absolute; /* Position absolutely to overlay layout padding */
   left: 0; /* Align to left edge of layout */
@@ -106,7 +107,7 @@ a:hover {
 .main-content {
   flex: 1;
   margin-left: 230px; /* Account for sidebar width */
-  padding: 6.4rem 4rem 2rem 3.3rem; /* Match sidebar padding for consistency */
+  padding: calc(6.4rem + var(--site-top-gap)) 4rem 2rem 3.3rem; /* Match sidebar padding for consistency */
   opacity: 0;
   animation: fadeIn 1s ease-in-out forwards;
 }
@@ -116,7 +117,7 @@ a:hover {
    ==================================================================== */
 /* About page - full width layout */
 .about-page .main-content {
-  padding-top: 40px; /* Custom top padding for about page */
+  padding-top: calc(40px + var(--site-top-gap)); /* Custom top padding for about page */
   padding-right: 2rem; /* Reduced right padding for more width */
   width: calc(100vw - 230px - 3.3rem - 2rem);
   max-width: none;
@@ -131,7 +132,7 @@ a:hover {
 
 /* Contact page - reduced top padding */
 .contact-page .main-content {
-  padding-top: 40px; /* Custom top padding for contact page */
+  padding-top: calc(40px + var(--site-top-gap)); /* Custom top padding for contact page */
 }
 
 /* Contact page text styling */
@@ -183,7 +184,7 @@ a:hover {
 
 .nav-item.active {
   text-decoration: underline;
-  text-decoration-color: #ccc;
+  text-decoration-color: #777;
   text-underline-offset: 2pt;
 }
 
@@ -207,6 +208,13 @@ a:hover {
 
 .works-submenu a:hover {
   text-decoration: underline;
+  text-underline-offset: 2pt;
+}
+
+.works-submenu a.active,
+.works-submenu button.active {
+  text-decoration: underline;
+  text-decoration-color: #777;
   text-underline-offset: 2pt;
 }
 
@@ -247,6 +255,25 @@ a:hover {
   width: 100%;
   height: auto;
   display: block;
+}
+
+/* PortfolioImage thumbnails participate in the grid flow instead of being
+   absolutely positioned, while the image inside still fills the reserved
+   aspect-ratio slot. */
+.project-item .portfolio-photo-thumbnail {
+  position: relative;
+  inset: auto;
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.project-item .portfolio-photo-thumbnail img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .project-title {
@@ -420,7 +447,7 @@ a:hover {
   min-width: 230px;
   flex-shrink: 0;
   height: 100vh;
-  padding: 6.4rem 4rem 2rem 3.3rem;
+  padding: calc(6.4rem + var(--site-top-gap)) 4rem 2rem 3.3rem;
   box-sizing: border-box;
 }
 
@@ -440,7 +467,7 @@ a:hover {
   width: 280px;
   min-width: 280px;
   max-width: 280px;
-  padding: 6.4rem 2rem 2rem 0.5rem; /* Minimal left padding */
+  padding: calc(6.4rem + var(--site-top-gap)) 2rem 2rem 0.5rem; /* Minimal left padding */
   flex-shrink: 0;
   box-sizing: border-box;
 }
@@ -623,11 +650,24 @@ body:has(.horizontal-page-container) {
     height: auto;
     border-right: none;
     border-bottom: 1px solid #eee;
-    padding: 1rem;
+    padding: calc(1rem + var(--site-top-gap)) 1rem 1rem;
     z-index: 100;
   }
   
-  .layout { flex-direction: column; }
+  .layout {
+    flex-direction: column;
+    width: 100%;
+    height: auto;
+    max-height: none;
+    min-height: calc(100vh - 55px);
+    overflow-y: visible;
+  }
+  .main-content {
+    margin-left: 0;
+    width: 100%;
+    max-width: 100%;
+    padding: calc(1.5rem + var(--site-top-gap)) 1rem 2rem;
+  }
   .horizontal-sidebar { width: 170px; }
   .horizontal-content-wrapper { 
     margin-left: 180px; 
@@ -673,7 +713,7 @@ body:has(.horizontal-page-container) {
 
 #container {
   /* Container positioned using padding within layout space - matching reference */
-  padding: 40px 40px 90px 280px; /* top right bottom left - increased bottom padding by 50px total */
+  padding: calc(40px + var(--site-top-gap)) 40px 90px 280px; /* top right bottom left - increased bottom padding by 50px total */
   
   /* Dynamic container width based on number of columns */
   position: static; /* Normal flow within layout */
@@ -1113,4 +1153,49 @@ body:has(.horizontal-page-container) {
   border-radius: 3px;
   font-size: 12px;
   font-weight: normal;
+}
+
+/* ====================================================================
+   REDUCED MOTION
+   ==================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .page-transition {
+    transition: none;
+    opacity: 1;
+  }
+
+  .main-content,
+  #container {
+    animation: none !important;
+    transition: none !important;
+    opacity: 1 !important;
+  }
+
+  /* The submenu transitions are set inline by Navigation.tsx. */
+  #works-submenu,
+  #nightfind-submenu,
+  #csa-submenu {
+    transition: none !important;
+  }
+
+  .instagram-post,
+  .instagram-square,
+  .instagram-image,
+  .instagram-post-overlay,
+  .instagram-grid-item-full,
+  .instagram-grid-item-full .instagram-post-overlay {
+    transition: none;
+  }
+
+  .instagram-post:hover,
+  .instagram-square:hover,
+  .instagram-grid-item-full:hover {
+    transform: none;
+  }
+
+  .instagram-post:hover .instagram-image,
+  .instagram-square:hover .instagram-image,
+  .instagram-grid-item-full:hover .instagram-grid-image {
+    transform: none;
+  }
 }

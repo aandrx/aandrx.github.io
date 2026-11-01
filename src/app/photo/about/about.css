@@ -46,10 +46,10 @@ body:has(.about-container) {
 /* About Page Container */
 .layout #container.about-container {
   /* Container positioned using padding within layout space */
-  padding: 40px 40px 90px 280px; /* 40px top, 40px right, 90px bottom, 280px left */
+  padding: calc(40px + var(--site-top-gap)) 40px 90px 280px; /* 40px top, 40px right, 90px bottom, 280px left */
   
   position: static;
-  width: 1120px; /* Fixed width: 760px content + 280px left padding + 40px right padding + 40px buffer */
+  width: min(1120px, 100%); /* Fluid below the 1120px desktop width */
   max-width: 1120px; /* Hard coded max width */
   height: auto;
   min-height: 100vh;
@@ -126,7 +126,7 @@ body:has(.about-container) {
 
 /* About page image */
 .layout .about-container .post .content img.about-image {
-  width: 760px !important;
+  width: 100% !important;
   height: auto !important;
   max-width: 760px !important;
   display: block !important;

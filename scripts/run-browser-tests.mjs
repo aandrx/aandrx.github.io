@@ -116,7 +116,7 @@ async function startServer(sourceDir) {
   while (Date.now() < deadline) {
     if (server.exitCode !== null) throw new Error(`Isolated server exited before becoming ready (code ${server.exitCode})\n${output}`)
     try {
-      const response = await fetch(`${baseUrl}/works/starry-night-2025/`)
+      const response = await fetch(`${baseUrl}/photo/works/starry-night-2025/`)
       if (response.ok) {
         console.log(`Serving isolated production build at ${baseUrl}`)
         return { server, baseUrl }
@@ -177,12 +177,14 @@ async function runSuite(baseUrl) {
     }
   }
   if (!ready) throw new Error(`Firefox did not accept BiDi connections at ${endpoint} within 40s`)
-  const suite = start(process.execPath, [path.join(root, 'tests', 'image-loading.browser.mjs')], {
-    cwd: root,
-    env: { ...process.env, SITE_URL: baseUrl, BROWSER_WS_ENDPOINT: endpoint },
-  })
-  const result = await waitForExit(suite)
-  if (result.code !== 0) throw new Error(`Browser suite failed (code ${result.code}, signal ${result.signal ?? 'none'})`)
+  for (const suiteFile of ['image-loading.browser.mjs', 'personal-mockups.browser.mjs', 'production-routes.browser.mjs', 'accessibility.browser.mjs']) {
+    const suite = start(process.execPath, [path.join(root, 'tests', suiteFile)], {
+      cwd: root,
+      env: { ...process.env, SITE_URL: baseUrl, BROWSER_WS_ENDPOINT: endpoint },
+    })
+    const result = await waitForExit(suite)
+    if (result.code !== 0) throw new Error(`${suiteFile} failed (code ${result.code}, signal ${result.signal ?? 'none'})`)
+  }
 }
 
 let failure
