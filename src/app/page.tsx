@@ -504,6 +504,7 @@ export default function MuseumMockupPage() {
     <main id="top" className={`mock-museum${atBottom ? ' is-at-bottom' : ''}${pastStage ? ' is-past-stage' : ''}`} aria-busy={!galleryReady}>
       <style>{`
         html:has(.mock-museum), body:has(.mock-museum) { overflow-x: hidden !important; overflow-y: auto !important; background: #fff; }
+        @media (prefers-reduced-motion: no-preference) { html:has(.mock-museum) { scroll-behavior: smooth; } }
         body:has(.mock-museum) { color: #000; }
         .mock-museum { min-height: 100dvh; padding: calc(10px + var(--site-top-gap)) clamp(20px, 4vw, 56px) 38px; font: 15px/1.5 "Helvetica Neue", Helvetica, Arial, sans-serif; }
         .mock-museum * { box-sizing: border-box; }

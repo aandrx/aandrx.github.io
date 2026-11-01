@@ -157,7 +157,7 @@ try {
     console.log('SKIP: WebGL canvas unavailable in this browser; fallback remains in place')
   }
 
-  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight))
+  await page.evaluate(() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' }))
   await page.waitForFunction(() => document.querySelector('.mock-museum')?.classList.contains('is-at-bottom'))
   await page.waitForFunction(() => getComputedStyle(document.querySelector('.museum-caption')).opacity === '0')
   await page.waitForFunction(() => getComputedStyle(document.querySelector('.museum-top-hint')).opacity === '1')
@@ -171,14 +171,14 @@ try {
   if (bottomState.canvas !== null) assert.equal(bottomState.canvas, '0', 'carousel hides at the bottom of the landing page')
   assert.equal(bottomState.hint, true, 'upward scroll hint appears at the bottom')
   assert.equal(bottomState.hintOpacity, '1', 'upward scroll hint is visible at the bottom')
-  await page.evaluate(() => window.scrollTo(0, 0))
+  await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }))
   await page.waitForFunction(() => !document.querySelector('.mock-museum')?.classList.contains('is-at-bottom'))
 
   await page.click('.museum-nav a[href="#projects"]')
   await page.waitForFunction(() => Math.abs((document.querySelector('#projects')?.getBoundingClientRect().top ?? 0) - 90) <= 2)
   await page.waitForFunction(() => getComputedStyle(document.querySelector('.museum-caption')).opacity === '0')
   assert.equal(await page.evaluate(() => getComputedStyle(document.querySelector('.museum-caption')).opacity), '0', 'Work anchor hides the carousel caption')
-  await page.evaluate(() => window.scrollTo(0, 0))
+  await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }))
 
   const moreButtons = await page.$$('.museum-more')
   assert.equal(moreButtons.length, 2, 'museum exposes Projects and Feed More controls')
