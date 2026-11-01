@@ -669,7 +669,7 @@ export default function MuseumMockupPage() {
         <p className="museum-lede"><span className="museum-year">B.S. 2028</span> I’m a Computational Media student at Georgia Tech, building software, systems, and photographs.</p>
       </section>
 
-      <section className="museum-stage" aria-label="Interactive gallery wall">
+      <section className="museum-stage" aria-label="Interactive gallery wall" data-count={GALLERY.length}>
         <MuseumWall items={GALLERY} selected={selected} onSelect={setSelected} reduced={reduced} fallbackClass="museum-static" onReady={() => setGalleryReady(true)} />
         <div className="museum-caption" aria-live="polite">
           <strong>{selectedItem.project}</strong>
