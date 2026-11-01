@@ -1,0 +1,153 @@
+.feed-article-main {
+  max-width: 664px;
+  margin: 48px auto 0;
+  padding-bottom: 160px;
+}
+
+.feed-article-head h1 {
+  margin: 0;
+  color: #000;
+  font: 500 30px/1.2 "Helvetica Neue", Helvetica, Arial, sans-serif;
+  letter-spacing: -.025em;
+  text-wrap: balance;
+}
+
+.feed-article-date {
+  margin: 4px 0 48px;
+  color: #666;
+  font: 400 18px/1.5 "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.feed-figure {
+  margin: 32px 0;
+}
+
+.feed-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.feed-figure figcaption {
+  margin-top: 8px;
+  color: #666;
+  font: 400 13px/1.4 "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.feed-body {
+  color: #333;
+  font: 400 16px/28px "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.feed-body p {
+  margin: 0 0 20px;
+  text-wrap: pretty;
+}
+
+.feed-body p:last-child {
+  margin-bottom: 0;
+}
+
+.feed-body h2 {
+  margin: 48px 0 16px;
+  font: 500 18px/24px "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.feed-body ul,
+.feed-body ol {
+  margin: 0 0 20px;
+  padding-left: 22px;
+}
+
+.feed-body li {
+  margin-bottom: 8px;
+}
+
+.feed-related {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 16px;
+  margin-top: 32px;
+  color: #666;
+  font: 400 13px/1.5 "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.feed-related > span {
+  color: #666;
+  font-size: 10px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.feed-related a {
+  color: #333;
+  text-decoration: underline;
+  text-underline-offset: .18em;
+}
+
+.feed-related a:hover,
+.feed-related a:focus-visible {
+  color: #000;
+}
+
+.feed-article-foot {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 24px;
+  margin-top: 48px;
+  padding-top: 14px;
+  border-top: 1px solid #e3e3e3;
+  color: #666;
+  font: 400 13px/1.5 "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.feed-article-foot a {
+  color: inherit;
+  text-decoration: none;
+  transition: color .2s ease;
+}
+
+.feed-article-foot a:hover,
+.feed-article-foot a:focus-visible {
+  color: #18181b;
+  text-decoration: underline;
+  text-underline-offset: .18em;
+}
+
+@media (max-width: 640px) {
+  .feed-article-main {
+    margin-top: 32px;
+    padding-bottom: 100px;
+  }
+
+  .feed-article-head h1 {
+    font-size: 26px;
+  }
+
+  .feed-article-date {
+    margin-bottom: 32px;
+    font-size: 16px;
+  }
+
+  .feed-figure {
+    margin: 24px 0;
+  }
+
+  .feed-body {
+    font-size: 16px;
+    line-height: 26px;
+  }
+
+  .feed-article-foot {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .feed-article-foot a {
+    transition: none;
+  }
+}

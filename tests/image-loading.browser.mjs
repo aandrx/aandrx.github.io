@@ -66,7 +66,7 @@ async function verifyHydration(route, viewport, assertPlaceholder = false) {
   // Freeze hydration to exercise the actual first-painted/server-rendered text,
   // not just the already-measured DOM that normally appears in fast tests.
   holdScripts = true
-  const navigation = page.goto(`${baseUrl}/works/${route}/`, { waitUntil: 'domcontentloaded' }).then(() => null, (error) => error)
+  const navigation = page.goto(`${baseUrl}/photo/works/${route}/`, { waitUntil: 'domcontentloaded' }).then(() => null, (error) => error)
   await page.waitForSelector('.dynamic-columns')
   await page.waitForFunction(() => getComputedStyle(document.querySelector('.dynamic-columns')).visibility === 'hidden')
   const before = await page.evaluate(() => {
@@ -329,7 +329,7 @@ try {
   console.log('PASS: short-viewport vertical wheel still scrolls the layout vertically')
   await page.setViewport({ width: 1280, height: 800 })
 
-  await page.goto(`${baseUrl}/works/starry-night-2026/`, { waitUntil: 'domcontentloaded' })
+  await page.goto(`${baseUrl}/photo/works/starry-night-2026/`, { waitUntil: 'domcontentloaded' })
   await page.waitForFunction(() => document.querySelector('.dynamic-columns')?.dataset.columnsReady === 'true')
   const pageScroll = await page.evaluate(() => ({
     scrollWidth: document.scrollingElement.scrollWidth,
@@ -352,7 +352,7 @@ try {
   assert.ok(nativeHorizontal > 100, `horizontal wheel was not left native (scrollX=${nativeHorizontal})`)
   console.log('PASS: vertical wheel scrolls project pages horizontally and back; horizontal wheel remains native')
 
-  await page.goto(`${baseUrl}/feed/`, { waitUntil: 'domcontentloaded' })
+  await page.goto(`${baseUrl}/photo/feed/`, { waitUntil: 'domcontentloaded' })
   await page.waitForSelector('.instagram-grid-item-full')
   await page.waitForFunction(() => document.documentElement.style.getPropertyValue('--grid-left') !== '')
   assert.equal(await page.$eval('.instagram-grid-item-full', (item) => getComputedStyle(item).backgroundColor), 'rgb(255, 255, 255)')
@@ -467,7 +467,7 @@ try {
   console.log('PASS: keyboard, wheel, dragging, distant jumps, scrubbing, focus restoration, no text remeasurement or analysis requests')
 
   failPhoto = true
-  await page.goto(`${baseUrl}/works/starry-night-2026/`, { waitUntil: 'domcontentloaded' })
+  await page.goto(`${baseUrl}/photo/works/starry-night-2026/`, { waitUntil: 'domcontentloaded' })
   await page.waitForSelector('.photo-retry')
   const gallery = await page.evaluate(() => ({
     title: document.querySelector('.title.section').innerText,
@@ -489,11 +489,11 @@ try {
   console.log('PASS: project text/layout survive first-photo failure, retry succeeds, distant photos load on approach')
 
   await page.setViewport({ width: 390, height: 844 })
-  await page.goto(`${baseUrl}/works/starry-night-2026/`, { waitUntil: 'domcontentloaded' })
+  await page.goto(`${baseUrl}/photo/works/starry-night-2026/`, { waitUntil: 'domcontentloaded' })
   await page.waitForSelector('.portfolio-photo')
   const mobile = await page.evaluate(() => ({ width: document.documentElement.scrollWidth, viewport: document.documentElement.clientWidth }))
   assert.equal(mobile.width, mobile.viewport)
-  await page.goto(`${baseUrl}/feed/`, { waitUntil: 'domcontentloaded' })
+  await page.goto(`${baseUrl}/photo/feed/`, { waitUntil: 'domcontentloaded' })
   await page.waitForSelector('.instagram-grid-item-full')
   await page.waitForFunction(() => document.documentElement.style.getPropertyValue('--grid-left') !== '')
   await page.click('.instagram-grid-item-full')
@@ -508,7 +508,7 @@ try {
   console.log('PASS: mobile gallery has no horizontal overflow; carousel fits viewport and survives desktop resizing')
 
   for (const [route, count] of [['nightfind-2024', 19], ['nightfind-2025', 6], ['nightfind-2026', 3], ['starry-night-2025', 14], ['starry-night-2026', 13], ['lantern-fest-2026', 5], ['wingspan', 6]]) {
-    await page.goto(`${baseUrl}/works/${route}/`, { waitUntil: 'domcontentloaded' })
+    await page.goto(`${baseUrl}/photo/works/${route}/`, { waitUntil: 'domcontentloaded' })
     await page.waitForSelector('.portfolio-photo')
     assert.equal(await page.$$eval('.portfolio-photo', (photos) => photos.length), count, route)
   }

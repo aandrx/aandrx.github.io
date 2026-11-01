@@ -17,7 +17,7 @@
 /* Contact Page Container */
 .layout #container.contact-container {
   /* Container positioned using padding within layout space */
-  padding: 40px 40px 90px 280px; /* 40px top, 40px right, 90px bottom, 280px left */
+  padding: calc(40px + var(--site-top-gap)) 40px 90px 280px; /* 40px top, 40px right, 90px bottom, 280px left */
   
   position: relative;
   width: auto; /* Auto width - let content determine size */

@@ -31,6 +31,19 @@ const nextConfig = {
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
+
+  async redirects() {
+    return [
+      { source: '/mockups/museum/feed/:slug*/', destination: '/feed/:slug*/', permanent: true },
+      { source: '/mockups/museum/feed/', destination: '/feed/', permanent: true },
+      { source: '/mockups/museum/', destination: '/', permanent: true },
+      { source: '/mockups/', destination: '/', permanent: true },
+      { source: '/about/', destination: '/photo/about/', permanent: true },
+      { source: '/contact/', destination: '/photo/contact/', permanent: true },
+      { source: '/works/:slug*/', destination: '/photo/works/:slug*/', permanent: true },
+      { source: '/works/', destination: '/photo/works/', permanent: true },
+    ]
+  },
 }
 
 module.exports = nextConfig

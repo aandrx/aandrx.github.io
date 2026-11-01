@@ -46,7 +46,7 @@ body:has(#container .post .imageElement) {
 /* Home Page Container */
 .layout #container {
   /* Container positioned using padding within layout space */
-  padding: 40px 40px 90px 280px; /* 40px top padding as requested */
+  padding: calc(40px + var(--site-top-gap)) 40px 90px 280px; /* 40px top padding as requested */
   
   position: static;
   /* Width must contain the full image (573.244px) plus any padding/margins */

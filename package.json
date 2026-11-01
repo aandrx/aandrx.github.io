@@ -12,7 +12,8 @@
     "test:browser:ci": "node scripts/run-browser-tests.mjs",
     "images:generate": "node scripts/generate-image-metadata.mjs",
     "prepare": "husky",
-    "lint:staged": "lint-staged"
+    "lint:staged": "lint-staged",
+    "spotify:auth": "node --env-file=.env.local scripts/spotify-auth.mjs"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
@@ -30,6 +31,7 @@
     "@types/react-dom": "^18",
     "@types/three": "^0.170.0",
     "autoprefixer": "^10.6.1",
+    "axe-core": "^4.14.0",
     "eslint": "^8",
     "eslint-config-next": "^15.5.28",
     "husky": "^9.1.7",

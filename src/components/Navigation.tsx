@@ -5,44 +5,49 @@ import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 
 const projects = [
-  // { id: 1, title: 'Project One', href: '/works/project-one' },
-  // { id: 2, title: 'Project Two', href: '/works/project-two' },
-  { id: 3, title: 'Wingspan', href: '/works/wingspan' },
-  // { id: 6, title: 'Project Six', href: '/works/project-six' }
+  // { id: 1, title: 'Project One', href: '/photo/works/project-one' },
+  // { id: 2, title: 'Project Two', href: '/photo/works/project-two' },
+  { id: 3, title: 'Wingspan', href: '/photo/works/wingspan' },
+  // { id: 6, title: 'Project Six', href: '/photo/works/project-six' }
 ]
 
 // Nightfind section - descending (newest on top), matching the CSA order.
 const nightfindProjects = [
-  { id: 3, title: '2026', href: '/works/nightfind-2026' },
-  { id: 2, title: '2025', href: '/works/nightfind-2025' },
-  { id: 1, title: '2024', href: '/works/nightfind-2024' },
+  { id: 3, title: '2026', href: '/photo/works/nightfind-2026' },
+  { id: 2, title: '2025', href: '/photo/works/nightfind-2025' },
+  { id: 1, title: '2024', href: '/photo/works/nightfind-2024' },
 ]
 
 // CSA section - descending (newest on top): Starry Night 2026, Lantern Fest 2026, Starry Night 2025.
 const csaProjects = [
-  { id: 3, title: 'Starry Night 2026', href: '/works/starry-night-2026' },
-  { id: 2, title: 'Lantern Fest 2026', href: '/works/lantern-fest-2026' },
-  { id: 1, title: 'Starry Night 2025', href: '/works/starry-night-2025' },
+  { id: 3, title: 'Starry Night 2026', href: '/photo/works/starry-night-2026' },
+  { id: 2, title: 'Lantern Fest 2026', href: '/photo/works/lantern-fest-2026' },
+  { id: 1, title: 'Starry Night 2025', href: '/photo/works/starry-night-2025' },
 ]
 
 // Lenient path check (mirrors Nightfind's startsWith approach) so the CSA
 // dropdown stays open on its pages without depending on an exact match.
 const isCsaPath = (p: string | null): boolean =>
   !!p &&
-  (p === '/works/lantern-fest-2026' ||
-    p === '/works/starry-night-2025' ||
-    p.startsWith('/works/lantern-fest-') ||
-    p.startsWith('/works/starry-night-'))
+  (p === '/photo/works/lantern-fest-2026' ||
+    p === '/photo/works/starry-night-2025' ||
+    p.startsWith('/photo/works/lantern-fest-') ||
+    p.startsWith('/photo/works/starry-night-'))
 
 export default function Navigation() {
-  const pathname = usePathname()
+  const rawPathname = usePathname()
+  // Normalize once so exact matches and startsWith checks work with
+  // next.config.js trailingSlash: true (root stays '/').
+  const pathname = rawPathname && rawPathname !== '/'
+    ? rawPathname.replace(/\/+$/, '') || '/'
+    : rawPathname
   const [worksExpanded, setWorksExpanded] = useState(() => {
     // Initialize state based on current path to avoid animation on load
-    return pathname?.startsWith('/works/') || false
+    return pathname === '/photo/works' || pathname?.startsWith('/photo/works/') || false
   })
   const [nightfindExpanded, setNightfindExpanded] = useState(() => {
     // Initialize state based on current path to avoid animation on load
-    return pathname?.startsWith('/works/nightfind-') || false
+    return pathname?.startsWith('/photo/works/nightfind-') || false
   })
   const [csaExpanded, setCsaExpanded] = useState(() => {
     // Initialize state based on current path to avoid animation on load
@@ -54,10 +59,10 @@ export default function Navigation() {
 
   // Update state when pathname changes (for navigation between pages)
   useEffect(() => {
-    if (pathname?.startsWith('/works/')) {
+    if (pathname === '/photo/works' || pathname?.startsWith('/photo/works/')) {
       setWorksExpanded(true)
     }
-    if (pathname?.startsWith('/works/nightfind-')) {
+    if (pathname?.startsWith('/photo/works/nightfind-')) {
       setNightfindExpanded(true)
     }
     if (isCsaPath(pathname)) {
@@ -94,17 +99,27 @@ export default function Navigation() {
       <nav>
         <div>
           <button 
+            type="button"
             onClick={handleWorksClick}
-            className={`nav-item ${pathname?.startsWith('/works') ? 'active' : ''}`}
+            className={`nav-item ${pathname?.startsWith('/photo/works') ? 'active' : ''}`}
+            aria-expanded={worksExpanded}
+            aria-controls="works-submenu"
           >
             Works
           </button>
           <div 
+            id="works-submenu"
             className="works-submenu"
+            aria-hidden={!worksExpanded}
             style={{
               maxHeight: worksExpanded ? submenuMaxHeight : '0',
               opacity: worksExpanded ? 1 : 0,
-              transition: hasUserInteracted ? 'max-height 0.6s ease-out, opacity 0.6s ease-out' : 'none'
+              visibility: worksExpanded ? 'visible' : 'hidden',
+              transition: hasUserInteracted
+                ? worksExpanded
+                  ? 'visibility 0s, max-height 0.6s ease-out, opacity 0.6s ease-out'
+                  : 'max-height 0.6s ease-out, opacity 0.6s ease-out, visibility 0s 0.6s'
+                : 'none'
             }}
           >
             {projects.map((project) => {
@@ -114,6 +129,8 @@ export default function Navigation() {
                   key={project.id} 
                   href={project.href}
                   className={pathname === project.href ? 'active' : ''}
+                  aria-current={pathname === project.href ? 'page' : undefined}
+                  tabIndex={worksExpanded ? undefined : -1}
                 >
                   {project.title}
                 </a>
@@ -122,18 +139,29 @@ export default function Navigation() {
             
             {/* Nested Nightfind dropdown */}
             <button 
+              type="button"
               onClick={handleNightfindClick}
-              className={pathname?.startsWith('/works/nightfind-') ? 'active' : ''}
+              className={pathname?.startsWith('/photo/works/nightfind-') ? 'active' : ''}
               style={{ textAlign: 'left' }}
+              aria-expanded={worksExpanded && nightfindExpanded}
+              aria-controls="nightfind-submenu"
+              tabIndex={worksExpanded ? undefined : -1}
             >
               Nightfind
             </button>
             <div 
+              id="nightfind-submenu"
+              aria-hidden={!nightfindExpanded || !worksExpanded}
               style={{
                 maxHeight: nightfindExpanded ? `${nightfindProjects.length * 35}px` : '0',
                 opacity: nightfindExpanded ? 1 : 0,
+                visibility: nightfindExpanded && worksExpanded ? 'visible' : 'hidden',
                 overflow: 'hidden',
-                transition: hasNightfindUserInteracted ? 'max-height 0.6s ease-out, opacity 0.6s ease-out' : 'none'
+                transition: hasNightfindUserInteracted
+                  ? nightfindExpanded && worksExpanded
+                    ? 'visibility 0s, max-height 0.6s ease-out, opacity 0.6s ease-out'
+                    : 'max-height 0.6s ease-out, opacity 0.6s ease-out, visibility 0s 0.6s'
+                  : 'none'
               }}
             >
               {nightfindProjects.map((project) => {
@@ -142,7 +170,9 @@ export default function Navigation() {
                     key={project.id} 
                     href={project.href}
                     className={pathname === project.href ? 'active' : ''}
+                    aria-current={pathname === project.href ? 'page' : undefined}
                     style={{ paddingLeft: '20px' }}
+                    tabIndex={worksExpanded && nightfindExpanded ? undefined : -1}
                   >
                     {project.title}
                   </a>
@@ -152,18 +182,29 @@ export default function Navigation() {
 
             {/* Nested CSA dropdown */}
             <button 
+              type="button"
               onClick={handleCsaClick}
               className={csaActive ? 'active' : ''}
               style={{ textAlign: 'left' }}
+              aria-expanded={worksExpanded && csaExpanded}
+              aria-controls="csa-submenu"
+              tabIndex={worksExpanded ? undefined : -1}
             >
               CSA
             </button>
             <div 
+              id="csa-submenu"
+              aria-hidden={!csaExpanded || !worksExpanded}
               style={{
                 maxHeight: csaExpanded ? `${csaProjects.length * 35}px` : '0',
                 opacity: csaExpanded ? 1 : 0,
+                visibility: csaExpanded && worksExpanded ? 'visible' : 'hidden',
                 overflow: 'hidden',
-                transition: hasCsaUserInteracted ? 'max-height 0.6s ease-out, opacity 0.6s ease-out' : 'none'
+                transition: hasCsaUserInteracted
+                  ? csaExpanded && worksExpanded
+                    ? 'visibility 0s, max-height 0.6s ease-out, opacity 0.6s ease-out'
+                    : 'max-height 0.6s ease-out, opacity 0.6s ease-out, visibility 0s 0.6s'
+                  : 'none'
               }}
             >
               {csaProjects.map((project) => {
@@ -172,7 +213,9 @@ export default function Navigation() {
                     key={project.id} 
                     href={project.href}
                     className={pathname === project.href ? 'active' : ''}
+                    aria-current={pathname === project.href ? 'page' : undefined}
                     style={{ paddingLeft: '20px' }}
+                    tabIndex={worksExpanded && csaExpanded ? undefined : -1}
                   >
                     {project.title}
                   </a>
@@ -182,15 +225,15 @@ export default function Navigation() {
           </div>
         </div>
         
-        <Link href="/feed" className={`nav-item ${pathname === '/feed' ? 'active' : ''}`}>
+        <Link href="/photo/feed" className={`nav-item ${pathname === '/photo/feed' ? 'active' : ''}`} aria-current={pathname === '/photo/feed' ? 'page' : undefined}>
           Feed
         </Link>
         
-        <Link href="/about" className={`nav-item ${pathname === '/about' ? 'active' : ''}`}>
+        <Link href="/photo/about" className={`nav-item ${pathname === '/photo/about' ? 'active' : ''}`} aria-current={pathname === '/photo/about' ? 'page' : undefined}>
           About
         </Link>
         
-        <Link href="/contact" className={`nav-item ${pathname === '/contact' ? 'active' : ''}`}>
+        <Link href="/photo/contact" className={`nav-item ${pathname === '/photo/contact' ? 'active' : ''}`} aria-current={pathname === '/photo/contact' ? 'page' : undefined}>
           Contact
         </Link>
       </nav>

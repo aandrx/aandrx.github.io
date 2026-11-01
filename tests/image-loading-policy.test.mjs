@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url'
 import { ESLint } from 'eslint'
 
 const root = fileURLToPath(new URL('..', import.meta.url))
-const routePath = 'src/app/works/project-three/page.tsx'
+const routePath = 'src/app/photo/works/project-three/page.tsx'
 const eslint = new ESLint({ cwd: root })
 
 async function restrictedMessages(code, filePath = routePath) {
@@ -64,7 +64,7 @@ test('the rule does not catch non-route code', async () => {
   `
 
   assert.deepEqual(await restrictedMessages(code, 'src/lib/image-loader.ts'), [])
-  assert.deepEqual(await restrictedMessages(code, 'src/app/works/project-three/helper.ts'), [])
+  assert.deepEqual(await restrictedMessages(code, 'src/app/photo/works/project-three/helper.ts'), [])
 })
 
 test('Project Three uses ProjectGallery and no longer probes images before rendering', async () => {
