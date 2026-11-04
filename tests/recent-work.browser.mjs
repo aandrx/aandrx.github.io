@@ -86,6 +86,11 @@ try {
   assert.ok(api.events.every((event) => !event.isPrivate || (event.repo === 'Private work' && event.repoUrl === null)), 'activity API masks private events')
   assert.doesNotMatch(JSON.stringify(api), /gh[pousr]_[A-Za-z0-9_]+/i, 'activity API never returns a token')
 
+  await page.evaluate(() => window.scrollTo(0, 900))
+  await page.waitForFunction(() => window.scrollY > 500)
+  assert.ok(await page.evaluate(() => window.scrollY > 500), 'lab page scrolls vertically')
+  await page.evaluate(() => window.scrollTo(0, 0))
+
   await page.setViewport({ width: 390, height: 844 })
   await new Promise((resolve) => setTimeout(resolve, 250))
   const mobile = await page.evaluate(() => ({

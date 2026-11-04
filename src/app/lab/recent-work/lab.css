@@ -1,3 +1,5 @@
+html:has(.activity-lab), body:has(.activity-lab) { overflow-x: hidden !important; overflow-y: auto !important; }
+
 .activity-lab {
   --bg: #fff;
   --ink: #000;
