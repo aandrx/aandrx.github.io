@@ -634,6 +634,12 @@ html:has(.activity-lab), body:has(.activity-lab) { overflow-x: hidden !important
   border: 0;
 }
 
+.activity-lab table.sr-only {
+  table-layout: fixed;
+  width: 1px;
+  max-width: 1px;
+}
+
 @media (max-width: 800px) {
   .activity-lab {
     --cell: 16px;

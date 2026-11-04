@@ -496,13 +496,20 @@ async function githubEvents(login: string, token: string): Promise<RestEvent[]> 
   return Array.isArray(payload) ? payload.filter(isRecord) as RestEvent[] : []
 }
 
-export async function getActivityData(fallback: ActivityData): Promise<ActivityData> {
-  const login = process.env.GITHUB_LOGIN?.trim() || 'aandrx'
-  const token = process.env.GITHUB_TOKEN?.trim()
-  const fixture = {
+export function getFixtureActivity(fallback: ActivityData): ActivityData {
+  return {
     ...fallback,
     events: selectBalancedEvents(fallback.events, EVENT_LIMIT),
   }
+}
+
+export async function getActivityData(
+  fallback: ActivityData,
+  options?: { throwOnError?: boolean },
+): Promise<ActivityData> {
+  const login = process.env.GITHUB_LOGIN?.trim() || 'aandrx'
+  const token = process.env.GITHUB_TOKEN?.trim()
+  const fixture = getFixtureActivity(fallback)
 
   if (!token) return fixture
 
@@ -517,6 +524,7 @@ export async function getActivityData(fallback: ActivityData): Promise<ActivityD
     return buildActivity(login, collectionResult.value, new Date().toISOString(), from, to, 'live', events)
   } catch (error) {
     console.error('GitHub activity fetch failed', error instanceof Error ? error.message : 'unknown error')
+    if (options?.throwOnError) throw error
     return fixture
   }
 }

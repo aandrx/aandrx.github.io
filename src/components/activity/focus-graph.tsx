@@ -12,6 +12,7 @@ type Props = {
     restricted: number
   }
   to: string
+  showIndex?: boolean
 }
 
 function formatMonth(firstDay: string) {
@@ -30,7 +31,7 @@ function pct(value: number, total: number) {
   return Math.round((value / total) * 100)
 }
 
-export default function FocusGraph({ repositories, months, totals, to }: Props) {
+export default function FocusGraph({ repositories, months, totals, to, showIndex = true }: Props) {
   const publicRepos = repositories.filter((repo) => !repo.isPrivate)
   const typedTotal = repositories.reduce((sum, repo) => sum + repo.total, 0)
   const max = Math.max(...repositories.map((repo) => repo.total), 1)
@@ -47,7 +48,7 @@ export default function FocusGraph({ repositories, months, totals, to }: Props) 
     <section className="lab-section focus-section" aria-labelledby="focus-title">
       <div className="lab-section-head">
         <div>
-          <span className="lab-section-index">02</span>
+          {showIndex ? <span className="lab-section-index">02</span> : null}
           <h2 id="focus-title">Where the work went</h2>
         </div>
         <p className="lab-section-count">Last 90 days</p>

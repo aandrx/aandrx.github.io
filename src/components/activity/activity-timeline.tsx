@@ -2,6 +2,7 @@ import type { ActivityEvent, ActivityEventType } from '@/lib/activity-types'
 
 type Props = {
   events: ActivityEvent[]
+  showIndex?: boolean
 }
 
 const DATE_FORMAT = new Intl.DateTimeFormat('en-US', {
@@ -61,7 +62,7 @@ function EventIcon({ type }: { type: ActivityEventType }) {
   )
 }
 
-export default function ActivityTimeline({ events }: Props) {
+export default function ActivityTimeline({ events, showIndex = true }: Props) {
   const groups = new Map<string, ActivityEvent[]>()
   for (const event of events) {
     const date = event.occurredAt.slice(0, 10)
@@ -74,7 +75,7 @@ export default function ActivityTimeline({ events }: Props) {
     <section className="lab-section activity-section" aria-labelledby="activity-title">
       <div className="lab-section-head">
         <div>
-          <span className="lab-section-index">03</span>
+          {showIndex ? <span className="lab-section-index">03</span> : null}
           <h2 id="activity-title">Recent activity</h2>
         </div>
         <p className="lab-section-count">{events.length} events</p>

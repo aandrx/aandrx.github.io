@@ -177,7 +177,7 @@ async function runSuite(baseUrl) {
     }
   }
   if (!ready) throw new Error(`Firefox did not accept BiDi connections at ${endpoint} within 40s`)
-  for (const suiteFile of ['image-loading.browser.mjs', 'personal-mockups.browser.mjs', 'recent-work.browser.mjs', 'production-routes.browser.mjs', 'accessibility.browser.mjs']) {
+  for (const suiteFile of ['image-loading.browser.mjs', 'personal-mockups.browser.mjs', 'recent-work.browser.mjs', 'projects.browser.mjs', 'production-routes.browser.mjs', 'accessibility.browser.mjs']) {
     const suite = start(process.execPath, [path.join(root, 'tests', suiteFile)], {
       cwd: root,
       env: { ...process.env, SITE_URL: baseUrl, BROWSER_WS_ENDPOINT: endpoint },

@@ -1,0 +1,156 @@
+.projects-row-link {
+  align-items: flex-start;
+}
+
+.projects-row-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+}
+
+.projects-row-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.projects-row-title {
+  font: 400 16px/22px "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.projects-row-tag {
+  padding: 0 6px;
+  border: 1px solid #bbb;
+  color: #555;
+  font: 400 11px/16px "Helvetica Neue", Helvetica, Arial, sans-serif;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  transition: border-color .22s ease, color .22s ease;
+}
+
+.projects-row-link:hover .projects-row-tag,
+.projects-row-link:focus-visible .projects-row-tag {
+  border-color: #000;
+  color: #000;
+}
+
+.projects-row-summary {
+  color: #666;
+  font: 400 14px/20px "Helvetica Neue", Helvetica, Arial, sans-serif;
+  transition: color .22s ease;
+}
+
+.projects-row-link:hover .projects-row-summary,
+.projects-row-link:focus-visible .projects-row-summary {
+  color: #333;
+}
+
+/* Activity shells: the lab page owns its own page chrome, so the projects page
+   neutralises it and only borrows the map, focus, and timeline internals. */
+.activity-lab.projects-activity-shell {
+  min-height: 0;
+  padding: 0;
+  background: transparent;
+}
+
+.projects-activity-shell .activity-map-section {
+  padding-top: 0;
+}
+
+.projects-activity {
+  margin: 4px 0 0;
+  border-top: 1px solid #e3e3e3;
+}
+
+.projects-activity-summary {
+  display: grid;
+  grid-template-columns: 12px minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 0 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid #e3e3e3;
+  color: #000;
+  font: 400 15px/22px "Helvetica Neue", Helvetica, Arial, sans-serif;
+  cursor: pointer;
+  list-style: none;
+}
+
+.projects-activity-summary::-webkit-details-marker {
+  display: none;
+}
+
+.projects-activity-summary::before {
+  content: '+';
+  color: #666;
+  font: 400 15px/22px "Helvetica Neue", Helvetica, Arial, sans-serif;
+  transition: color .18s ease;
+}
+
+.projects-activity[open] > .projects-activity-summary::before {
+  content: '\2212';
+}
+
+.projects-activity-summary:hover,
+.projects-activity-summary:focus-visible {
+  color: #000;
+}
+
+.projects-activity-summary:hover::before,
+.projects-activity-summary:focus-visible::before {
+  color: #000;
+}
+
+.projects-activity-summary:focus-visible {
+  outline: 2px solid #000;
+  outline-offset: 3px;
+}
+
+.projects-activity-summary-note {
+  color: #666;
+  font: 400 11px/18px "Helvetica Neue", Helvetica, Arial, sans-serif;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.projects-activity[open] > .projects-activity-shell {
+  padding-bottom: 8px;
+}
+
+.projects-activity .lab-lower {
+  margin-top: 0;
+}
+
+@media (max-width: 640px) {
+  .projects-row-title {
+    font-size: 15px;
+    line-height: 21px;
+  }
+
+  .projects-row-summary {
+    font-size: 13px;
+    line-height: 19px;
+  }
+}
+
+@media (max-width: 520px) {
+  .projects-activity-summary {
+    grid-template-columns: 12px minmax(0, 1fr);
+    row-gap: 2px;
+    padding: 12px 0;
+  }
+
+  .projects-activity-summary-note {
+    grid-column: 2;
+    white-space: normal;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .projects-row-tag,
+  .projects-row-summary,
+  .projects-activity-summary::before {
+    transition: none;
+  }
+}

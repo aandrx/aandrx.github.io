@@ -7,6 +7,7 @@ const endpoint = process.env.BROWSER_WS_ENDPOINT ?? 'ws://127.0.0.1:9222/session
 const axePath = createRequire(import.meta.url).resolve('axe-core/axe.min.js')
 const routes = [
   '/',
+  '/projects/',
   '/feed/',
   '/feed/on-small-tools/',
   '/feed/photographing-empty-rooms/',

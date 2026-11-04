@@ -37,6 +37,7 @@ try {
 
   for (const path of [
     '/',
+    '/projects/',
     '/feed/',
     '/feed/on-small-tools/',
     '/photo/',
@@ -58,6 +59,7 @@ try {
   assert.doesNotMatch(notes, /noindex/i, 'notes index is indexable')
   const sitemap = await fetch(`${baseURL}/sitemap.xml`).then((response) => response.text())
   assert.match(sitemap, /<loc>https:\/\/www\.andrxwliu\.me\/<\/loc>/, 'sitemap uses the canonical domain')
+  assert.match(sitemap, /<loc>.*\/projects\/<\/loc>/, 'sitemap includes the projects index')
   assert.match(sitemap, /<loc>.*\/feed\/<\/loc>/, 'sitemap includes the personal feed')
   assert.match(sitemap, /<loc>.*\/photo\/works\/wingspan\/<\/loc>/, 'sitemap includes photography works')
 
@@ -80,7 +82,7 @@ try {
   const cards = await page.$$eval('.project-item', (items) => items.map((item) => item.getAttribute('href')))
   assert.ok(cards.length > 0 && cards.every((href) => href?.startsWith('/photo/works/')), 'works index links stay under /photo/works/')
 
-  const crawlPaths = ['/', '/feed/', '/photo/', '/photo/feed/', '/photo/about/', '/photo/contact/', '/photo/works/', '/photo/works/wingspan/']
+  const crawlPaths = ['/', '/projects/', '/feed/', '/photo/', '/photo/feed/', '/photo/about/', '/photo/contact/', '/photo/works/', '/photo/works/wingspan/']
   const internal = new Set()
   for (const path of crawlPaths) {
     await page.goto(`${baseURL}${path}`, { waitUntil: 'networkidle2' })

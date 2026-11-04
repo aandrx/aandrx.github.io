@@ -1,17 +1,14 @@
 import { NextResponse } from 'next/server'
-import fixtureJson from '@/data/github-activity-fixture.json'
-import type { ActivityData } from '@/lib/activity-types'
-import { getActivityData } from '@/lib/github-activity'
+import { getCachedActivityData } from '@/lib/github-activity-cache'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET() {
-  const data = await getActivityData(fixtureJson as ActivityData)
-  const maxAge = data.source === 'live' ? 3600 : 300
+  const data = await getCachedActivityData()
 
   return NextResponse.json(data, {
     headers: {
-      'Cache-Control': `public, s-maxage=${maxAge}, stale-while-revalidate=86400`,
+      'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=1800',
     },
   })
 }
