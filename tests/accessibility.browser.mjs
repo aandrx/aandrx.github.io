@@ -16,6 +16,7 @@ const routes = [
   '/photo/contact/',
   '/photo/works/',
   '/photo/works/wingspan/',
+  '/lab/recent-work/',
 ]
 const viewports = [[1440, 900], [390, 844]]
 const browser = await puppeteer.connect({ browserWSEndpoint: endpoint, protocol: 'webDriverBiDi' })
@@ -33,6 +34,12 @@ try {
         assert.ok([200, 304].includes(response?.status() ?? 0), `${route} returns 200 or 304`)
         await page.setViewport({ width, height })
         await new Promise((resolve) => setTimeout(resolve, 1400))
+        if (route === '/lab/recent-work/') {
+          await page.waitForFunction(
+            () => document.querySelector('.activity-lab')?.getAttribute('data-source') !== 'loading',
+            { timeout: 20000 },
+          )
+        }
         await page.addScriptTag({ path: axePath })
         const violations = await page.evaluate(async () => {
           const result = await axe.run(document, {
