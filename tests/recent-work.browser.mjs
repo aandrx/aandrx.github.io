@@ -35,7 +35,8 @@ try {
   const state = await page.evaluate(() => {
     const map = document.querySelector('.activity-map-section')
     return {
-      h1: document.querySelector('h1')?.textContent,
+      h1Count: document.querySelectorAll('h1').length,
+      meta: document.querySelector('.lab-meta')?.textContent,
       robots: document.querySelector('meta[name="robots"]')?.getAttribute('content'),
       source: document.querySelector('.activity-lab')?.getAttribute('data-source'),
       skin: document.querySelector('.activity-lab')?.getAttribute('data-skin'),
@@ -48,11 +49,11 @@ try {
       scrollWidth: document.documentElement.scrollWidth,
       viewportWidth: window.innerWidth,
       clip: document.querySelector('.activity-map-section .map-total span')?.textContent,
-      skinPressed: [...document.querySelectorAll('.lab-skin')].find((button) => button.getAttribute('aria-pressed') === 'true')?.textContent,
     }
   })
 
-  assert.equal(state.h1, 'Recent work', 'lab has one visible page heading')
+  assert.equal(state.h1Count, 0, 'lab no longer renders the removed page heading')
+  assert.match(state.meta ?? '', /aandrx on GitHub/, 'activity metadata is the first content line')
   assert.equal(state.robots, 'noindex, nofollow', 'lab is not indexable')
   assert.equal(state.sections, 3, 'lab shows all three activity views')
   assert.ok(['live', 'fixture'].includes(state.source ?? ''), 'lab reports live or fixture data')
@@ -63,16 +64,7 @@ try {
   assert.ok(state.days >= 2, 'activity timeline groups events by day')
   assert.match(state.clip ?? '', /\d{4}$/, 'map range ends with a year')
   assert.ok(state.scrollWidth <= state.viewportWidth + 1, 'lab does not overflow horizontally')
-  assert.equal(state.skin, 'signal', 'lab starts on the signal surface')
-  assert.equal(state.skinPressed, 'Signal', 'selected surface is announced')
-
-  await page.click('.lab-skin:nth-child(1)')
-  await page.waitForFunction(() => document.querySelector('.activity-lab')?.getAttribute('data-skin') === 'ledger')
-  assert.equal(await page.$eval('.activity-lab', (element) => element.getAttribute('data-skin')), 'ledger', 'lab switches to the ledger surface')
-
-  await page.click('.lab-skin:nth-child(3)')
-  await page.waitForFunction(() => document.querySelector('.activity-lab')?.getAttribute('data-skin') === 'terminal')
-  assert.equal(await page.$eval('.activity-lab', (element) => element.getAttribute('data-skin')), 'terminal', 'lab switches to the terminal surface')
+  assert.equal(state.skin, 'signal', 'lab uses the signal surface')
 
   const api = await fetch(`${baseURL}/api/github-activity/`).then((result) => result.json())
   assert.ok(['live', 'fixture'].includes(api.source), 'activity API reports its source')

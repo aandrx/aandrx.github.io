@@ -25,34 +25,6 @@ html:has(.activity-lab), body:has(.activity-lab) { overflow-x: hidden !important
   font: 15px/1.5 "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
-.activity-lab[data-skin="ledger"] {
-  --accent: #111;
-  --accent-ink: #fff;
-  --map-0: #f1f1ee;
-  --map-1: #c7c7c1;
-  --map-2: #9b9b94;
-  --map-3: #555550;
-  --map-4: #111;
-  --cell-ring: rgba(0, 0, 0, 0.16);
-}
-
-.activity-lab[data-skin="terminal"] {
-  --bg: #0f1210;
-  --ink: #eef3ee;
-  --muted: #9aa59c;
-  --rule: #2a312b;
-  --panel: #171d18;
-  --accent: #6ee787;
-  --accent-ink: #071109;
-  --cell-ring: rgba(255, 255, 255, 0.12);
-  --map-0: #1b211c;
-  --map-1: #205c34;
-  --map-2: #2b8a4b;
-  --map-3: #38b862;
-  --map-4: #6ee787;
-  color-scheme: dark;
-}
-
 .activity-lab *,
 .activity-lab *::before,
 .activity-lab *::after {
@@ -65,8 +37,7 @@ html:has(.activity-lab), body:has(.activity-lab) { overflow-x: hidden !important
 }
 
 .lab-head {
-  border-bottom: 1px solid var(--rule);
-  padding-bottom: 28px;
+  padding-bottom: 18px;
 }
 
 .lab-head-top {
@@ -94,94 +65,6 @@ html:has(.activity-lab), body:has(.activity-lab) { overflow-x: hidden !important
   font: 400 11px/1.4 "Helvetica Neue", Helvetica, Arial, sans-serif;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-}
-
-.lab-head h1 {
-  max-width: 760px;
-  margin: 48px 0 0;
-  font: 500 clamp(38px, 6vw, 72px)/0.98 "Helvetica Neue", Helvetica, Arial, sans-serif;
-  letter-spacing: -0.045em;
-}
-
-.lab-lede {
-  max-width: 620px;
-  margin: 20px 0 0;
-  color: var(--muted);
-  font: 400 17px/1.45 "Helvetica Neue", Helvetica, Arial, sans-serif;
-  text-wrap: balance;
-}
-
-.lab-controls {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 12px 20px;
-  margin-top: 30px;
-}
-
-.lab-controls-label {
-  color: var(--muted);
-  font: 400 11px/1.4 "Helvetica Neue", Helvetica, Arial, sans-serif;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.lab-skins {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-}
-
-.lab-skin {
-  height: 27px;
-  padding: 0 13px;
-  border: 1px solid var(--rule);
-  border-radius: 0;
-  background: transparent;
-  color: var(--muted);
-  font: 400 12px/1 "Helvetica Neue", Helvetica, Arial, sans-serif;
-  cursor: pointer;
-}
-
-.lab-skin:hover,
-.lab-skin:focus-visible {
-  border-color: var(--ink);
-  color: var(--ink);
-}
-
-.lab-skin.is-active {
-  border-color: var(--accent);
-  background: var(--accent);
-  color: var(--accent-ink);
-}
-
-.lab-skin:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-
-.lab-source {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  margin-left: auto;
-  color: var(--muted);
-  font: 400 12px/1.4 "Helvetica Neue", Helvetica, Arial, sans-serif;
-}
-
-.lab-source::before {
-  width: 6px;
-  height: 6px;
-  background: var(--muted);
-  content: "";
-}
-
-.lab-source[data-source-state="live"]::before {
-  background: var(--accent);
-}
-
-.lab-source[data-source-state="fixture"]::before {
-  background: #b25b3b;
 }
 
 .lab-meta {
@@ -758,10 +641,6 @@ html:has(.activity-lab), body:has(.activity-lab) { overflow-x: hidden !important
     padding-top: 20px;
   }
 
-  .lab-head h1 {
-    margin-top: 34px;
-  }
-
   .lab-lower {
     grid-template-columns: minmax(0, 1fr);
     gap: 0;
@@ -813,25 +692,6 @@ html:has(.activity-lab), body:has(.activity-lab) { overflow-x: hidden !important
     align-items: flex-start;
     flex-direction: column;
     gap: 8px;
-  }
-
-  .lab-head h1 {
-    margin-top: 28px;
-    font-size: 42px;
-  }
-
-  .lab-lede {
-    font-size: 15px;
-  }
-
-  .lab-controls {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .lab-source {
-    margin-left: 0;
   }
 
   .lab-section-head {

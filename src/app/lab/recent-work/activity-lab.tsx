@@ -7,17 +7,8 @@ import ActivityTimeline from '@/components/activity/activity-timeline'
 import ContributionMap from '@/components/activity/contribution-map'
 import FocusGraph from '@/components/activity/focus-graph'
 
-type Skin = 'ledger' | 'signal' | 'terminal'
-
-const SKINS: Array<{ id: Skin; label: string }> = [
-  { id: 'ledger', label: 'Ledger' },
-  { id: 'signal', label: 'Signal' },
-  { id: 'terminal', label: 'Terminal' },
-]
-
 export default function ActivityLab() {
   const [data, setData] = useState<ActivityData | null>(null)
-  const [skin, setSkin] = useState<Skin>('signal')
   const [error, setError] = useState(false)
 
   useEffect(() => {
@@ -36,37 +27,12 @@ export default function ActivityLab() {
   }, [])
 
   return (
-    <main className="activity-lab" data-skin={skin} data-source={data?.source ?? 'loading'}>
+    <main className="activity-lab" data-skin="signal" data-source={data?.source ?? 'loading'}>
       <div className="activity-lab-inner">
         <header className="lab-head">
           <div className="lab-head-top">
             <Link className="lab-home" href="/">Andrew Liu.</Link>
             <span className="lab-kicker">Lab / Recent work</span>
-          </div>
-          <h1>Recent work</h1>
-          <p className="lab-lede">
-            Three ways to read the last ninety days of GitHub activity. The data is the same;
-            the questions are different.
-          </p>
-
-          <div className="lab-controls">
-            <span className="lab-controls-label">Surface</span>
-            <div className="lab-skins" role="group" aria-label="Visual style">
-              {SKINS.map((option) => (
-                <button
-                  type="button"
-                  key={option.id}
-                  className={`lab-skin${skin === option.id ? ' is-active' : ''}`}
-                  aria-pressed={skin === option.id}
-                  onClick={() => setSkin(option.id)}
-                >
-                  {option.label}
-                </button>
-              ))}
-            </div>
-            <span className="lab-source" data-source-state={data?.source ?? 'loading'}>
-              {data?.source === 'live' ? 'Live GitHub data' : data?.source === 'fixture' ? 'Fixture snapshot' : 'Loading data'}
-            </span>
           </div>
         </header>
 
