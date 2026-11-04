@@ -1,6 +1,24 @@
 import assert from 'node:assert/strict'
-import { test } from 'node:test'
-import { buildActivity } from '../src/lib/github-activity.ts'
+import { after, test } from 'node:test'
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import os from 'node:os'
+import path from 'node:path'
+import { pathToFileURL } from 'node:url'
+import ts from 'typescript'
+
+const tempDirectory = mkdtempSync(path.join(os.tmpdir(), 'github-activity-test-'))
+const source = readFileSync(new URL('../src/lib/github-activity.ts', import.meta.url), 'utf8')
+const output = ts.transpileModule(source, {
+  compilerOptions: {
+    module: ts.ModuleKind.ESNext,
+    target: ts.ScriptTarget.ES2022,
+  },
+}).outputText
+const modulePath = path.join(tempDirectory, 'github-activity.mjs')
+writeFileSync(modulePath, output)
+const { buildActivity } = await import(pathToFileURL(modulePath).href)
+
+after(() => rmSync(tempDirectory, { recursive: true, force: true }))
 
 const publicRepo = {
   nameWithOwner: 'aandrx/public',
