@@ -22,8 +22,14 @@ const errors = []
 try {
   const page = context ? await context.newPage() : await browser.newPage()
   page.on('pageerror', (error) => errors.push(error.message))
+  // Headless Firefox in CI cannot create a WebGL context, so Three.js logs
+  // environment noise while the home page renders. Only that noise is ignored.
+  const environmentNoise = /THREE\.WebGLRenderer|WebGL creation failed|Error creating WebGL context/
   page.on('console', (message) => {
-    if (message.type() === 'error') errors.push(message.text())
+    if (message.type() !== 'error') return
+    const text = message.text()
+    if (environmentNoise.test(text)) return
+    errors.push(text)
   })
 
   await page.setViewport({ width: 1440, height: 1000 })
