@@ -75,7 +75,8 @@ try {
       mapTablePresent: Boolean(map?.querySelector('table.sr-only')),
       mapRows: map?.querySelectorAll('table tbody tr').length,
       mapCells: map?.querySelectorAll('.map-weeks .map-cell:not(.is-empty)').length,
-      mapCellsWithTooltip: map?.querySelectorAll('.map-weeks .map-cell:not(.is-empty)[data-tooltip]').length,
+      mapCellsWithDate: map?.querySelectorAll('.map-weeks .map-cell:not(.is-empty)[data-date]').length,
+      mapTooltipAttributes: map?.querySelectorAll('[data-tooltip]').length,
       mapCellsWithTitle: map?.querySelectorAll('.map-weeks .map-cell[title]').length,
       detailsClosed: details ? !details.hasAttribute('open') : null,
       detailsSummary: details?.querySelector('summary')?.textContent,
@@ -105,7 +106,8 @@ try {
   assert.equal(state.mapTablePresent, true, 'projects activity map keeps its hidden accessible table')
   assert.equal(state.mapRows, 7, 'activity map has one accessible row per weekday')
   assert.ok(state.mapCells >= 84, 'activity map renders a full quarter of day cells')
-  assert.equal(state.mapCellsWithTooltip, state.mapCells, 'every non-empty day cell exposes a data-tooltip')
+  assert.equal(state.mapCellsWithDate, state.mapCells, 'every non-empty day cell exposes its date for the hover preview')
+  assert.equal(state.mapTooltipAttributes, 0, 'bare day cells drop the old data-tooltip attribute')
   assert.equal(state.mapCellsWithTitle, 0, 'bare day cells avoid native title tooltips')
   assert.equal(state.detailsClosed, true, 'activity details is closed by default')
   assert.match(state.detailsSummary ?? '', /More recent activity/, 'activity details has a summary')
@@ -127,31 +129,57 @@ try {
   assert.notEqual(hiddenTable.clip, 'auto', 'activity map table is visually clipped')
   assert.match(hiddenTable.caption ?? '', /GitHub contribution calendar/, 'activity map table keeps its accessible caption')
 
-  const cellSelector = '.activity-map-section .map-weeks .map-cell[data-tooltip]'
-  const tooltipText = await page.$eval(cellSelector, (cell) => cell.getAttribute('data-tooltip'))
-  assert.ok(tooltipText && tooltipText.length > 0, 'day cell has non-empty tooltip text')
+  const eventDate = await page.evaluate(() => {
+    const time = document.querySelector('details.projects-activity .activity-event time[datetime]')
+    return time?.getAttribute('datetime')?.slice(0, 10) ?? null
+  })
+  assert.ok(eventDate, 'activity timeline exposes a dated event to preview')
 
+  const cellSelector = `.activity-map-section .map-weeks .map-cell[data-date="${eventDate}"]`
   const cellBox = await page.$eval(cellSelector, (cell) => {
     const rect = cell.getBoundingClientRect()
     return { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 }
   })
   await page.mouse.move(cellBox.x, cellBox.y)
-  await new Promise((resolve) => setTimeout(resolve, 200))
-  const hoverState = await page.$eval(cellSelector, (cell) => {
-    const after = getComputedStyle(cell, '::after')
-    const style = getComputedStyle(cell)
+  await page.waitForSelector('.map-preview', { timeout: 5000 })
+
+  const preview = await page.evaluate(() => {
+    const card = document.querySelector('.map-preview')
+    if (!card) return null
+    const rect = card.getBoundingClientRect()
+    const head = [...card.querySelectorAll('.map-preview-head span')].map((span) => span.textContent ?? '')
     return {
-      content: after.content,
-      visibility: after.visibility,
-      opacity: after.opacity,
-      outlineStyle: style.outlineStyle,
-      outlineWidth: style.outlineWidth,
+      date: head[0] ?? '',
+      count: head[1] ?? '',
+      types: [...card.querySelectorAll('.map-preview-type')].map((node) => node.textContent ?? ''),
+      repos: [...card.querySelectorAll('.map-preview-repo')].map((node) => node.textContent ?? ''),
+      titles: [...card.querySelectorAll('.map-preview-title')].map((node) => node.textContent ?? ''),
+      rows: card.querySelectorAll('.map-preview-row').length,
+      pointerEvents: getComputedStyle(card).pointerEvents,
+      width: rect.width,
+      left: rect.left,
+      right: rect.right,
+      top: rect.top,
+      bottom: rect.bottom,
+      viewportWidth: window.innerWidth,
+      viewportHeight: window.innerHeight,
     }
   })
-  const hasTooltipContent = Boolean(hoverState.content && hoverState.content !== 'none' && hoverState.content !== '""')
-  const hasVisibleTooltip = hasTooltipContent && hoverState.visibility !== 'hidden' && Number(hoverState.opacity) > 0
-  const hasOutline = hoverState.outlineStyle !== 'none' && parseFloat(hoverState.outlineWidth) > 0
-  assert.ok(hasVisibleTooltip || hasOutline, 'hovered day cell shows the CSS tooltip or a visible outline')
+  assert.ok(preview, 'hovering a day with events opens the preview card')
+  assert.match(preview.date, /^[A-Z][a-z]{2} \d{1,2}, \d{4}$/, 'preview shows the day date')
+  assert.match(preview.count, /^\d+ contributions?$/, 'preview shows the day contribution count')
+  assert.ok(preview.rows >= 1 && preview.rows <= 4, 'preview lists between one and four events')
+  assert.ok(preview.types.every((type) => type.length > 0), 'preview labels every event type')
+  assert.ok(preview.repos.every((repo) => repo.length > 0), 'preview names every event repository')
+  assert.ok(preview.titles.some((title) => title.length > 0), 'preview shows at least one event detail')
+  assert.equal(preview.pointerEvents, 'none', 'preview cannot capture the pointer and flicker')
+  assert.ok(preview.width <= 340, 'preview card stays at most 340px wide')
+  assert.ok(preview.left >= 0 && preview.right <= preview.viewportWidth + 1, 'preview stays inside the viewport horizontally')
+  assert.ok(preview.top >= 0 && preview.bottom <= preview.viewportHeight + 1, 'preview stays inside the viewport vertically')
+
+  await page.mouse.move(2, 2)
+  await page.waitForFunction(() => !document.querySelector('.map-preview'), { timeout: 5000 })
+  assert.equal(await page.$('.map-preview'), null, 'preview closes after the pointer leaves the cell')
 
   await page.click('details.projects-activity > summary')
   await page.waitForFunction(() => document.querySelector('details.projects-activity')?.hasAttribute('open'))
@@ -191,6 +219,24 @@ try {
   assert.ok(mobile.scrollWidth <= mobile.viewportWidth + 1, 'projects index does not overflow horizontally at 390px')
   assert.ok(mobile.summaryWidth > 0 && mobile.summaryHeight > 0, 'activity summary stays visible at 390px')
   assert.equal(mobile.open, false, 'activity details stays closed at 390px')
+
+  await page.$eval(cellSelector, (cell) => cell.scrollIntoView({ block: 'center' }))
+  await new Promise((resolve) => setTimeout(resolve, 100))
+  const mobileCellBox = await page.$eval(cellSelector, (cell) => {
+    const rect = cell.getBoundingClientRect()
+    return { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 }
+  })
+  await page.mouse.move(mobileCellBox.x, mobileCellBox.y)
+  await page.waitForSelector('.map-preview', { timeout: 5000 })
+  const mobilePreview = await page.evaluate(() => {
+    const rect = document.querySelector('.map-preview')?.getBoundingClientRect()
+    return rect ? { width: rect.width, left: rect.left, right: rect.right, viewportWidth: window.innerWidth } : null
+  })
+  assert.ok(mobilePreview, 'preview opens at 390px')
+  assert.ok(mobilePreview.width <= 340, 'preview card stays at most 340px wide at 390px')
+  assert.ok(mobilePreview.left >= 0 && mobilePreview.right <= mobilePreview.viewportWidth + 1, 'preview stays inside the 390px viewport')
+  await page.mouse.move(2, 2)
+  await page.waitForFunction(() => !document.querySelector('.map-preview'), { timeout: 5000 })
 
   await page.click('details.projects-activity > summary')
   await page.waitForFunction(() => document.querySelector('details.projects-activity')?.hasAttribute('open'))

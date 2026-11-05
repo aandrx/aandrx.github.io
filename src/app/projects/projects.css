@@ -75,42 +75,104 @@
   justify-content: center;
 }
 
-/* The visual grid is decorative (aria-hidden), so the tooltip is a pure CSS
-   affordance on the cells and adds no tab stops. The hidden table remains the
-   accessible source. */
-.projects-activity-shell .map-frame.is-bare .map-cell[data-tooltip] {
-  position: relative;
-}
-
-.projects-activity-shell .map-frame.is-bare .map-cell[data-tooltip]::after {
-  content: attr(data-tooltip);
-  position: absolute;
-  bottom: calc(100% + 6px);
-  left: 50%;
-  z-index: 3;
-  padding: 3px 6px;
+/* The visual grid is decorative (aria-hidden), so the hover preview is a
+   pointer-only affordance and adds no tab stops. The hidden table remains the
+   accessible source. The card is portalled to the body and positioned in JS so
+   it stays inside the viewport. */
+.map-preview {
+  position: fixed;
+  z-index: 100;
+  width: 340px;
+  max-width: calc(100vw - 16px);
+  padding: 8px 10px 9px;
   border: 1px solid #000;
   background: #fff;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .12);
   color: #000;
-  font: 400 10px/14px "Helvetica Neue", Helvetica, Arial, sans-serif;
-  letter-spacing: 0;
-  white-space: nowrap;
+  font: 400 11px/16px "Helvetica Neue", Helvetica, Arial, sans-serif;
   pointer-events: none;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateX(-50%);
+  animation: map-preview-in .14s ease-out both;
 }
 
-.projects-activity-shell .map-frame.is-bare .map-cell[data-tooltip]:hover::after,
-.projects-activity-shell .map-frame.is-bare .map-cell[data-tooltip]:focus-visible::after {
-  opacity: 1;
-  visibility: visible;
+@keyframes map-preview-in {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.projects-activity-shell .map-frame.is-bare .map-cell[data-tooltip]:hover,
-.projects-activity-shell .map-frame.is-bare .map-cell[data-tooltip]:focus-visible {
-  outline: 1px solid #000;
-  outline-offset: 1px;
+.map-preview-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 0 0 6px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #e3e3e3;
+  font: 400 11px/15px "Helvetica Neue", Helvetica, Arial, sans-serif;
+  letter-spacing: .02em;
+}
+
+.map-preview-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.map-preview-row {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 0 6px;
+}
+
+.map-preview-type {
+  color: #666;
+  font: 400 10px/14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.map-preview-repo {
+  overflow: hidden;
+  font: 400 11px/15px "Helvetica Neue", Helvetica, Arial, sans-serif;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.map-preview-title {
+  grid-column: 2 / -1;
+  max-height: 28px;
+  overflow: hidden;
+  color: #555;
+  font: 400 10px/14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.map-preview-count {
+  grid-column: 3;
+  grid-row: 1;
+  color: #666;
+  font: 400 10px/14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.map-preview-empty {
+  margin: 0;
+  color: #666;
+  font: 400 11px/16px "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.map-preview-more {
+  margin: 5px 0 0;
+  color: #666;
+  font: 400 10px/14px "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 .projects-activity {
@@ -207,5 +269,9 @@
   .projects-row-summary,
   .projects-activity-summary::before {
     transition: none;
+  }
+
+  .map-preview {
+    animation: none;
   }
 }

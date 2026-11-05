@@ -1,5 +1,8 @@
-import type { CSSProperties } from 'react'
-import type { ContributionDay, ContributionMonth, ContributionWeek } from '@/lib/activity-types'
+'use client'
+
+import { useEffect, useMemo, useState, type CSSProperties } from 'react'
+import { createPortal } from 'react-dom'
+import type { ActivityEvent, ActivityEventType, ContributionDay, ContributionMonth, ContributionWeek } from '@/lib/activity-types'
 
 type Props = {
   calendar: {
@@ -7,10 +10,21 @@ type Props = {
     months: ContributionMonth[]
     weeks: ContributionWeek[]
   }
+  events?: ActivityEvent[]
   title?: string
   showIndex?: boolean
   showHeading?: boolean
   bare?: boolean
+}
+
+const PREVIEW_WIDTH = 340
+const PREVIEW_MAX_EVENTS = 4
+
+const EVENT_LABELS: Record<ActivityEventType, string> = {
+  commit: 'commit',
+  'pull-request': 'PR',
+  review: 'review',
+  issue: 'issue',
 }
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
@@ -40,7 +54,50 @@ function formatWeekOf(date: string) {
   return `Week of ${formatDate(date)}`
 }
 
-export default function ContributionMap({ calendar, title = 'Contribution map', showIndex = true, showHeading = true, bare = false }: Props) {
+function previewHeight(eventCount: number) {
+  if (eventCount <= 0) return 86
+  const rows = 62 + Math.min(eventCount, PREVIEW_MAX_EVENTS) * 48
+  return eventCount > PREVIEW_MAX_EVENTS ? rows + 16 : rows
+}
+
+export default function ContributionMap({ calendar, events, title = 'Contribution map', showIndex = true, showHeading = true, bare = false }: Props) {
+  const [hovered, setHovered] = useState<{ day: ContributionDay; left: number; top: number } | null>(null)
+
+  const eventsByDay = useMemo(() => {
+    const grouped = new Map<string, ActivityEvent[]>()
+    for (const event of events ?? []) {
+      const key = event.occurredAt.slice(0, 10)
+      const list = grouped.get(key)
+      if (list) list.push(event)
+      else grouped.set(key, [event])
+    }
+    return grouped
+  }, [events])
+
+  useEffect(() => {
+    if (!hovered) return
+    const close = () => setHovered(null)
+    window.addEventListener('scroll', close, { passive: true })
+    window.addEventListener('resize', close)
+    return () => {
+      window.removeEventListener('scroll', close)
+      window.removeEventListener('resize', close)
+    }
+  }, [hovered])
+
+  const place = (day: ContributionDay, x: number, y: number) => {
+    const height = previewHeight(eventsByDay.get(day.date)?.length ?? 0)
+    const left = Math.max(8, Math.min(x + 14, window.innerWidth - PREVIEW_WIDTH - 8))
+    const top = y + 18 + height > window.innerHeight
+      ? Math.max(8, y - height - 12)
+      : Math.max(8, y + 18)
+    setHovered({ day, left, top })
+  }
+
+  const hoveredDayEvents = hovered ? (eventsByDay.get(hovered.day.date) ?? []) : []
+  const hoveredEvents = hoveredDayEvents.slice(0, PREVIEW_MAX_EVENTS)
+  const hoveredHiddenCount = hoveredDayEvents.length - hoveredEvents.length
+
   const columns = calendar.weeks.map((week) => {
     const days: Array<ContributionDay | null> = Array.from({ length: 7 }, () => null)
     for (const day of week.days) days[utcDay(day.date)] = day
@@ -111,10 +168,13 @@ export default function ContributionMap({ calendar, title = 'Contribution map', 
                 <span
                   className="map-cell"
                   data-level={day.level}
-                  data-tooltip={bare ? `${formatDate(day.date)} · ${day.count} contribution${day.count === 1 ? '' : 's'}` : undefined}
+                  data-date={bare ? day.date : undefined}
                   key={day.date}
                   title={bare ? undefined : `${formatDate(day.date)}: ${day.count} contribution${day.count === 1 ? '' : 's'}`}
                   style={{ gridColumn: weekIndex + 1, gridRow: dayIndex + 1 }}
+                  onMouseEnter={bare ? (event) => place(day, event.clientX, event.clientY) : undefined}
+                  onMouseMove={bare ? (event) => place(day, event.clientX, event.clientY) : undefined}
+                  onMouseLeave={bare ? () => setHovered(null) : undefined}
                 />
               ) : (
                 <span
@@ -170,6 +230,39 @@ export default function ContributionMap({ calendar, title = 'Contribution map', 
           </tbody>
         </table>
       </div>
+
+      {bare && hovered
+        ? createPortal(
+            <div className="map-preview" style={{ left: hovered.left, top: hovered.top }} aria-hidden="true">
+              <p className="map-preview-head">
+                <span>{formatDate(hovered.day.date)}</span>
+                <span>{hovered.day.count} contribution{hovered.day.count === 1 ? '' : 's'}</span>
+              </p>
+              {hoveredEvents.length > 0 ? (
+                <ul className="map-preview-list">
+                  {hoveredEvents.map((event) => (
+                    <li className="map-preview-row" key={event.id}>
+                      <span className="map-preview-type">{EVENT_LABELS[event.type]}</span>
+                      <span className="map-preview-repo">{event.repo}</span>
+                      <span className="map-preview-title">
+                        {event.action}{event.title ? ` · ${event.title}` : ''}
+                      </span>
+                      {typeof event.count === 'number' ? (
+                        <span className="map-preview-count">{event.count}</span>
+                      ) : null}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="map-preview-empty">{hovered.day.count > 0 ? 'No public detail' : 'No contributions'}</p>
+              )}
+              {hoveredHiddenCount > 0 ? (
+                <p className="map-preview-more">+{hoveredHiddenCount} more</p>
+              ) : null}
+            </div>,
+            document.body,
+          )
+        : null}
     </section>
   )
 }
