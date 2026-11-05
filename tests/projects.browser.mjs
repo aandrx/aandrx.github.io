@@ -64,6 +64,9 @@ try {
       externalLinks: projectLinks.map((link) => link.getAttribute('href')),
       blankTargets: projectLinks.map((link) => link.getAttribute('target')),
       mapCount: document.querySelectorAll('.activity-map-section').length,
+      mapHeadingCount: map?.querySelectorAll(':scope > .lab-section-head').length,
+      mapPanelPresent: Boolean(map?.querySelector('.map-frame')),
+      mapTablePresent: Boolean(map?.querySelector('table.sr-only')),
       mapRows: map?.querySelectorAll('table tbody tr').length,
       mapCells: map?.querySelectorAll('.map-weeks .map-cell:not(.is-empty)').length,
       detailsClosed: details ? !details.hasAttribute('open') : null,
@@ -83,6 +86,9 @@ try {
   assert.ok(state.externalLinks.every((href) => href?.startsWith('https://github.com/')), 'project links point at external repositories')
   assert.ok(state.blankTargets.every((target) => target === '_blank'), 'project links open in a new tab')
   assert.equal(state.mapCount, 1, 'projects index renders one activity map')
+  assert.equal(state.mapHeadingCount, 0, 'projects activity map starts at the panel without an outer section heading')
+  assert.equal(state.mapPanelPresent, true, 'projects activity map renders its panel')
+  assert.equal(state.mapTablePresent, true, 'projects activity map keeps its hidden accessible table')
   assert.equal(state.mapRows, 7, 'activity map has one accessible row per weekday')
   assert.ok(state.mapCells >= 84, 'activity map renders a full quarter of day cells')
   assert.equal(state.detailsClosed, true, 'activity details is closed by default')

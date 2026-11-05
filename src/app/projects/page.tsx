@@ -44,7 +44,7 @@ export default async function ProjectsIndexPage() {
       <div className="feed-index-inner">
         <h1 className="feed-index-title">Projects</h1>
         <div className="activity-lab projects-activity-shell">
-          <ContributionMap calendar={activity.calendar} title="Recent work" showIndex={false} />
+          <ContributionMap calendar={activity.calendar} showIndex={false} showHeading={false} />
         </div>
         {PROJECT_GROUPS.map((group) => (
           <section key={group.title} aria-labelledby={`projects-group-${group.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}>

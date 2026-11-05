@@ -9,6 +9,7 @@ type Props = {
   }
   title?: string
   showIndex?: boolean
+  showHeading?: boolean
 }
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
@@ -38,7 +39,7 @@ function formatWeekOf(date: string) {
   return `Week of ${formatDate(date)}`
 }
 
-export default function ContributionMap({ calendar, title = 'Contribution map', showIndex = true }: Props) {
+export default function ContributionMap({ calendar, title = 'Contribution map', showIndex = true, showHeading = true }: Props) {
   const columns = calendar.weeks.map((week) => {
     const days: Array<ContributionDay | null> = Array.from({ length: 7 }, () => null)
     for (const day of week.days) days[utcDay(day.date)] = day
@@ -63,13 +64,17 @@ export default function ContributionMap({ calendar, title = 'Contribution map', 
 
   return (
     <section className="lab-section activity-map-section" aria-labelledby="map-title">
-      <div className="lab-section-head">
-        <div>
-          {showIndex ? <span className="lab-section-index">01</span> : null}
-          <h2 id="map-title">{title}</h2>
+      {showHeading ? (
+        <div className="lab-section-head">
+          <div>
+            {showIndex ? <span className="lab-section-index">01</span> : null}
+            <h2 id="map-title">{title}</h2>
+          </div>
+          <p className="lab-section-count">{total.toLocaleString('en-US')} contributions</p>
         </div>
-        <p className="lab-section-count">{total.toLocaleString('en-US')} contributions</p>
-      </div>
+      ) : (
+        <h2 id="map-title" className="sr-only">{title}</h2>
+      )}
 
       <div className="map-frame">
         <div className="map-heading">
