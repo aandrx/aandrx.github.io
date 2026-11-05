@@ -58,6 +58,14 @@
   padding-top: 0;
 }
 
+/* The projects page shows the contribution map directly on the page: no card
+   frame, no legend, and no calendar notes. */
+.map-frame.is-bare {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
 .projects-activity {
   margin: 4px 0 0;
   border-top: 1px solid #e3e3e3;

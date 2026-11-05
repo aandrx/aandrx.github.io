@@ -66,6 +66,9 @@ try {
       mapCount: document.querySelectorAll('.activity-map-section').length,
       mapHeadingCount: map?.querySelectorAll(':scope > .lab-section-head').length,
       mapPanelPresent: Boolean(map?.querySelector('.map-frame')),
+      mapBare: Boolean(map?.querySelector('.map-frame.is-bare')),
+      mapFootCount: map?.querySelectorAll('.map-foot').length,
+      mapNoteCount: map?.querySelectorAll('.map-note').length,
       mapTablePresent: Boolean(map?.querySelector('table.sr-only')),
       mapRows: map?.querySelectorAll('table tbody tr').length,
       mapCells: map?.querySelectorAll('.map-weeks .map-cell:not(.is-empty)').length,
@@ -88,6 +91,9 @@ try {
   assert.equal(state.mapCount, 1, 'projects index renders one activity map')
   assert.equal(state.mapHeadingCount, 0, 'projects activity map starts at the panel without an outer section heading')
   assert.equal(state.mapPanelPresent, true, 'projects activity map renders its panel')
+  assert.equal(state.mapBare, true, 'projects activity map renders as a bare block without the card frame')
+  assert.equal(state.mapFootCount, 0, 'projects activity map omits the legend and foot note')
+  assert.equal(state.mapNoteCount, 0, 'projects activity map omits the UTC calendar note')
   assert.equal(state.mapTablePresent, true, 'projects activity map keeps its hidden accessible table')
   assert.equal(state.mapRows, 7, 'activity map has one accessible row per weekday')
   assert.ok(state.mapCells >= 84, 'activity map renders a full quarter of day cells')

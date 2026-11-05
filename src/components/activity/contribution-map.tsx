@@ -10,6 +10,7 @@ type Props = {
   title?: string
   showIndex?: boolean
   showHeading?: boolean
+  bare?: boolean
 }
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
@@ -39,7 +40,7 @@ function formatWeekOf(date: string) {
   return `Week of ${formatDate(date)}`
 }
 
-export default function ContributionMap({ calendar, title = 'Contribution map', showIndex = true, showHeading = true }: Props) {
+export default function ContributionMap({ calendar, title = 'Contribution map', showIndex = true, showHeading = true, bare = false }: Props) {
   const columns = calendar.weeks.map((week) => {
     const days: Array<ContributionDay | null> = Array.from({ length: 7 }, () => null)
     for (const day of week.days) days[utcDay(day.date)] = day
@@ -76,13 +77,13 @@ export default function ContributionMap({ calendar, title = 'Contribution map', 
         <h2 id="map-title" className="sr-only">{title}</h2>
       )}
 
-      <div className="map-frame">
+      <div className={bare ? 'map-frame is-bare' : 'map-frame'}>
         <div className="map-heading">
           <p className="map-total">
             {total.toLocaleString('en-US')} contributions
             <span>{rangeLabel}</span>
           </p>
-          <p className="map-note">GitHub calendar, in UTC</p>
+          {bare ? null : <p className="map-note">GitHub calendar, in UTC</p>}
         </div>
 
         <div className="map-months" aria-hidden="true" style={{ '--weeks': columns.length } as CSSProperties}>
@@ -120,14 +121,16 @@ export default function ContributionMap({ calendar, title = 'Contribution map', 
           </div>
         </div>
 
-        <div className="map-foot">
-          <p className="map-foot-note">Week starts Sunday. Hover a day for its count.</p>
-          <div className="map-legend" role="group" aria-label="Contribution intensity from less to more">
-            <span>Less</span>
-            {[0, 1, 2, 3, 4].map((level) => <span className="map-cell map-legend-cell" data-level={level} key={level} />)}
-            <span>More</span>
+        {bare ? null : (
+          <div className="map-foot">
+            <p className="map-foot-note">Week starts Sunday. Hover a day for its count.</p>
+            <div className="map-legend" role="group" aria-label="Contribution intensity from less to more">
+              <span>Less</span>
+              {[0, 1, 2, 3, 4].map((level) => <span className="map-cell map-legend-cell" data-level={level} key={level} />)}
+              <span>More</span>
+            </div>
           </div>
-        </div>
+        )}
 
         <table className="sr-only">
           <caption>
