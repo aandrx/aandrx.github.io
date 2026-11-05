@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState, type CSSProperties } from 'react'
 import { createPortal } from 'react-dom'
-import type { ActivityEvent, ActivityEventType, ContributionDay, ContributionMonth, ContributionWeek } from '@/lib/activity-types'
+import ActivityEventIcon from '@/components/activity/activity-event-icon'
+import type { ActivityEvent, ContributionDay, ContributionMonth, ContributionWeek } from '@/lib/activity-types'
 
 type Props = {
   calendar: {
@@ -19,13 +20,6 @@ type Props = {
 
 const PREVIEW_WIDTH = 340
 const PREVIEW_MAX_EVENTS = 4
-
-const EVENT_LABELS: Record<ActivityEventType, string> = {
-  commit: 'commit',
-  'pull-request': 'PR',
-  review: 'review',
-  issue: 'issue',
-}
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const VISIBLE_WEEKDAYS = new Set([1, 3, 5])
@@ -242,14 +236,21 @@ export default function ContributionMap({ calendar, events, title = 'Contributio
                 <ul className="map-preview-list">
                   {hoveredEvents.map((event) => (
                     <li className="map-preview-row" key={event.id}>
-                      <span className="map-preview-type">{EVENT_LABELS[event.type]}</span>
-                      <span className="map-preview-repo">{event.repo}</span>
-                      <span className="map-preview-title">
-                        {event.action}{event.title ? ` · ${event.title}` : ''}
+                      <span className={`map-preview-icon map-preview-icon--${event.type}`} aria-hidden="true">
+                        <ActivityEventIcon type={event.type} />
                       </span>
-                      {typeof event.count === 'number' ? (
-                        <span className="map-preview-count">{event.count}</span>
-                      ) : null}
+                      <div className="map-preview-body">
+                        <p className="map-preview-line">
+                          <span className="map-preview-action">{event.action}</span>{' '}
+                          {event.title ? <span className="map-preview-title">{event.title}</span> : null}
+                        </p>
+                        <p className="map-preview-meta">
+                          <span className="map-preview-repo">{event.repo}</span>
+                          {typeof event.count === 'number' ? (
+                            <span className="map-preview-count">{event.count}</span>
+                          ) : null}
+                        </p>
+                      </div>
                     </li>
                   ))}
                 </ul>

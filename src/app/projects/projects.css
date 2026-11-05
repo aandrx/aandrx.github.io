@@ -119,48 +119,94 @@
 .map-preview-list {
   display: flex;
   flex-direction: column;
-  gap: 5px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
 .map-preview-row {
+  position: relative;
   display: grid;
-  grid-template-columns: 44px minmax(0, 1fr) auto;
-  align-items: baseline;
-  gap: 0 6px;
+  grid-template-columns: 24px minmax(0, 1fr);
+  gap: 8px;
+  padding: 4px 0;
 }
 
-.map-preview-type {
+.map-preview-row:not(:last-child)::before {
+  position: absolute;
+  top: 28px;
+  bottom: -4px;
+  left: 11px;
+  width: 1px;
+  background: #e3e3e3;
+  content: "";
+}
+
+.map-preview-icon {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid #e3e3e3;
+  background: #fff;
+  color: #000;
+}
+
+.map-preview-icon svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.2;
+}
+
+.map-preview-icon--pull-request,
+.map-preview-icon--review {
+  color: #1f7a3a;
+}
+
+.map-preview-icon--issue {
+  color: #b25b3b;
+}
+
+.map-preview-body {
+  min-width: 0;
+}
+
+.map-preview-line {
+  max-height: 30px;
+  margin: 0;
+  overflow: hidden;
+  color: #000;
+  font: 400 11px/15px "Helvetica Neue", Helvetica, Arial, sans-serif;
+  overflow-wrap: anywhere;
+}
+
+.map-preview-action {
+  color: #555;
+}
+
+.map-preview-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0;
   color: #666;
   font: 400 10px/14px "Helvetica Neue", Helvetica, Arial, sans-serif;
-  letter-spacing: .06em;
-  text-transform: uppercase;
 }
 
 .map-preview-repo {
   overflow: hidden;
-  font: 400 11px/15px "Helvetica Neue", Helvetica, Arial, sans-serif;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.map-preview-title {
-  grid-column: 2 / -1;
-  max-height: 28px;
-  overflow: hidden;
-  color: #555;
-  font: 400 10px/14px "Helvetica Neue", Helvetica, Arial, sans-serif;
-  overflow-wrap: anywhere;
-  white-space: normal;
-}
-
 .map-preview-count {
-  grid-column: 3;
-  grid-row: 1;
-  color: #666;
-  font: 400 10px/14px "Helvetica Neue", Helvetica, Arial, sans-serif;
+  flex: none;
 }
 
 .map-preview-empty {

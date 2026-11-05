@@ -151,7 +151,10 @@ try {
     return {
       date: head[0] ?? '',
       count: head[1] ?? '',
-      types: [...card.querySelectorAll('.map-preview-type')].map((node) => node.textContent ?? ''),
+      icons: card.querySelectorAll('.map-preview-row .map-preview-icon').length,
+      iconSvgs: card.querySelectorAll('.map-preview-row .map-preview-icon svg').length,
+      iconClasses: [...card.querySelectorAll('.map-preview-icon')].map((node) => node.className),
+      actions: [...card.querySelectorAll('.map-preview-action')].map((node) => node.textContent ?? ''),
       repos: [...card.querySelectorAll('.map-preview-repo')].map((node) => node.textContent ?? ''),
       titles: [...card.querySelectorAll('.map-preview-title')].map((node) => node.textContent ?? ''),
       rows: card.querySelectorAll('.map-preview-row').length,
@@ -169,9 +172,15 @@ try {
   assert.match(preview.date, /^[A-Z][a-z]{2} \d{1,2}, \d{4}$/, 'preview shows the day date')
   assert.match(preview.count, /^\d+ contributions?$/, 'preview shows the day contribution count')
   assert.ok(preview.rows >= 1 && preview.rows <= 4, 'preview lists between one and four events')
-  assert.ok(preview.types.every((type) => type.length > 0), 'preview labels every event type')
+  assert.equal(preview.icons, preview.rows, 'preview renders one activity icon per event row')
+  assert.equal(preview.iconSvgs, preview.rows, 'preview renders an SVG glyph inside every icon frame')
+  assert.ok(
+    preview.iconClasses.some((className) => /map-preview-icon--(pull-request|review|issue|commit)/.test(className)),
+    'preview uses a type-specific icon class',
+  )
+  assert.ok(preview.actions.every((action) => action.length > 0), 'preview shows an action for every event')
   assert.ok(preview.repos.every((repo) => repo.length > 0), 'preview names every event repository')
-  assert.ok(preview.titles.some((title) => title.length > 0), 'preview shows at least one event detail')
+  assert.ok(preview.titles.some((title) => title.length > 0), 'preview shows at least one event title')
   assert.equal(preview.pointerEvents, 'none', 'preview cannot capture the pointer and flicker')
   assert.ok(preview.width <= 340, 'preview card stays at most 340px wide')
   assert.ok(preview.left >= 0 && preview.right <= preview.viewportWidth + 1, 'preview stays inside the viewport horizontally')

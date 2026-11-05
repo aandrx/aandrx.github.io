@@ -1,4 +1,5 @@
-import type { ActivityEvent, ActivityEventType } from '@/lib/activity-types'
+import type { ActivityEvent } from '@/lib/activity-types'
+import ActivityEventIcon from '@/components/activity/activity-event-icon'
 
 type Props = {
   events: ActivityEvent[]
@@ -26,40 +27,6 @@ function formatDate(date: string) {
 
 function formatTime(value: string) {
   return TIME_FORMAT.format(new Date(value))
-}
-
-function EventIcon({ type }: { type: ActivityEventType }) {
-  if (type === 'commit') {
-    return (
-      <svg viewBox="0 0 20 20" aria-hidden="true">
-        <circle cx="10" cy="10" r="3" />
-        <path d="M10 2v5M10 13v5" />
-      </svg>
-    )
-  }
-  if (type === 'pull-request') {
-    return (
-      <svg viewBox="0 0 20 20" aria-hidden="true">
-        <circle cx="6" cy="5" r="2" />
-        <circle cx="14" cy="15" r="2" />
-        <path d="M6 7v8M8 5h4a2 2 0 0 1 2 2v6" />
-      </svg>
-    )
-  }
-  if (type === 'review') {
-    return (
-      <svg viewBox="0 0 20 20" aria-hidden="true">
-        <circle cx="10" cy="10" r="7" />
-        <path d="m6.8 10.2 2.1 2.1 4.5-4.6" />
-      </svg>
-    )
-  }
-  return (
-    <svg viewBox="0 0 20 20" aria-hidden="true">
-      <rect x="4" y="4" width="12" height="12" />
-      <circle cx="10" cy="10" r="1.5" />
-    </svg>
-  )
 }
 
 export default function ActivityTimeline({ events, showIndex = true }: Props) {
@@ -92,7 +59,7 @@ export default function ActivityTimeline({ events, showIndex = true }: Props) {
                 {dayEvents.map((event) => (
                   <li className="activity-event" key={event.id}>
                     <span className={`activity-icon activity-icon--${event.type}`} aria-hidden="true">
-                      <EventIcon type={event.type} />
+                      <ActivityEventIcon type={event.type} />
                     </span>
                     <div className="activity-event-body">
                       <p className="activity-event-line">
