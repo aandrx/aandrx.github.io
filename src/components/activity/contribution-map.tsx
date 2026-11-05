@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState, type CSSProperties } from 'react'
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type MouseEvent as ReactMouseEvent } from 'react'
 import { createPortal } from 'react-dom'
 import ActivityEventIcon from '@/components/activity/activity-event-icon'
 import type { ActivityEvent, ContributionDay, ContributionMonth, ContributionWeek } from '@/lib/activity-types'
@@ -56,6 +56,8 @@ function previewHeight(eventCount: number) {
 
 export default function ContributionMap({ calendar, events, title = 'Contribution map', showIndex = true, showHeading = true, bare = false }: Props) {
   const [hovered, setHovered] = useState<{ day: ContributionDay; left: number; top: number } | null>(null)
+  const sideRef = useRef<'right' | 'left'>('right')
+  const gridRef = useRef<HTMLDivElement | null>(null)
 
   const eventsByDay = useMemo(() => {
     const grouped = new Map<string, ActivityEvent[]>()
@@ -70,7 +72,10 @@ export default function ContributionMap({ calendar, events, title = 'Contributio
 
   useEffect(() => {
     if (!hovered) return
-    const close = () => setHovered(null)
+    const close = () => {
+      sideRef.current = 'right'
+      setHovered(null)
+    }
     window.addEventListener('scroll', close, { passive: true })
     window.addEventListener('resize', close)
     return () => {
@@ -81,11 +86,25 @@ export default function ContributionMap({ calendar, events, title = 'Contributio
 
   const place = (day: ContributionDay, x: number, y: number) => {
     const height = previewHeight(eventsByDay.get(day.date)?.length ?? 0)
-    const left = Math.max(8, Math.min(x + 14, window.innerWidth - PREVIEW_WIDTH - 8))
+    // Keep the chosen side sticky for the whole hover so the card cannot flip
+    // back and forth when the pointer crosses the clamp threshold.
+    if (sideRef.current === 'right' && x + 14 + PREVIEW_WIDTH > window.innerWidth - 8) {
+      sideRef.current = 'left'
+    }
+    const rawLeft = sideRef.current === 'right' ? x + 14 : x - PREVIEW_WIDTH - 14
+    const left = Math.max(8, Math.min(rawLeft, window.innerWidth - PREVIEW_WIDTH - 8))
     const top = y + 18 + height > window.innerHeight
       ? Math.max(8, y - height - 12)
       : Math.max(8, y + 18)
     setHovered({ day, left, top })
+  }
+
+  const leaveCell = (event: ReactMouseEvent<HTMLSpanElement>) => {
+    // Moving between cells inside the grid keeps the chosen side; only a real
+    // exit from the grid resets it back to the default right placement.
+    const next = event.relatedTarget as Node | null
+    if (!(next && gridRef.current?.contains(next))) sideRef.current = 'right'
+    setHovered(null)
   }
 
   const hoveredDayEvents = hovered ? (eventsByDay.get(hovered.day.date) ?? []) : []
@@ -156,7 +175,7 @@ export default function ContributionMap({ calendar, events, title = 'Contributio
               ))}
             </div>
           )}
-          <div className="map-weeks" style={{ '--weeks': columns.length } as CSSProperties}>
+          <div className="map-weeks" ref={gridRef} style={{ '--weeks': columns.length } as CSSProperties}>
             {columns.map((week, weekIndex) => (
               week.map((day, dayIndex) => day ? (
                 <span
@@ -168,7 +187,7 @@ export default function ContributionMap({ calendar, events, title = 'Contributio
                   style={{ gridColumn: weekIndex + 1, gridRow: dayIndex + 1 }}
                   onMouseEnter={bare ? (event) => place(day, event.clientX, event.clientY) : undefined}
                   onMouseMove={bare ? (event) => place(day, event.clientX, event.clientY) : undefined}
-                  onMouseLeave={bare ? () => setHovered(null) : undefined}
+                  onMouseLeave={bare ? leaveCell : undefined}
                 />
               ) : (
                 <span

@@ -107,7 +107,7 @@ try {
   assert.equal(museum.nav[1].href, '/feed/', 'museum Feed links to the feed index')
   assert.equal(museum.hasProjectsTarget, true, 'museum projects target exists')
   assert.equal(museum.hasFeedTarget, true, 'museum feed target exists')
-  assert.equal(museum.projects, 7, 'projects section hides Continuum by default')
+  assert.equal(museum.projects, 8, 'projects section hides Continuum by default')
   assert.equal(museum.feed[0].href, 'https://github.com/aandrx/dotfiles/tree/main/.pi/agent/packages/rue-stack', 'feed starts with the personal rue-stack')
   assert.equal(museum.feed[0].target, '_blank', 'external feed links open in a new tab')
   assert.equal(museum.feed[0].title, 'rue-stack', 'the personal stack is labeled rue-stack')

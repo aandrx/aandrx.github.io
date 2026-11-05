@@ -93,7 +93,7 @@ try {
   assert.deepEqual(state.h1, ['Projects'], 'projects index renders exactly one h1')
   assert.equal(state.canonicalPath, '/projects/', 'projects index declares its canonical path')
   assert.deepEqual(state.groups, ['Selected work', 'More work'], 'projects index renders both project groups')
-  assert.equal(state.projectLinkCount, 11, 'projects index lists eleven projects')
+  assert.equal(state.projectLinkCount, 12, 'projects index lists twelve projects')
   assert.ok(state.projectHrefs.every((href) => href?.startsWith('/projects/')), 'project rows link to internal detail pages')
   assert.ok(state.blankTargets.every((target) => target === null), 'project rows do not open in a new tab')
   assert.ok(state.rowHeights.every((height) => height > 0 && height <= 32), 'each project row is a single line')
@@ -262,7 +262,53 @@ try {
   assert.ok(mobileOpen.timelineHeight > 0, 'activity content opens at 390px')
   assert.ok(mobileOpen.scrollWidth <= mobileOpen.viewportWidth + 1, 'open activity details does not overflow at 390px')
 
-  const detailSlugs = ['sink', 'shend', 'webby', 'hope-for-haiti', 'loom', 'harmonyapi', 'palace-tui', 'continuum', 'ina', 'spendwise', 'sophitia']
+  // The preview side must stay sticky while the pointer stays in the grid, so
+  // it cannot flip back and forth around the right-edge clamp threshold.
+  await page.setViewport({ width: 900, height: 900 })
+  await new Promise((resolve) => setTimeout(resolve, 250))
+  await page.$eval('.activity-map-section .map-weeks', (grid) => grid.scrollIntoView({ block: 'center' }))
+  await new Promise((resolve) => setTimeout(resolve, 150))
+  const placement = await page.evaluate(() => {
+    const threshold = window.innerWidth - 8 - 340 - 14
+    const cells = [...document.querySelectorAll('.activity-map-section .map-weeks .map-cell[data-date]')].map((cell) => {
+      const rect = cell.getBoundingClientRect()
+      return { date: cell.getAttribute('data-date'), x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 }
+    })
+    const rightSide = cells.filter((cell) => cell.x > threshold)
+    const leftSide = cells.filter((cell) => cell.x <= threshold)
+    if (rightSide.length === 0 || leftSide.length === 0) return null
+    const anchor = rightSide[rightSide.length - 1]
+    const sameRow = leftSide.filter((cell) => Math.abs(cell.y - anchor.y) < 3)
+    const candidates = sameRow.length > 0 ? sameRow : leftSide
+    const nearby = candidates.reduce((best, cell) => (cell.x > best.x ? cell : best), candidates[0])
+    return { anchor, nearby, threshold }
+  })
+  assert.ok(placement, 'narrow desktop map exposes day cells on both sides of the preview clamp threshold')
+  await page.mouse.move(placement.anchor.x, placement.anchor.y)
+  await page.waitForSelector('.map-preview', { timeout: 5000 })
+  const anchorSide = await page.evaluate(() => {
+    const rect = document.querySelector('.map-preview')?.getBoundingClientRect()
+    return rect ? { left: rect.left, right: rect.right } : null
+  })
+  assert.ok(anchorSide && anchorSide.right <= placement.anchor.x, 'preview opens on the left of the cursor near the right edge')
+  await page.mouse.move(placement.nearby.x, placement.nearby.y)
+  await page.waitForFunction((date) => {
+    const card = document.querySelector('.map-preview')
+    const head = card?.querySelector('.map-preview-head span')
+    if (!head) return false
+    const expected = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' })
+      .format(new Date(`${date}T00:00:00Z`))
+    return head.textContent === expected
+  }, { timeout: 5000 }, placement.nearby.date)
+  const nearbySide = await page.evaluate(() => {
+    const rect = document.querySelector('.map-preview')?.getBoundingClientRect()
+    return rect ? { left: rect.left, right: rect.right } : null
+  })
+  assert.ok(nearbySide && nearbySide.right <= placement.nearby.x, 'preview keeps its left placement when moving to a nearby non-empty cell')
+  await page.mouse.move(2, 2)
+  await page.waitForFunction(() => !document.querySelector('.map-preview'), { timeout: 5000 })
+
+  const detailSlugs = ['bloom', 'sink', 'shend', 'webby', 'hope-for-haiti', 'loom', 'harmonyapi', 'palace-tui', 'continuum', 'ina', 'spendwise', 'sophitia']
   for (const slug of detailSlugs) {
     const detailResponse = await fetch(`${baseURL}/projects/${slug}/`)
     assert.equal(detailResponse.status, 200, `/projects/${slug}/ renders`)

@@ -9,6 +9,13 @@ export type ProjectItem = {
 
 export const PROJECTS: ProjectItem[] = [
   {
+    slug: 'bloom',
+    title: 'Bloom',
+    repo: 'https://github.com/aandrx/bloom',
+    summary: 'A keyboard-first terminal messenger',
+    detail: 'An experimental TUI messenger built on an existing OpenBubbles registration, with local history and automatic engine recovery.',
+  },
+  {
     title: 'sink',
     slug: 'sink',
     repo: 'https://github.com/aandrx/sink',
