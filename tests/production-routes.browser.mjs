@@ -38,6 +38,7 @@ try {
   for (const path of [
     '/',
     '/projects/',
+    '/projects/sink/',
     '/feed/',
     '/feed/on-small-tools/',
     '/photo/',
@@ -60,6 +61,7 @@ try {
   const sitemap = await fetch(`${baseURL}/sitemap.xml`).then((response) => response.text())
   assert.match(sitemap, /<loc>https:\/\/www\.andrxwliu\.me\/<\/loc>/, 'sitemap uses the canonical domain')
   assert.match(sitemap, /<loc>.*\/projects\/<\/loc>/, 'sitemap includes the projects index')
+  assert.match(sitemap, /<loc>.*\/projects\/sink\/<\/loc>/, 'sitemap includes a project detail page')
   assert.match(sitemap, /<loc>.*\/feed\/<\/loc>/, 'sitemap includes the personal feed')
   assert.match(sitemap, /<loc>.*\/photo\/works\/wingspan\/<\/loc>/, 'sitemap includes photography works')
 

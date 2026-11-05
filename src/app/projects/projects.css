@@ -1,22 +1,18 @@
 .projects-row-link {
-  align-items: flex-start;
-}
-
-.projects-row-main {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  width: 100%;
+  align-items: baseline;
+  gap: 16px;
 }
 
 .projects-row-head {
   display: flex;
+  flex: none;
   align-items: baseline;
   gap: 10px;
 }
 
 .projects-row-title {
   font: 400 16px/22px "Helvetica Neue", Helvetica, Arial, sans-serif;
+  white-space: nowrap;
 }
 
 .projects-row-tag {
@@ -27,6 +23,7 @@
   letter-spacing: .04em;
   text-transform: uppercase;
   transition: border-color .22s ease, color .22s ease;
+  white-space: nowrap;
 }
 
 .projects-row-link:hover .projects-row-tag,
@@ -36,8 +33,13 @@
 }
 
 .projects-row-summary {
+  min-width: 0;
+  overflow: hidden;
   color: #666;
   font: 400 14px/20px "Helvetica Neue", Helvetica, Arial, sans-serif;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   transition: color .22s ease;
 }
 

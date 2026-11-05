@@ -8,6 +8,7 @@ const axePath = createRequire(import.meta.url).resolve('axe-core/axe.min.js')
 const routes = [
   '/',
   '/projects/',
+  '/projects/sink/',
   '/feed/',
   '/feed/on-small-tools/',
   '/feed/photographing-empty-rooms/',

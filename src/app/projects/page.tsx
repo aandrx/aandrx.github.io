@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { PROJECT_GROUPS, type ProjectItem } from '@/lib/project-data'
 import { getCachedActivityData } from '@/lib/github-activity-cache'
 import ActivityTimeline from '@/components/activity/activity-timeline'
@@ -22,15 +23,13 @@ export const metadata: Metadata = {
 function ProjectRow({ project }: { project: ProjectItem }) {
   return (
     <li className="feed-row">
-      <a className="feed-row-link projects-row-link" href={project.repo} target="_blank" rel="noreferrer" title="Opens in a new tab">
-        <span className="projects-row-main">
-          <span className="projects-row-head">
-            <strong className="projects-row-title">{project.title}</strong>
-            {project.tag ? <span className="projects-row-tag">{project.tag}</span> : null}
-          </span>
-          <span className="projects-row-summary">{project.summary}</span>
+      <Link className="feed-row-link projects-row-link" href={`/projects/${project.slug}/`}>
+        <span className="projects-row-head">
+          <strong className="projects-row-title">{project.title}</strong>
+          {project.tag ? <span className="projects-row-tag">{project.tag}</span> : null}
         </span>
-      </a>
+        <span className="projects-row-summary">{project.summary}</span>
+      </Link>
     </li>
   )
 }
@@ -50,7 +49,7 @@ export default async function ProjectsIndexPage() {
           <section key={group.title} aria-labelledby={`projects-group-${group.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}>
             <h2 className="feed-year" id={`projects-group-${group.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}>{group.title}</h2>
             <ul className="feed-list">
-              {group.entries.map((project) => <ProjectRow key={project.title} project={project} />)}
+              {group.entries.map((project) => <ProjectRow key={project.slug} project={project} />)}
             </ul>
           </section>
         ))}

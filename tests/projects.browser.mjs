@@ -61,8 +61,10 @@ try {
       canonicalPath: canonical ? new URL(canonical, location.origin).pathname : null,
       groups: [...document.querySelectorAll('.feed-year')].map((heading) => heading.textContent),
       projectLinkCount: projectLinks.length,
-      externalLinks: projectLinks.map((link) => link.getAttribute('href')),
+      projectHrefs: projectLinks.map((link) => link.getAttribute('href')),
       blankTargets: projectLinks.map((link) => link.getAttribute('target')),
+      rowHeights: projectLinks.map((link) => link.getBoundingClientRect().height),
+      summaryWhiteSpace: [...document.querySelectorAll('.projects-row-summary')].map((node) => getComputedStyle(node).whiteSpace),
       mapCount: document.querySelectorAll('.activity-map-section').length,
       mapHeadingCount: map?.querySelectorAll(':scope > .lab-section-head').length,
       mapPanelPresent: Boolean(map?.querySelector('.map-frame')),
@@ -91,9 +93,11 @@ try {
   assert.deepEqual(state.h1, ['Projects'], 'projects index renders exactly one h1')
   assert.equal(state.canonicalPath, '/projects/', 'projects index declares its canonical path')
   assert.deepEqual(state.groups, ['Selected work', 'More work'], 'projects index renders both project groups')
-  assert.equal(state.projectLinkCount, 11, 'projects index lists eleven repositories')
-  assert.ok(state.externalLinks.every((href) => href?.startsWith('https://github.com/')), 'project links point at external repositories')
-  assert.ok(state.blankTargets.every((target) => target === '_blank'), 'project links open in a new tab')
+  assert.equal(state.projectLinkCount, 11, 'projects index lists eleven projects')
+  assert.ok(state.projectHrefs.every((href) => href?.startsWith('/projects/')), 'project rows link to internal detail pages')
+  assert.ok(state.blankTargets.every((target) => target === null), 'project rows do not open in a new tab')
+  assert.ok(state.rowHeights.every((height) => height > 0 && height <= 32), 'each project row is a single line')
+  assert.ok(state.summaryWhiteSpace.every((value) => value === 'nowrap'), 'project summaries stay on one truncated line')
   assert.equal(state.mapCount, 1, 'projects index renders one activity map')
   assert.equal(state.mapHeadingCount, 0, 'projects activity map starts at the panel without an outer section heading')
   assert.equal(state.mapPanelPresent, true, 'projects activity map renders its panel')
@@ -257,6 +261,26 @@ try {
   }))
   assert.ok(mobileOpen.timelineHeight > 0, 'activity content opens at 390px')
   assert.ok(mobileOpen.scrollWidth <= mobileOpen.viewportWidth + 1, 'open activity details does not overflow at 390px')
+
+  const detailSlugs = ['sink', 'shend', 'webby', 'hope-for-haiti', 'loom', 'harmonyapi', 'palace-tui', 'continuum', 'ina', 'spendwise', 'sophitia']
+  for (const slug of detailSlugs) {
+    const detailResponse = await fetch(`${baseURL}/projects/${slug}/`)
+    assert.equal(detailResponse.status, 200, `/projects/${slug}/ renders`)
+  }
+
+  await page.goto(`${baseURL}/projects/sink/`, { waitUntil: 'networkidle2', timeout: 60000 })
+  const detail = await page.evaluate(() => ({
+    h1: document.querySelector('h1')?.textContent,
+    body: [...document.querySelectorAll('.feed-body p')].map((paragraph) => paragraph.textContent ?? ''),
+    repo: document.querySelector('.feed-related a')?.getAttribute('href'),
+    repoRel: document.querySelector('.feed-related a')?.getAttribute('rel'),
+    back: document.querySelector('.feed-article-foot a')?.getAttribute('href'),
+  }))
+  assert.equal(detail.h1, 'sink', 'project detail renders the project title')
+  assert.ok(detail.body.includes('More project notes, demos, and photographs will be added here.'), 'project detail renders the placeholder paragraph')
+  assert.ok(detail.repo?.startsWith('https://github.com/'), 'project detail links to the repository')
+  assert.equal(detail.repoRel, 'noreferrer', 'repository link is safe')
+  assert.equal(detail.back, '/projects/', 'project detail links back to the projects index')
 
   assert.deepEqual(errors, [], 'projects index has no runtime errors')
   console.log('PASS: projects index shows groups, repository links, activity map and collapsible activity')
