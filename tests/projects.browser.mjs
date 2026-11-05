@@ -67,11 +67,16 @@ try {
       mapHeadingCount: map?.querySelectorAll(':scope > .lab-section-head').length,
       mapPanelPresent: Boolean(map?.querySelector('.map-frame')),
       mapBare: Boolean(map?.querySelector('.map-frame.is-bare')),
+      mapTotalCount: map?.querySelectorAll('.map-total').length,
+      mapMonthsCount: map?.querySelectorAll('.map-months').length,
+      mapWeekdaysCount: map?.querySelectorAll('.map-weekdays').length,
       mapFootCount: map?.querySelectorAll('.map-foot').length,
       mapNoteCount: map?.querySelectorAll('.map-note').length,
       mapTablePresent: Boolean(map?.querySelector('table.sr-only')),
       mapRows: map?.querySelectorAll('table tbody tr').length,
       mapCells: map?.querySelectorAll('.map-weeks .map-cell:not(.is-empty)').length,
+      mapCellsWithTooltip: map?.querySelectorAll('.map-weeks .map-cell:not(.is-empty)[data-tooltip]').length,
+      mapCellsWithTitle: map?.querySelectorAll('.map-weeks .map-cell[title]').length,
       detailsClosed: details ? !details.hasAttribute('open') : null,
       detailsSummary: details?.querySelector('summary')?.textContent,
       navHref: nav?.getAttribute('href'),
@@ -92,11 +97,16 @@ try {
   assert.equal(state.mapHeadingCount, 0, 'projects activity map starts at the panel without an outer section heading')
   assert.equal(state.mapPanelPresent, true, 'projects activity map renders its panel')
   assert.equal(state.mapBare, true, 'projects activity map renders as a bare block without the card frame')
+  assert.equal(state.mapTotalCount, 0, 'projects activity map omits the visible total and date range')
+  assert.equal(state.mapMonthsCount, 0, 'projects activity map omits the month labels')
+  assert.equal(state.mapWeekdaysCount, 0, 'projects activity map omits the weekday labels')
   assert.equal(state.mapFootCount, 0, 'projects activity map omits the legend and foot note')
   assert.equal(state.mapNoteCount, 0, 'projects activity map omits the UTC calendar note')
   assert.equal(state.mapTablePresent, true, 'projects activity map keeps its hidden accessible table')
   assert.equal(state.mapRows, 7, 'activity map has one accessible row per weekday')
   assert.ok(state.mapCells >= 84, 'activity map renders a full quarter of day cells')
+  assert.equal(state.mapCellsWithTooltip, state.mapCells, 'every non-empty day cell exposes a data-tooltip')
+  assert.equal(state.mapCellsWithTitle, 0, 'bare day cells avoid native title tooltips')
   assert.equal(state.detailsClosed, true, 'activity details is closed by default')
   assert.match(state.detailsSummary ?? '', /More recent activity/, 'activity details has a summary')
   assert.equal(state.navHref, '/projects/', 'Work nav pill links to the projects index')
@@ -116,6 +126,32 @@ try {
   assert.equal(hiddenTable.overflow, 'hidden', 'activity map table hides its overflow')
   assert.notEqual(hiddenTable.clip, 'auto', 'activity map table is visually clipped')
   assert.match(hiddenTable.caption ?? '', /GitHub contribution calendar/, 'activity map table keeps its accessible caption')
+
+  const cellSelector = '.activity-map-section .map-weeks .map-cell[data-tooltip]'
+  const tooltipText = await page.$eval(cellSelector, (cell) => cell.getAttribute('data-tooltip'))
+  assert.ok(tooltipText && tooltipText.length > 0, 'day cell has non-empty tooltip text')
+
+  const cellBox = await page.$eval(cellSelector, (cell) => {
+    const rect = cell.getBoundingClientRect()
+    return { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 }
+  })
+  await page.mouse.move(cellBox.x, cellBox.y)
+  await new Promise((resolve) => setTimeout(resolve, 200))
+  const hoverState = await page.$eval(cellSelector, (cell) => {
+    const after = getComputedStyle(cell, '::after')
+    const style = getComputedStyle(cell)
+    return {
+      content: after.content,
+      visibility: after.visibility,
+      opacity: after.opacity,
+      outlineStyle: style.outlineStyle,
+      outlineWidth: style.outlineWidth,
+    }
+  })
+  const hasTooltipContent = Boolean(hoverState.content && hoverState.content !== 'none' && hoverState.content !== '""')
+  const hasVisibleTooltip = hasTooltipContent && hoverState.visibility !== 'hidden' && Number(hoverState.opacity) > 0
+  const hasOutline = hoverState.outlineStyle !== 'none' && parseFloat(hoverState.outlineWidth) > 0
+  assert.ok(hasVisibleTooltip || hasOutline, 'hovered day cell shows the CSS tooltip or a visible outline')
 
   await page.click('details.projects-activity > summary')
   await page.waitForFunction(() => document.querySelector('details.projects-activity')?.hasAttribute('open'))

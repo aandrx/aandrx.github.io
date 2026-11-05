@@ -78,35 +78,42 @@ export default function ContributionMap({ calendar, title = 'Contribution map', 
       )}
 
       <div className={bare ? 'map-frame is-bare' : 'map-frame'}>
-        <div className="map-heading">
-          <p className="map-total">
-            {total.toLocaleString('en-US')} contributions
-            <span>{rangeLabel}</span>
-          </p>
-          {bare ? null : <p className="map-note">GitHub calendar, in UTC</p>}
-        </div>
+        {bare ? null : (
+          <div className="map-heading">
+            <p className="map-total">
+              {total.toLocaleString('en-US')} contributions
+              <span>{rangeLabel}</span>
+            </p>
+            <p className="map-note">GitHub calendar, in UTC</p>
+          </div>
+        )}
 
-        <div className="map-months" aria-hidden="true" style={{ '--weeks': columns.length } as CSSProperties}>
-          <span className="map-months-spacer" />
-          {monthLabels.map((label, index) => (
-            <span className="map-month" key={`${label}-${index}`}>{label}</span>
-          ))}
-        </div>
-
-        <div className="map-body" aria-hidden="true">
-          <div className="map-weekdays">
-            {WEEKDAYS.map((day, index) => (
-              <span key={day} className={VISIBLE_WEEKDAYS.has(index) ? '' : 'is-quiet'}>{day}</span>
+        {bare ? null : (
+          <div className="map-months" aria-hidden="true" style={{ '--weeks': columns.length } as CSSProperties}>
+            <span className="map-months-spacer" />
+            {monthLabels.map((label, index) => (
+              <span className="map-month" key={`${label}-${index}`}>{label}</span>
             ))}
           </div>
+        )}
+
+        <div className="map-body" aria-hidden="true">
+          {bare ? null : (
+            <div className="map-weekdays">
+              {WEEKDAYS.map((day, index) => (
+                <span key={day} className={VISIBLE_WEEKDAYS.has(index) ? '' : 'is-quiet'}>{day}</span>
+              ))}
+            </div>
+          )}
           <div className="map-weeks" style={{ '--weeks': columns.length } as CSSProperties}>
             {columns.map((week, weekIndex) => (
               week.map((day, dayIndex) => day ? (
                 <span
                   className="map-cell"
                   data-level={day.level}
+                  data-tooltip={bare ? `${formatDate(day.date)} · ${day.count} contribution${day.count === 1 ? '' : 's'}` : undefined}
                   key={day.date}
-                  title={`${formatDate(day.date)}: ${day.count} contribution${day.count === 1 ? '' : 's'}`}
+                  title={bare ? undefined : `${formatDate(day.date)}: ${day.count} contribution${day.count === 1 ? '' : 's'}`}
                   style={{ gridColumn: weekIndex + 1, gridRow: dayIndex + 1 }}
                 />
               ) : (
