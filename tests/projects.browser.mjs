@@ -185,14 +185,34 @@ try {
   assert.ok(preview.actions.every((action) => action.length > 0), 'preview shows an action for every event')
   assert.ok(preview.repos.every((repo) => repo.length > 0), 'preview names every event repository')
   assert.ok(preview.titles.some((title) => title.length > 0), 'preview shows at least one event title')
+
+  const ripple = await page.evaluate(() => {
+    const cells = [...document.querySelectorAll('.map-weeks .map-cell[data-date]')]
+    const active = cells.find((cell) => Number(getComputedStyle(cell).getPropertyValue('--ripple')) > 0.8)
+    const neighbor = cells.find((cell) => cell !== active && Number(getComputedStyle(cell).getPropertyValue('--ripple')) > 0)
+    return {
+      active: active ? Number(getComputedStyle(active).getPropertyValue('--ripple')) : 0,
+      neighbor: neighbor ? Number(getComputedStyle(neighbor).getPropertyValue('--ripple')) : 0,
+      activeDelay: active ? getComputedStyle(active).getPropertyValue('--ripple-delay') : '',
+      activeFilter: active ? getComputedStyle(active).filter : '',
+      neighborFilter: neighbor ? getComputedStyle(neighbor).filter : '',
+    }
+  })
+  assert.ok(ripple.active > 0.8, 'the active day has the strongest LCD ripple')
+  assert.ok(ripple.neighbor > 0, 'neighboring cells receive a proximity ripple')
+  assert.match(ripple.activeDelay, /s$/, 'ripple cells carry a distance delay')
+  assert.notEqual(ripple.activeFilter, 'none', 'ripple brightness is applied in CSS')
+  assert.notEqual(ripple.neighborFilter, 'none', 'neighbor brightness is applied in CSS')
   assert.equal(preview.pointerEvents, 'none', 'preview cannot capture the pointer and flicker')
   assert.ok(preview.width <= 340, 'preview card stays at most 340px wide')
   assert.ok(preview.left >= 0 && preview.right <= preview.viewportWidth + 1, 'preview stays inside the viewport horizontally')
   assert.ok(preview.top >= 0 && preview.bottom <= preview.viewportHeight + 1, 'preview stays inside the viewport vertically')
 
   await page.mouse.move(2, 2)
+  await new Promise((resolve) => setTimeout(resolve, 60))
+  assert.ok(await page.$('.map-preview'), 'preview remains briefly while leaving the grid')
   await page.waitForFunction(() => !document.querySelector('.map-preview'), { timeout: 5000 })
-  assert.equal(await page.$('.map-preview'), null, 'preview closes after the pointer leaves the cell')
+  assert.equal(await page.$('.map-preview'), null, 'preview closes after the pointer leaves the grid')
 
   // Crossing the gaps between squares must keep the card mounted so traversal
   // stays continuous instead of restarting the entrance animation.
@@ -251,6 +271,11 @@ try {
   await page.keyboard.press('Escape')
   await page.waitForFunction(() => !document.querySelector('.map-preview'), { timeout: 5000 })
   assert.equal(await page.$('.map-preview'), null, 'escape closes the keyboard preview')
+  await page.keyboard.press('ArrowLeft')
+  await page.waitForSelector('.map-preview', { timeout: 5000 })
+  assert.match(await page.$eval('.map-status', (node) => node.textContent), /\d{4}.*\d+ contributions?/, 'reopening with an arrow announces the selected day')
+  await page.keyboard.press('Escape')
+  await page.waitForFunction(() => !document.querySelector('.map-preview'), { timeout: 5000 })
 
   await page.click('details.projects-activity > summary')
   await page.waitForFunction(() => document.querySelector('details.projects-activity')?.hasAttribute('open'))
@@ -318,6 +343,9 @@ try {
   await touchCell(touchDates[0])
   await page.waitForSelector('.map-preview', { timeout: 5000 })
   const firstTouchDate = await page.$eval('.map-preview .map-preview-head span', (node) => node.textContent)
+  await page.$eval('.map-weeks', (grid) => grid.dispatchEvent(new PointerEvent('pointerleave', { bubbles: true, pointerType: 'touch' })))
+  await new Promise((resolve) => setTimeout(resolve, 300))
+  assert.ok(await page.$('.map-preview'), 'touch preview survives pointerleave after a tap')
   await touchCell(touchDates[1])
   await page.waitForFunction((previous) => {
     const card = document.querySelector('.map-preview .map-preview-head span')
@@ -429,6 +457,27 @@ try {
     return Math.round(group.getBoundingClientRect().top - frame.getBoundingClientRect().bottom)
   })
   assert.ok(mapGap !== null && mapGap <= 72, `map leaves a bounded gap before the project groups (${mapGap}px)`)
+
+  const reducedCss = await page.evaluate(() => {
+    const chunks = []
+    const walk = (rules) => {
+      for (const rule of rules) {
+        if (rule.cssRules) {
+          if (rule.conditionText?.includes('prefers-reduced-motion')) chunks.push(rule.cssText)
+          else walk(rule.cssRules)
+        }
+      }
+    }
+    for (const sheet of document.styleSheets) {
+      try {
+        walk(sheet.cssRules)
+      } catch {
+        // Cross-origin stylesheets are not part of the app bundle.
+      }
+    }
+    return chunks.join('\n')
+  })
+  assert.match(reducedCss, /\.projects-activity-shell \.map-cell:not\(\.is-empty\)[\s\S]{0,160}transition:\s*none/, 'LCD ripple transitions are disabled under reduced motion')
 
   assert.deepEqual(errors, [], 'projects index has no runtime errors')
   console.log('PASS: projects index shows groups, repository links, activity map and collapsible activity')

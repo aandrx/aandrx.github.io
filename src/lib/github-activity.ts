@@ -108,13 +108,18 @@ function rangeFromNow(now = new Date()) {
   return { from: from.toISOString(), to: to.toISOString() }
 }
 
-function normalizeWeeks(weeks: ContributionCollection['contributionCalendar']['weeks']): ContributionWeek[] {
+function normalizeWeeks(
+  weeks: ContributionCollection['contributionCalendar']['weeks'],
+  maxDate: string,
+): ContributionWeek[] {
   return weeks.map((week) => ({
-    days: week.contributionDays.map((day): ContributionDay => ({
-      date: day.date,
-      count: day.contributionCount,
-      level: LEVELS[day.contributionLevel] ?? 0,
-    })),
+    days: week.contributionDays
+      .filter((day) => day.date <= maxDate)
+      .map((day): ContributionDay => ({
+        date: day.date,
+        count: day.contributionCount,
+        level: LEVELS[day.contributionLevel] ?? 0,
+      })),
   }))
 }
 
@@ -407,7 +412,7 @@ export function buildActivity(
     calendar: {
       totalContributions: collection.contributionCalendar.totalContributions,
       months: normalizeMonths(collection.contributionCalendar.months),
-      weeks: normalizeWeeks(collection.contributionCalendar.weeks),
+      weeks: normalizeWeeks(collection.contributionCalendar.weeks, to.slice(0, 10)),
     },
     repositories: [...repositories.values()]
       .sort((a, b) => b.total - a.total || b.commits - a.commits)

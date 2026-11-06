@@ -82,6 +82,27 @@
   justify-content: center;
 }
 
+/* LCD-like proximity field: cells near the active day lift in brightness and
+   carry a faint green wash. Distance-delayed transitions let the response
+   travel outward instead of snapping with the pointer. */
+.projects-activity-shell .map-cell:not(.is-empty) {
+  position: relative;
+  filter: brightness(var(--ripple-brightness, 1));
+  transition: filter .18s ease;
+  transition-delay: var(--ripple-delay, 0s);
+}
+
+.projects-activity-shell .map-cell:not(.is-empty)::after {
+  position: absolute;
+  inset: -1px;
+  background: var(--accent);
+  opacity: var(--ripple-alpha, 0);
+  content: "";
+  pointer-events: none;
+  transition: opacity .18s ease;
+  transition-delay: var(--ripple-delay, 0s);
+}
+
 /* The visual grid is decorative (aria-hidden), so the hover preview is a
    pointer-only affordance and adds no tab stops. The hidden table remains the
    accessible source. The card is portalled to the body and positioned in JS so
@@ -98,18 +119,14 @@
   color: #000;
   font: 400 11px/16px "Helvetica Neue", Helvetica, Arial, sans-serif;
   pointer-events: none;
-  animation: map-preview-in .14s ease-out both;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity .15s ease, transform .15s ease;
 }
 
-@keyframes map-preview-in {
-  from {
-    opacity: 0;
-    transform: translateY(3px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.map-preview.is-visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .map-preview-head {
@@ -320,11 +337,13 @@
 @media (prefers-reduced-motion: reduce) {
   .projects-row-tag,
   .projects-row-summary,
-  .projects-activity-summary::before {
+  .projects-activity-summary::before,
+  .projects-activity-shell .map-cell:not(.is-empty),
+  .projects-activity-shell .map-cell:not(.is-empty)::after {
     transition: none;
   }
 
   .map-preview {
-    animation: none;
+    transition: none;
   }
 }

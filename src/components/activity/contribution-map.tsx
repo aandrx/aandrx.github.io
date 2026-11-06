@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react'
 import { createPortal } from 'react-dom'
 import ActivityEventIcon from '@/components/activity/activity-event-icon'
 import type { ActivityEvent, ContributionDay, ContributionMonth, ContributionWeek } from '@/lib/activity-types'
@@ -21,7 +21,7 @@ type Props = {
 const PREVIEW_WIDTH = 340
 const PREVIEW_MAX_EVENTS = 4
 const GAP = 14
-const CLOSE_DELAY_MS = 100
+const CLOSE_DELAY_MS = 220
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const VISIBLE_WEEKDAYS = new Set([1, 3, 5])
@@ -58,7 +58,9 @@ function previewHeight(eventCount: number) {
 
 export default function ContributionMap({ calendar, events, title = 'Contribution map', showIndex = true, showHeading = true, bare = false }: Props) {
   const [hovered, setHovered] = useState<{ day: ContributionDay; left: number; top: number } | null>(null)
+  const [previewVisible, setPreviewVisible] = useState(false)
   const [announcement, setAnnouncement] = useState('')
+  const hoveredDate = hovered?.day.date
   const sideRef = useRef<'right' | 'left'>('right')
   const gridRef = useRef<HTMLDivElement | null>(null)
   const closeTimer = useRef<number | null>(null)
@@ -80,6 +82,7 @@ export default function ContributionMap({ calendar, events, title = 'Contributio
       closeTimer.current = null
     }
     sideRef.current = 'right'
+    setPreviewVisible(false)
     setHovered(null)
     setAnnouncement('')
   }
@@ -88,6 +91,7 @@ export default function ContributionMap({ calendar, events, title = 'Contributio
   // traversal feels continuous instead of restarting the entrance animation.
   const scheduleClose = () => {
     if (closeTimer.current !== null) window.clearTimeout(closeTimer.current)
+    setPreviewVisible(false)
     closeTimer.current = window.setTimeout(() => {
       closeTimer.current = null
       sideRef.current = 'right'
@@ -112,6 +116,21 @@ export default function ContributionMap({ calendar, events, title = 'Contributio
       window.removeEventListener('resize', close)
     }
   }, [hovered])
+
+  useEffect(() => () => {
+    if (closeTimer.current !== null) window.clearTimeout(closeTimer.current)
+  }, [])
+
+  // Mount the portal hidden, then reveal it on the next frame so the first
+  // appearance also uses the same fade transition as the exit.
+  useEffect(() => {
+    if (!hoveredDate) {
+      setPreviewVisible(false)
+      return
+    }
+    const frame = window.requestAnimationFrame(() => setPreviewVisible(true))
+    return () => window.cancelAnimationFrame(frame)
+  }, [hoveredDate])
 
   // The card anchors to the hovered square, not the cursor, so it stays still
   // while the pointer moves inside one cell.
@@ -152,6 +171,46 @@ export default function ContributionMap({ calendar, events, title = 'Contributio
   })
 
   const keyboardDays = columns.flat().filter((day): day is ContributionDay => Boolean(day))
+
+  const dayPositions = new Map<string, { week: number; day: number }>()
+  columns.forEach((week, weekIndex) => {
+    week.forEach((day, dayIndex) => {
+      if (day) dayPositions.set(day.date, { week: weekIndex, day: dayIndex })
+    })
+  })
+  const hoverPosition = hovered ? dayPositions.get(hovered.day.date) : undefined
+
+  const rippleStyle = (weekIndex: number, dayIndex: number): CSSProperties => {
+    if (!bare || !hoverPosition) return { '--ripple': '0', '--ripple-brightness': '1', '--ripple-alpha': '0', '--ripple-delay': '0s' } as CSSProperties
+    const distance = Math.hypot(weekIndex - hoverPosition.week, dayIndex - hoverPosition.day)
+    const ripple = Math.max(0, 1 - distance / 3.6)
+    return {
+      '--ripple': ripple.toFixed(3),
+      '--ripple-brightness': (1 + ripple * 0.30).toFixed(3),
+      '--ripple-alpha': (ripple * 0.18).toFixed(3),
+      '--ripple-delay': `${Math.min(0.14, distance * 0.022).toFixed(3)}s`,
+    } as CSSProperties
+  }
+
+  const handleGridPointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (event.pointerType === 'touch') return
+    const target = (event.target as HTMLElement).closest<HTMLElement>('.map-cell[data-date]')
+    const date = target?.dataset.date
+    if (!date || date === hovered?.day.date) return
+    const day = keyboardDays.find((candidate) => candidate.date === date)
+    if (day) showDay(day)
+  }
+
+  const handleGridPointerEnter = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (event.pointerType === 'touch') return
+    cancelClose()
+    if (hovered) setPreviewVisible(true)
+  }
+
+  const handleGridPointerLeave = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (event.pointerType === 'touch') return
+    scheduleClose()
+  }
 
   const moveSelection = (delta: number) => {
     if (!hovered) return
@@ -239,7 +298,16 @@ export default function ContributionMap({ calendar, events, title = 'Contributio
               ))}
             </div>
           )}
-          <div className="map-weeks" ref={gridRef} style={{ '--weeks': columns.length } as CSSProperties}>
+          <div
+            className="map-weeks"
+            ref={gridRef}
+            style={{ '--weeks': columns.length } as CSSProperties}
+            {...(bare ? {
+              onPointerMove: handleGridPointerMove,
+              onPointerEnter: handleGridPointerEnter,
+              onPointerLeave: handleGridPointerLeave,
+            } : {})}
+          >
             {columns.map((week, weekIndex) => (
               week.map((day, dayIndex) => day ? (
                 <span
@@ -248,9 +316,7 @@ export default function ContributionMap({ calendar, events, title = 'Contributio
                   data-date={bare ? day.date : undefined}
                   key={day.date}
                   title={bare ? undefined : `${formatDate(day.date)}: ${day.count} contribution${day.count === 1 ? '' : 's'}`}
-                  style={{ gridColumn: weekIndex + 1, gridRow: dayIndex + 1 }}
-                  onMouseEnter={bare ? () => showDay(day) : undefined}
-                  onMouseLeave={bare ? scheduleClose : undefined}
+                  style={{ gridColumn: weekIndex + 1, gridRow: dayIndex + 1, ...rippleStyle(weekIndex, dayIndex) }}
                   onTouchStart={bare ? () => (hovered?.day.date === day.date ? closeNow() : showDay(day, true)) : undefined}
                 />
               ) : (
@@ -310,7 +376,7 @@ export default function ContributionMap({ calendar, events, title = 'Contributio
 
       {bare && hovered
         ? createPortal(
-            <div className="map-preview" style={{ left: hovered.left, top: hovered.top }} aria-hidden="true">
+            <div className={`map-preview${previewVisible ? ' is-visible' : ''}`} style={{ left: hovered.left, top: hovered.top }} aria-hidden="true">
               <p className="map-preview-head">
                 <span>{formatDate(hovered.day.date)}</span>
                 <span>{hovered.day.count} contribution{hovered.day.count === 1 ? '' : 's'}</span>

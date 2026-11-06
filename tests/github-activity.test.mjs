@@ -46,6 +46,7 @@ const collection = {
         { date: '2026-11-02', contributionCount: 1, contributionLevel: 'FIRST_QUARTILE' },
         { date: '2026-11-03', contributionCount: 3, contributionLevel: 'THIRD_QUARTILE' },
         { date: '2026-11-04', contributionCount: 1, contributionLevel: 'FIRST_QUARTILE' },
+        { date: '2026-11-05', contributionCount: 9, contributionLevel: 'FOURTH_QUARTILE' },
       ],
     }],
   },
@@ -94,6 +95,8 @@ test('private contributions are counted but never named or linked', () => {
   assert.equal(data.events.some((event) => event.repo.includes('secret')), false)
   assert.doesNotMatch(JSON.stringify(data), /aandrx\/secret|Secret change/)
   assert.equal(data.calendar.totalContributions, 5)
+  assert.equal(data.calendar.weeks.flatMap((week) => week.days).some((day) => day.date === '2026-11-05'), false)
+  assert.equal(data.calendar.weeks.flatMap((week) => week.days).some((day) => day.date === '2026-11-04'), true, 'boundary day remains in the calendar')
   assert.equal(data.totals.restricted, 2)
 })
 
