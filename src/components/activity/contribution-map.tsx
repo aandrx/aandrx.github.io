@@ -207,7 +207,7 @@ export default function ContributionMap({ calendar, events, title = 'Contributio
             if (event.key in deltas) {
               event.preventDefault()
               if (hovered) moveSelection(deltas[event.key])
-              else if (keyboardDays.length) showDay(keyboardDays[keyboardDays.length - 1])
+              else if (keyboardDays.length) showDay(keyboardDays[keyboardDays.length - 1], true)
             }
           },
         } : {})}

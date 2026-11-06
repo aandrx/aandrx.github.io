@@ -215,19 +215,22 @@ try {
   assert.ok(adjacentPair, 'map exposes horizontally adjacent day cells')
   await page.mouse.move(adjacentPair.a.rect.x + adjacentPair.a.rect.width / 2, adjacentPair.a.rect.y + adjacentPair.a.rect.height / 2)
   await page.waitForSelector('.map-preview', { timeout: 5000 })
-  const gapProbe = await page.evaluate(() => document.querySelector('.map-preview')?.getBoundingClientRect().toJSON() ?? null)
+  const previewHandle = await page.$('.map-preview')
+  assert.ok(previewHandle, 'preview node exists before crossing the gap')
+  const firstPreviewDate = await page.$eval('.map-preview .map-preview-head span', (node) => node.textContent)
   await page.mouse.move((adjacentPair.a.rect.right + adjacentPair.b.rect.x) / 2, adjacentPair.a.rect.y + adjacentPair.a.rect.height / 2)
   await new Promise((resolve) => setTimeout(resolve, 40))
-  const gapPreview = await page.$('.map-preview')
-  assert.ok(gapPreview, 'preview stays mounted while crossing the gap between squares')
+  assert.equal(await previewHandle.evaluate((node) => node.isConnected), true, 'preview node stays mounted while crossing the gap between squares')
   await page.mouse.move(adjacentPair.b.rect.x + adjacentPair.b.rect.width / 2, adjacentPair.b.rect.y + adjacentPair.b.rect.height / 2)
-  await page.waitForFunction(() => {
-    const card = document.querySelector('.map-preview')
-    return card && card.getBoundingClientRect().left !== null
-  }, { timeout: 5000 })
+  await page.waitForFunction((previous) => {
+    const card = document.querySelector('.map-preview .map-preview-head span')
+    return Boolean(card && card.textContent !== previous)
+  }, { timeout: 5000 }, firstPreviewDate)
+  assert.equal(await previewHandle.evaluate((node) => node.isConnected), true, 'same preview node remains mounted after crossing the gap')
+  const secondPreviewDate = await previewHandle.evaluate((node) => node.querySelector('.map-preview-head span')?.textContent)
+  assert.notEqual(secondPreviewDate, firstPreviewDate, 'the preview updates to the next day after crossing the gap')
   await page.mouse.move(2, 2)
   await page.waitForFunction(() => !document.querySelector('.map-preview'), { timeout: 5000 })
-  assert.ok(gapProbe, 'preview was measurable before crossing the gap')
 
   // One keyboard entry point inspects days without 90 tab stops.
   await page.focus('.map-frame.is-bare')
@@ -305,6 +308,26 @@ try {
   assert.ok(mobilePreview.left >= 0 && mobilePreview.right <= mobilePreview.viewportWidth + 1, 'preview stays inside the 390px viewport')
   await page.mouse.move(2, 2)
   await page.waitForFunction(() => !document.querySelector('.map-preview'), { timeout: 5000 })
+
+  // Touch opens a day, switches days, and closes the selected day.
+  const touchDates = await page.$$eval('.map-weeks .map-cell[data-date]', (cells) => cells.slice(0, 2).map((cell) => cell.dataset.date))
+  assert.equal(touchDates.length, 2, 'map has two touchable day cells')
+  const touchCell = (date) => page.$eval(`.map-weeks .map-cell[data-date="${date}"]`, (cell) => {
+    cell.dispatchEvent(new Event('touchstart', { bubbles: true, cancelable: true }))
+  })
+  await touchCell(touchDates[0])
+  await page.waitForSelector('.map-preview', { timeout: 5000 })
+  const firstTouchDate = await page.$eval('.map-preview .map-preview-head span', (node) => node.textContent)
+  await touchCell(touchDates[1])
+  await page.waitForFunction((previous) => {
+    const card = document.querySelector('.map-preview .map-preview-head span')
+    return Boolean(card && card.textContent !== previous)
+  }, { timeout: 5000 }, firstTouchDate)
+  const secondTouchDate = await page.$eval('.map-preview .map-preview-head span', (node) => node.textContent)
+  assert.notEqual(secondTouchDate, firstTouchDate, 'touch switches the selected day')
+  await touchCell(touchDates[1])
+  await page.waitForFunction(() => !document.querySelector('.map-preview'), { timeout: 5000 })
+  assert.equal(await page.$('.map-preview'), null, 'tapping the selected day closes the preview')
 
   await page.click('details.projects-activity > summary')
   await page.waitForFunction(() => document.querySelector('details.projects-activity')?.hasAttribute('open'))
