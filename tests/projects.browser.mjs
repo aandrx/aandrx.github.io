@@ -241,6 +241,10 @@ try {
   }, {}, focusedDate)
   const movedDate = await page.$eval('.map-preview .map-preview-head span', (node) => node.textContent)
   assert.notEqual(movedDate, focusedDate, 'arrow keys move the inspected day')
+  const dayDelta = (new Date(movedDate) - new Date(focusedDate)) / 86_400_000
+  assert.equal(Math.round(dayDelta), -7, 'left arrow moves one calendar week, not one vertical cell')
+  const liveStatus = await page.$eval('.map-status', (node) => node.textContent)
+  assert.match(liveStatus ?? '', /\d{4}.*\d+ contributions?/, 'keyboard selection is announced in a live region')
   await page.keyboard.press('Escape')
   await page.waitForFunction(() => !document.querySelector('.map-preview'), { timeout: 5000 })
   assert.equal(await page.$('.map-preview'), null, 'escape closes the keyboard preview')

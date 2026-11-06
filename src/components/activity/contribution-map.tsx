@@ -58,6 +58,7 @@ function previewHeight(eventCount: number) {
 
 export default function ContributionMap({ calendar, events, title = 'Contribution map', showIndex = true, showHeading = true, bare = false }: Props) {
   const [hovered, setHovered] = useState<{ day: ContributionDay; left: number; top: number } | null>(null)
+  const [announcement, setAnnouncement] = useState('')
   const sideRef = useRef<'right' | 'left'>('right')
   const gridRef = useRef<HTMLDivElement | null>(null)
   const closeTimer = useRef<number | null>(null)
@@ -80,6 +81,7 @@ export default function ContributionMap({ calendar, events, title = 'Contributio
     }
     sideRef.current = 'right'
     setHovered(null)
+    setAnnouncement('')
   }
 
   // Crossing the gaps between squares keeps the card mounted for a moment so
@@ -113,8 +115,13 @@ export default function ContributionMap({ calendar, events, title = 'Contributio
 
   // The card anchors to the hovered square, not the cursor, so it stays still
   // while the pointer moves inside one cell.
-  const showDay = (day: ContributionDay) => {
+  const showDay = (day: ContributionDay, announce = false) => {
     cancelClose()
+    if (announce) {
+      setAnnouncement(`${formatDate(day.date)}: ${day.count} contribution${day.count === 1 ? '' : 's'}`)
+    } else {
+      setAnnouncement('')
+    }
     const cell = gridRef.current?.querySelector<HTMLElement>(`[data-date="${day.date}"]`)
     if (!cell) return
     const rect = cell.getBoundingClientRect()
@@ -151,7 +158,7 @@ export default function ContributionMap({ calendar, events, title = 'Contributio
     const index = keyboardDays.findIndex((day) => day.date === hovered.day.date)
     if (index < 0) return
     const next = keyboardDays[Math.max(0, Math.min(keyboardDays.length - 1, index + delta))]
-    if (next) showDay(next)
+    if (next) showDay(next, true)
   }
 
   let lastMonth = ''
@@ -184,17 +191,19 @@ export default function ContributionMap({ calendar, events, title = 'Contributio
         <h2 id="map-title" className="sr-only">{title}</h2>
       )}
 
+      <p className="map-status sr-only" aria-live="polite" aria-atomic="true">{announcement}</p>
+
       <div
         className={bare ? 'map-frame is-bare' : 'map-frame'}
         {...(bare ? {
           tabIndex: 0,
           role: 'application',
           'aria-label': `${title}. Use arrow keys to inspect days; press Escape to close the preview.`,
-          onFocus: () => { if (!hovered && keyboardDays.length) showDay(keyboardDays[keyboardDays.length - 1]) },
+          onFocus: () => { if (!hovered && keyboardDays.length) showDay(keyboardDays[keyboardDays.length - 1], true) },
           onBlur: () => closeNow(),
           onKeyDown: (event) => {
             if (event.key === 'Escape') { closeNow(); return }
-            const deltas: Record<string, number> = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7 }
+            const deltas: Record<string, number> = { ArrowLeft: -7, ArrowRight: 7, ArrowUp: -1, ArrowDown: 1 }
             if (event.key in deltas) {
               event.preventDefault()
               if (hovered) moveSelection(deltas[event.key])
@@ -242,7 +251,7 @@ export default function ContributionMap({ calendar, events, title = 'Contributio
                   style={{ gridColumn: weekIndex + 1, gridRow: dayIndex + 1 }}
                   onMouseEnter={bare ? () => showDay(day) : undefined}
                   onMouseLeave={bare ? scheduleClose : undefined}
-                  onTouchStart={bare ? () => (hovered?.day.date === day.date ? closeNow() : showDay(day)) : undefined}
+                  onTouchStart={bare ? () => (hovered?.day.date === day.date ? closeNow() : showDay(day, true)) : undefined}
                 />
               ) : (
                 <span
