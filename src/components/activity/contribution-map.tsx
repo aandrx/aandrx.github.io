@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type MouseEvent as ReactMouseEvent } from 'react'
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { createPortal } from 'react-dom'
 import ActivityEventIcon from '@/components/activity/activity-event-icon'
 import type { ActivityEvent, ContributionDay, ContributionMonth, ContributionWeek } from '@/lib/activity-types'
@@ -20,6 +20,8 @@ type Props = {
 
 const PREVIEW_WIDTH = 340
 const PREVIEW_MAX_EVENTS = 4
+const GAP = 14
+const CLOSE_DELAY_MS = 100
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const VISIBLE_WEEKDAYS = new Set([1, 3, 5])
@@ -58,6 +60,7 @@ export default function ContributionMap({ calendar, events, title = 'Contributio
   const [hovered, setHovered] = useState<{ day: ContributionDay; left: number; top: number } | null>(null)
   const sideRef = useRef<'right' | 'left'>('right')
   const gridRef = useRef<HTMLDivElement | null>(null)
+  const closeTimer = useRef<number | null>(null)
 
   const eventsByDay = useMemo(() => {
     const grouped = new Map<string, ActivityEvent[]>()
@@ -70,12 +73,36 @@ export default function ContributionMap({ calendar, events, title = 'Contributio
     return grouped
   }, [events])
 
-  useEffect(() => {
-    if (!hovered) return
-    const close = () => {
+  const closeNow = () => {
+    if (closeTimer.current !== null) {
+      window.clearTimeout(closeTimer.current)
+      closeTimer.current = null
+    }
+    sideRef.current = 'right'
+    setHovered(null)
+  }
+
+  // Crossing the gaps between squares keeps the card mounted for a moment so
+  // traversal feels continuous instead of restarting the entrance animation.
+  const scheduleClose = () => {
+    if (closeTimer.current !== null) window.clearTimeout(closeTimer.current)
+    closeTimer.current = window.setTimeout(() => {
+      closeTimer.current = null
       sideRef.current = 'right'
       setHovered(null)
+    }, CLOSE_DELAY_MS)
+  }
+
+  const cancelClose = () => {
+    if (closeTimer.current !== null) {
+      window.clearTimeout(closeTimer.current)
+      closeTimer.current = null
     }
+  }
+
+  useEffect(() => {
+    if (!hovered) return
+    const close = () => closeNow()
     window.addEventListener('scroll', close, { passive: true })
     window.addEventListener('resize', close)
     return () => {
@@ -84,28 +111,28 @@ export default function ContributionMap({ calendar, events, title = 'Contributio
     }
   }, [hovered])
 
-  const place = (day: ContributionDay, x: number, y: number) => {
+  // The card anchors to the hovered square, not the cursor, so it stays still
+  // while the pointer moves inside one cell.
+  const showDay = (day: ContributionDay) => {
+    cancelClose()
+    const cell = gridRef.current?.querySelector<HTMLElement>(`[data-date="${day.date}"]`)
+    if (!cell) return
+    const rect = cell.getBoundingClientRect()
     const height = previewHeight(eventsByDay.get(day.date)?.length ?? 0)
     // Keep the chosen side sticky for the whole hover so the card cannot flip
-    // back and forth when the pointer crosses the clamp threshold.
-    if (sideRef.current === 'right' && x + 14 + PREVIEW_WIDTH > window.innerWidth - 8) {
+    // back and forth when the pointer nears the clamp threshold.
+    if (sideRef.current === 'right' && rect.right + GAP + PREVIEW_WIDTH > window.innerWidth - 8) {
       sideRef.current = 'left'
     }
-    const rawLeft = sideRef.current === 'right' ? x + 14 : x - PREVIEW_WIDTH - 14
+    const rawLeft = sideRef.current === 'right' ? rect.right + GAP : rect.left - PREVIEW_WIDTH - GAP
     const left = Math.max(8, Math.min(rawLeft, window.innerWidth - PREVIEW_WIDTH - 8))
-    const top = y + 18 + height > window.innerHeight
-      ? Math.max(8, y - height - 12)
-      : Math.max(8, y + 18)
+    const anchorY = rect.top + rect.height / 2
+    const top = anchorY + 18 + height > window.innerHeight
+      ? Math.max(8, anchorY - height - 12)
+      : Math.max(8, anchorY + 18)
     setHovered({ day, left, top })
   }
 
-  const leaveCell = (event: ReactMouseEvent<HTMLSpanElement>) => {
-    // Moving between cells inside the grid keeps the chosen side; only a real
-    // exit from the grid resets it back to the default right placement.
-    const next = event.relatedTarget as Node | null
-    if (!(next && gridRef.current?.contains(next))) sideRef.current = 'right'
-    setHovered(null)
-  }
 
   const hoveredDayEvents = hovered ? (eventsByDay.get(hovered.day.date) ?? []) : []
   const hoveredEvents = hoveredDayEvents.slice(0, PREVIEW_MAX_EVENTS)
@@ -116,6 +143,16 @@ export default function ContributionMap({ calendar, events, title = 'Contributio
     for (const day of week.days) days[utcDay(day.date)] = day
     return days
   })
+
+  const keyboardDays = columns.flat().filter((day): day is ContributionDay => Boolean(day))
+
+  const moveSelection = (delta: number) => {
+    if (!hovered) return
+    const index = keyboardDays.findIndex((day) => day.date === hovered.day.date)
+    if (index < 0) return
+    const next = keyboardDays[Math.max(0, Math.min(keyboardDays.length - 1, index + delta))]
+    if (next) showDay(next)
+  }
 
   let lastMonth = ''
   const monthLabels = columns.map((week) => {
@@ -147,7 +184,25 @@ export default function ContributionMap({ calendar, events, title = 'Contributio
         <h2 id="map-title" className="sr-only">{title}</h2>
       )}
 
-      <div className={bare ? 'map-frame is-bare' : 'map-frame'}>
+      <div
+        className={bare ? 'map-frame is-bare' : 'map-frame'}
+        {...(bare ? {
+          tabIndex: 0,
+          role: 'application',
+          'aria-label': `${title}. Use arrow keys to inspect days; press Escape to close the preview.`,
+          onFocus: () => { if (!hovered && keyboardDays.length) showDay(keyboardDays[keyboardDays.length - 1]) },
+          onBlur: () => closeNow(),
+          onKeyDown: (event) => {
+            if (event.key === 'Escape') { closeNow(); return }
+            const deltas: Record<string, number> = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7 }
+            if (event.key in deltas) {
+              event.preventDefault()
+              if (hovered) moveSelection(deltas[event.key])
+              else if (keyboardDays.length) showDay(keyboardDays[keyboardDays.length - 1])
+            }
+          },
+        } : {})}
+      >
         {bare ? null : (
           <div className="map-heading">
             <p className="map-total">
@@ -185,9 +240,9 @@ export default function ContributionMap({ calendar, events, title = 'Contributio
                   key={day.date}
                   title={bare ? undefined : `${formatDate(day.date)}: ${day.count} contribution${day.count === 1 ? '' : 's'}`}
                   style={{ gridColumn: weekIndex + 1, gridRow: dayIndex + 1 }}
-                  onMouseEnter={bare ? (event) => place(day, event.clientX, event.clientY) : undefined}
-                  onMouseMove={bare ? (event) => place(day, event.clientX, event.clientY) : undefined}
-                  onMouseLeave={bare ? leaveCell : undefined}
+                  onMouseEnter={bare ? () => showDay(day) : undefined}
+                  onMouseLeave={bare ? scheduleClose : undefined}
+                  onTouchStart={bare ? () => (hovered?.day.date === day.date ? closeNow() : showDay(day)) : undefined}
                 />
               ) : (
                 <span

@@ -194,6 +194,57 @@ try {
   await page.waitForFunction(() => !document.querySelector('.map-preview'), { timeout: 5000 })
   assert.equal(await page.$('.map-preview'), null, 'preview closes after the pointer leaves the cell')
 
+  // Crossing the gaps between squares must keep the card mounted so traversal
+  // stays continuous instead of restarting the entrance animation.
+  const adjacentPair = await page.evaluate(() => {
+    const cells = [...document.querySelectorAll('.map-weeks .map-cell[data-date]')]
+      .map((cell) => {
+        const rect = cell.getBoundingClientRect()
+        return {
+          date: cell.dataset.date,
+          rect: { x: rect.x, y: rect.y, width: rect.width, height: rect.height, right: rect.right },
+        }
+      })
+      .filter((cell) => cell.rect.width > 0)
+    for (const cell of cells) {
+      const next = cells.find((other) => Math.abs(other.rect.y - cell.rect.y) < 1 && other.rect.x > cell.rect.x && other.rect.x - cell.rect.x < 30)
+      if (next) return { a: cell, b: next }
+    }
+    return null
+  })
+  assert.ok(adjacentPair, 'map exposes horizontally adjacent day cells')
+  await page.mouse.move(adjacentPair.a.rect.x + adjacentPair.a.rect.width / 2, adjacentPair.a.rect.y + adjacentPair.a.rect.height / 2)
+  await page.waitForSelector('.map-preview', { timeout: 5000 })
+  const gapProbe = await page.evaluate(() => document.querySelector('.map-preview')?.getBoundingClientRect().toJSON() ?? null)
+  await page.mouse.move((adjacentPair.a.rect.right + adjacentPair.b.rect.x) / 2, adjacentPair.a.rect.y + adjacentPair.a.rect.height / 2)
+  await new Promise((resolve) => setTimeout(resolve, 40))
+  const gapPreview = await page.$('.map-preview')
+  assert.ok(gapPreview, 'preview stays mounted while crossing the gap between squares')
+  await page.mouse.move(adjacentPair.b.rect.x + adjacentPair.b.rect.width / 2, adjacentPair.b.rect.y + adjacentPair.b.rect.height / 2)
+  await page.waitForFunction(() => {
+    const card = document.querySelector('.map-preview')
+    return card && card.getBoundingClientRect().left !== null
+  }, { timeout: 5000 })
+  await page.mouse.move(2, 2)
+  await page.waitForFunction(() => !document.querySelector('.map-preview'), { timeout: 5000 })
+  assert.ok(gapProbe, 'preview was measurable before crossing the gap')
+
+  // One keyboard entry point inspects days without 90 tab stops.
+  await page.focus('.map-frame.is-bare')
+  await page.waitForSelector('.map-preview', { timeout: 5000 })
+  const focusedDate = await page.$eval('.map-preview .map-preview-head span', (node) => node.textContent)
+  assert.match(focusedDate ?? '', /\d{4}/, 'focusing the map opens the preview for a day')
+  await page.keyboard.press('ArrowLeft')
+  await page.waitForFunction((previous) => {
+    const card = document.querySelector('.map-preview .map-preview-head span')
+    return card && card.textContent !== previous
+  }, {}, focusedDate)
+  const movedDate = await page.$eval('.map-preview .map-preview-head span', (node) => node.textContent)
+  assert.notEqual(movedDate, focusedDate, 'arrow keys move the inspected day')
+  await page.keyboard.press('Escape')
+  await page.waitForFunction(() => !document.querySelector('.map-preview'), { timeout: 5000 })
+  assert.equal(await page.$('.map-preview'), null, 'escape closes the keyboard preview')
+
   await page.click('details.projects-activity > summary')
   await page.waitForFunction(() => document.querySelector('details.projects-activity')?.hasAttribute('open'))
   await page.waitForFunction(() => {
@@ -327,6 +378,30 @@ try {
   assert.ok(detail.repo?.startsWith('https://github.com/'), 'project detail links to the repository')
   assert.equal(detail.repoRel, 'noreferrer', 'repository link is safe')
   assert.equal(detail.back, '/projects/', 'project detail links back to the projects index')
+
+  // Narrowest header keeps the name on one line by dropping nav to its own row.
+  await page.setViewport({ width: 320, height: 700 })
+  await page.goto(`${baseURL}/projects/`, { waitUntil: 'networkidle2', timeout: 60000 })
+  await page.waitForSelector('.feed-name')
+  const narrowHeader = await page.evaluate(() => ({
+    nameHeight: document.querySelector('.feed-name')?.getBoundingClientRect().height,
+    navTop: document.querySelector('.feed-nav')?.getBoundingClientRect().top,
+    nameBottom: document.querySelector('.feed-name')?.getBoundingClientRect().bottom,
+    scrollWidth: document.documentElement.scrollWidth,
+    viewportWidth: window.innerWidth,
+  }))
+  assert.ok(narrowHeader.nameHeight <= 26, 'site name stays on one line at 320px')
+  assert.ok(narrowHeader.navTop >= narrowHeader.nameBottom - 2, 'navigation drops below the name at 320px')
+  assert.ok(narrowHeader.scrollWidth <= narrowHeader.viewportWidth + 1, 'no horizontal overflow at 320px')
+
+  // The map keeps a calm rhythm: bounded gap under the grid.
+  const mapGap = await page.evaluate(() => {
+    const frame = document.querySelector('.map-frame.is-bare')
+    const group = document.querySelector('.feed-year')
+    if (!frame || !group) return null
+    return Math.round(group.getBoundingClientRect().top - frame.getBoundingClientRect().bottom)
+  })
+  assert.ok(mapGap !== null && mapGap <= 72, `map leaves a bounded gap before the project groups (${mapGap}px)`)
 
   assert.deepEqual(errors, [], 'projects index has no runtime errors')
   console.log('PASS: projects index shows groups, repository links, activity map and collapsible activity')
