@@ -501,20 +501,20 @@ export default function MuseumMockupPage() {
         .museum-column h2 a:hover, .museum-column h2 a:focus-visible { text-decoration: underline; text-underline-offset: .18em; }
         .museum-list { margin: 0; padding: 0; list-style: none; }
         .museum-row { display: flex; justify-content: space-between; gap: 18px; align-items: baseline; padding: 5px 0; border-bottom: 1px solid #e3e3e3; color: rgba(24, 24, 27, 0.55); font: 400 16px/22px "Helvetica Neue", Helvetica, Arial, sans-serif; }
-        .museum-row-link { position: relative; display: flex; align-items: baseline; justify-content: space-between; gap: 10px; width: 100%; min-width: 0; padding-left: 0; color: inherit; text-decoration: none; transition: padding-left .3s cubic-bezier(.22,1,.36,1); }
-        .museum-row-link::before { content: ""; position: absolute; left: 0; top: 50%; width: 14px; height: 14px; margin-top: -7px; background: #000; opacity: 0; transform: translateX(-14px); transition: opacity .22s ease, transform .3s cubic-bezier(.22,1,.36,1); }
+        .museum-row-link { position: relative; display: flex; align-items: baseline; justify-content: space-between; gap: 10px; width: 100%; min-width: 0; padding-left: 0; color: inherit; text-decoration: none; transition: padding-left .15s cubic-bezier(.22,1,.36,1); }
+        .museum-row-link::before { content: ""; position: absolute; left: 0; top: 50%; width: 10px; height: 10px; margin-top: -5px; background: #000; opacity: 0; transform: translateX(-16px); transition: opacity .12s ease, transform .15s cubic-bezier(.22,1,.36,1); }
         .museum-row-link > * { position: relative; z-index: 1; }
         .museum-row strong { font: 400 16px/22px "Helvetica Neue", Helvetica, Arial, sans-serif; color: #000; }
         .museum-row span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .museum-row time, .museum-row-date { flex: 0 0 auto; color: #666; font: 400 16px/22px "Helvetica Neue", Helvetica, Arial, sans-serif; transition: color .18s ease; }
-        .museum-row-link:hover, .museum-row-link:focus-visible { padding-left: 24px; }
+        .museum-row-link:hover, .museum-row-link:focus-visible { padding-left: 18px; }
         .museum-row-link:hover::before, .museum-row-link:focus-visible::before { opacity: 1; transform: translateX(0); }
         .museum-row-link:hover time, .museum-row-link:focus-visible time, .museum-row-link:hover .museum-row-date, .museum-row-link:focus-visible .museum-row-date { color: #333; }
         .museum-project { border-bottom: 1px solid #e3e3e3; }
         .museum-project-head { display: flex; align-items: center; gap: 10px; }
-        .museum-project-link { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 0 6px; flex: 1; min-width: 0; padding: 5px 0 5px 0; color: #666; text-decoration: none; transition: padding-left .3s cubic-bezier(.22,1,.36,1); }
-        .museum-project-link::before { content: ""; position: absolute; left: 0; top: 50%; margin-top: -7px; width: 14px; height: 14px; background: #000; opacity: 0; transform: translateX(-14px); transition: opacity .22s ease, transform .3s cubic-bezier(.22,1,.36,1); }
-        .museum-project-link:hover { padding-left: 24px; text-decoration: none; }
+        .museum-project-link { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 0 6px; flex: 1; min-width: 0; padding: 5px 0 5px 0; color: #666; text-decoration: none; transition: padding-left .15s cubic-bezier(.22,1,.36,1); }
+        .museum-project-link::before { content: ""; position: absolute; left: 0; top: 50%; margin-top: -5px; width: 10px; height: 10px; background: #000; opacity: 0; transform: translateX(-16px); transition: opacity .12s ease, transform .15s cubic-bezier(.22,1,.36,1); }
+        .museum-project-link:hover { padding-left: 18px; text-decoration: none; }
         .museum-project-link:hover::before { opacity: 1; transform: translateX(0); }
         .museum-project-title { color: #18181b; white-space: nowrap; font: 400 16px/22px "Helvetica Neue", Helvetica, Arial, sans-serif; }
         .museum-project-tag { display: inline-block; margin-left: 5px; padding: 0 3px; border: 1px solid #ccc; color: #666; font: 400 9px/13px "Helvetica Neue", Helvetica, Arial, sans-serif; letter-spacing: .06em; text-transform: uppercase; vertical-align: 1px; }

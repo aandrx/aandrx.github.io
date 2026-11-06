@@ -66,11 +66,16 @@
 .projects-activity-shell .map-frame.is-bare {
   display: flex;
   justify-content: center;
-  margin: 12px auto 48px;
-  padding: 16px clamp(8px, 3vw, 24px) 32px;
+  margin: 12px auto 32px;
+  padding: 16px clamp(8px, 3vw, 24px) 24px;
   border: 0;
   background: transparent;
   box-shadow: none;
+}
+
+.projects-activity-shell .map-frame.is-bare:focus-visible {
+  outline: 2px solid #000;
+  outline-offset: 4px;
 }
 
 .projects-activity-shell .map-frame.is-bare .map-body {

@@ -129,7 +129,7 @@ try {
       markerOpacity: getComputedStyle(link, '::before').opacity,
     }
   })
-  assert.ok(Math.abs(parseFloat(museumFeedHover.paddingLeft) - 24) < 0.2, 'main feed rows indent on hover')
+  assert.ok(Math.abs(parseFloat(museumFeedHover.paddingLeft) - 18) < 0.2, 'main feed rows indent on hover')
   assert.equal(museumFeedHover.markerOpacity, '1', 'main feed rows show a square marker on hover')
   await page.mouse.move(0, 0)
 
@@ -374,7 +374,7 @@ try {
       markerOpacity: getComputedStyle(link, '::before').opacity,
     }
   })
-  assert.ok(Math.abs(parseFloat(feedHover.paddingLeft) - 24) < 0.2, 'feed index rows indent on hover')
+  assert.ok(Math.abs(parseFloat(feedHover.paddingLeft) - 18) < 0.2, 'feed index rows indent on hover')
   assert.equal(feedHover.markerOpacity, '1', 'feed index rows show a square marker on hover')
   await page.mouse.move(0, 0)
 
@@ -420,7 +420,7 @@ try {
   assert.equal(article.back, '/feed/', 'feed article links back to the feed index')
   assert.equal(article.dateTime, '2026-10-01', 'feed article exposes a machine-readable date')
   assert.equal(article.navCurrent, 'Feed', 'feed article marks the feed navigation as current')
-  assert.equal(article.workHref, '/#projects', 'feed article Work link matches the museum Work target')
+  assert.equal(article.workHref, '/projects/', 'feed article Work link opens the projects index')
   assert.equal(article.nameSize, '36px', 'feed article masthead uses the home name scale')
   assert.equal(article.topWidth, 960, 'feed article masthead matches the home header width')
   assert.equal(article.bodyWidth, 664, 'feed article body is centered in the same column')

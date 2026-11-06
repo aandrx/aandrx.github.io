@@ -121,7 +121,7 @@ body:has(.feed-page) {
   color: #000;
   font: 400 16px/22px "Helvetica Neue", Helvetica, Arial, sans-serif;
   text-decoration: none;
-  transition: padding-left .3s cubic-bezier(.22, 1, .36, 1);
+  transition: padding-left .15s cubic-bezier(.22, 1, .36, 1);
 }
 
 .feed-row-link::before {
@@ -129,18 +129,18 @@ body:has(.feed-page) {
   position: absolute;
   top: 50%;
   left: 0;
-  width: 14px;
-  height: 14px;
-  margin-top: -7px;
+  width: 10px;
+  height: 10px;
+  margin-top: -5px;
   background: #000;
   opacity: 0;
-  transform: translateX(-14px);
-  transition: opacity .22s ease, transform .3s cubic-bezier(.22, 1, .36, 1);
+  transform: translateX(-16px);
+  transition: opacity .12s ease, transform .15s cubic-bezier(.22, 1, .36, 1);
 }
 
 .feed-row-link:hover,
 .feed-row-link:focus-visible {
-  padding-left: 24px;
+  padding-left: 18px;
   text-decoration: none;
 }
 
@@ -213,6 +213,18 @@ body:has(.feed-page) {
     height: 24px;
     padding: 0 10px;
     font-size: 11px;
+  }
+}
+
+@media (max-width: 360px) {
+  .feed-top {
+    flex-wrap: wrap;
+    gap: 10px 16px;
+  }
+
+  .feed-nav {
+    width: 100%;
+    padding-top: 0;
   }
 }
 

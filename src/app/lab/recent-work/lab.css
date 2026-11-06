@@ -456,7 +456,7 @@ html:has(.activity-lab), body:has(.activity-lab) { overflow-x: hidden !important
   gap: 2px 9px;
   margin-top: 6px;
   color: var(--muted);
-  font: 400 10px/1.4 "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font: 400 12px/1.4 "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 .focus-repo-meta span + span::before {
@@ -476,13 +476,6 @@ html:has(.activity-lab), body:has(.activity-lab) { overflow-x: hidden !important
   margin-bottom: 8px;
 }
 
-.activity-days {
-  max-height: 760px;
-  overflow: auto;
-  padding-right: 8px;
-  scrollbar-color: var(--rule) transparent;
-}
-
 .activity-days:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 4px;
@@ -495,7 +488,7 @@ html:has(.activity-lab), body:has(.activity-lab) { overflow-x: hidden !important
 .activity-day h3 {
   margin: 0 0 3px;
   color: var(--muted);
-  font: 400 11px/1.4 "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font: 400 12px/1.4 "Helvetica Neue", Helvetica, Arial, sans-serif;
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
@@ -565,7 +558,7 @@ html:has(.activity-lab), body:has(.activity-lab) { overflow-x: hidden !important
 .activity-event-line {
   margin: 0;
   color: var(--ink);
-  font: 400 13px/1.45 "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font: 400 14px/1.45 "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 .activity-action {
@@ -589,7 +582,7 @@ html:has(.activity-lab), body:has(.activity-lab) { overflow-x: hidden !important
   gap: 2px 6px;
   margin: 3px 0 0;
   color: var(--muted);
-  font: 400 10px/1.4 "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font: 400 12px/1.4 "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 .activity-event-meta a {
