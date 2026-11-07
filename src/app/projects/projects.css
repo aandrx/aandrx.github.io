@@ -101,12 +101,13 @@
   position: absolute;
   left: 0;
   top: 0;
-  width: 360px;
-  height: 360px;
-  margin: -180px 0 0 -180px;
+  width: 300px;
+  height: 300px;
+  margin: -150px 0 0 -150px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(31, 122, 58, .10) 0 30%, rgba(31, 122, 58, .14) 36%, rgba(31, 122, 58, .035) 48%, transparent 62%);
-  filter: blur(1px);
+  background: repeating-radial-gradient(circle at center, transparent 0 9px, rgba(31, 122, 58, .28) 10px 11px, transparent 12px 21px);
+  filter: blur(.35px);
+  mask-image: radial-gradient(circle at center, #000 0 56%, transparent 74%);
   transform: translate3d(var(--ripple-x, 0px), var(--ripple-y, 0px), 0);
   will-change: transform;
 }

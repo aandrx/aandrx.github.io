@@ -203,6 +203,7 @@ try {
     return {
       layer: Boolean(layer), active: layer?.classList.contains('is-active'),
       glow: Boolean(glow), animation: glow ? getComputedStyle(glow).animationName : '',
+      background: glow ? getComputedStyle(glow).backgroundImage : '',
       x: layer ? Number.parseFloat(getComputedStyle(layer).getPropertyValue('--ripple-x')) : 0,
       cellFilter: getComputedStyle(document.querySelector('.map-cell[data-date]')).filter,
       cellOverlay: getComputedStyle(document.querySelector('.map-cell[data-date]'), '::after').content,
@@ -212,6 +213,7 @@ try {
   assert.equal(ripple.glow, true, 'ripple is one static cursor-following glow')
   assert.equal(ripple.active, true, 'ripple is active while the pointer is inside the grid')
   assert.equal(ripple.animation, 'none', 'ripple does not restart an outward animation per cell')
+  assert.match(ripple.background, /repeating-radial-gradient/, 'ripple renders as concentric rings, not a flat wash')
   assert.ok(ripple.x > 0, 'ripple receives the pointer position')
   assert.equal(ripple.cellFilter, 'none', 'cell faces are not brightened')
   assert.equal(ripple.cellOverlay, 'none', 'cell faces have no overlay')
