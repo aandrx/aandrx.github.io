@@ -197,6 +197,18 @@ try {
   assert.ok(preview.repos.every((repo) => repo.length > 0), 'preview names every event repository')
   assert.ok(preview.titles.some((title) => title.length > 0), 'preview shows at least one event title')
 
+  await page.waitForFunction((selector) => {
+    const cell = document.querySelector(selector)
+    return cell && getComputedStyle(cell).outlineColor === 'rgb(0, 0, 0)'
+  }, { timeout: 2000 }, cellSelector)
+  const hoverRing = await page.$eval(cellSelector, (cell) => {
+    const style = getComputedStyle(cell)
+    return { color: style.outlineColor, width: style.outlineWidth, transition: style.transition }
+  })
+  assert.equal(hoverRing.color, 'rgb(0, 0, 0)', 'the hovered cell has a black ring')
+  assert.equal(hoverRing.width, '2px', 'the hover ring keeps its 2px width')
+  assert.match(hoverRing.transition, /outline-color 0\.18s/, 'the ring color fades between cells')
+
   assert.equal(preview.pointerEvents, 'none', 'preview cannot capture the pointer and flicker')
   assert.ok(preview.width <= 340, 'preview card stays at most 340px wide')
   assert.ok(preview.left >= 0 && preview.right <= preview.viewportWidth + 1, 'preview stays inside the viewport horizontally')

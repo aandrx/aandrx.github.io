@@ -82,6 +82,16 @@
   justify-content: center;
 }
 
+/* Keep the same 2px ring as the lab map, but fade its color between cells. */
+.projects-activity-shell .map-cell:not(.is-empty) {
+  outline: 2px solid transparent;
+  outline-offset: 1px;
+  transition: outline-color .18s ease;
+}
+.projects-activity-shell .map-cell:not(.is-empty):hover {
+  outline-color: #000;
+}
+
 /* The visual grid is decorative (aria-hidden), so the hover preview is a
    pointer-only affordance and adds no tab stops. The hidden table remains the
    accessible source. The card is portalled to the body and positioned in JS so
@@ -329,7 +339,8 @@
   .projects-row-tag,
   .projects-row-summary,
   .projects-activity-summary::before,
-  .map-preview-slot {
+  .map-preview-slot,
+  .projects-activity-shell .map-cell:not(.is-empty) {
     transition: none;
   }
 
