@@ -54,9 +54,11 @@ export default function ContributionMap({ calendar, events, title = 'Contributio
   const [previewVisible, setPreviewVisible] = useState(false)
   const [announcement, setAnnouncement] = useState('')
   const isOpen = Boolean(hovered)
-  const [ripples, setRipples] = useState<Array<{ id: number; x: number; y: number; size: number }>>([])
-  const lastRipple = useRef(0)
-  const rippleId = useRef(0)
+  const [rippleActive, setRippleActive] = useState(false)
+  const rippleLayer = useRef<HTMLDivElement | null>(null)
+  const rippleTarget = useRef({ x: 0, y: 0 })
+  const ripplePosition = useRef({ x: 0, y: 0 })
+  const rippleFrame = useRef<number | null>(null)
   const sideRef = useRef<'right' | 'left'>('right')
   const gridRef = useRef<HTMLDivElement | null>(null)
   const closeTimer = useRef<number | null>(null)
@@ -114,14 +116,7 @@ export default function ContributionMap({ calendar, events, title = 'Contributio
 
   useEffect(() => () => {
     if (closeTimer.current !== null) window.clearTimeout(closeTimer.current)
-  }, [])
-
-  // Reduced motion hides the layer and cancels waves before animationend.
-  useEffect(() => {
-    const query = window.matchMedia('(prefers-reduced-motion: reduce)')
-    const clear = () => { if (query.matches) setRipples([]) }
-    query.addEventListener('change', clear)
-    return () => query.removeEventListener('change', clear)
+    if (rippleFrame.current !== null) window.cancelAnimationFrame(rippleFrame.current)
   }, [])
 
   // Mount the portal hidden, then reveal it on the next frame so the first
@@ -171,41 +166,64 @@ export default function ContributionMap({ calendar, events, title = 'Contributio
 
   const keyboardDays = columns.flat().filter((day): day is ContributionDay => Boolean(day))
 
-  const emitRipple = (cell: HTMLElement) => {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-    const now = performance.now()
-    if (now - lastRipple.current < 160) return
-    lastRipple.current = now
+  const writeRipplePosition = () => {
+    const layer = rippleLayer.current
+    if (!layer) return
+    layer.style.setProperty('--ripple-x', `${ripplePosition.current.x}px`)
+    layer.style.setProperty('--ripple-y', `${ripplePosition.current.y}px`)
+  }
+
+  // One static ripple follows the pointer. It never restarts for a new cell;
+  // the glow simply eases toward the latest pointer position.
+  const moveRipple = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (event.pointerType === 'touch' || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
     const grid = gridRef.current?.getBoundingClientRect()
     if (!grid) return
-    const rect = cell.getBoundingClientRect()
-    const id = ++rippleId.current
-    setRipples((previous) => [...previous.slice(-1), {
-      id, x: rect.left - grid.left + rect.width / 2, y: rect.top - grid.top + rect.height / 2,
-      size: rect.width * 9,
-    }])
+    rippleTarget.current = { x: event.clientX - grid.left, y: event.clientY - grid.top }
+    const step = () => {
+      const target = rippleTarget.current
+      const position = ripplePosition.current
+      position.x += (target.x - position.x) * 0.22
+      position.y += (target.y - position.y) * 0.22
+      writeRipplePosition()
+      rippleFrame.current = window.requestAnimationFrame(step)
+    }
+    if (rippleFrame.current === null) {
+      ripplePosition.current = { ...rippleTarget.current }
+      writeRipplePosition()
+      setRippleActive(true)
+      rippleFrame.current = window.requestAnimationFrame(step)
+    }
+  }
+
+  const stopRipple = () => {
+    if (rippleFrame.current !== null) {
+      window.cancelAnimationFrame(rippleFrame.current)
+      rippleFrame.current = null
+    }
+    setRippleActive(false)
   }
 
   const handleGridPointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (event.pointerType === 'touch') return
+    moveRipple(event)
     const target = (event.target as HTMLElement).closest<HTMLElement>('.map-cell[data-date]')
     const date = target?.dataset.date
     if (!date || date === hovered?.day.date) return
     const day = keyboardDays.find((candidate) => candidate.date === date)
-    if (day) {
-      showDay(day)
-      if (event.pointerType === 'mouse' || event.pointerType === 'pen') emitRipple(target!)
-    }
+    if (day) showDay(day)
   }
 
   const handleGridPointerEnter = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (event.pointerType === 'touch') return
     cancelClose()
+    moveRipple(event)
     if (hovered) setPreviewVisible(true)
   }
 
   const handleGridPointerLeave = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (event.pointerType === 'touch') return
+    stopRipple()
     scheduleClose()
   }
 
@@ -305,10 +323,8 @@ export default function ContributionMap({ calendar, events, title = 'Contributio
               onPointerLeave: handleGridPointerLeave,
             } : {})}
           >
-            {bare ? <div className="map-ripple-layer" aria-hidden="true">
-              {ripples.map((ripple) => <span className="map-ripple-wave" key={ripple.id}
-                style={{ left: ripple.x, top: ripple.y, width: ripple.size, height: ripple.size }}
-                onAnimationEnd={() => setRipples((current) => current.filter((item) => item.id !== ripple.id))} />)}
+            {bare ? <div ref={rippleLayer} className={`map-ripple-layer${rippleActive ? ' is-active' : ''}`} aria-hidden="true">
+              <span className="map-ripple-glow" />
             </div> : null}
             {columns.map((week, weekIndex) => (
               week.map((day, dayIndex) => day ? (

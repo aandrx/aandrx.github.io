@@ -82,7 +82,7 @@
   justify-content: center;
 }
 
-/* Opaque cells occlude a single decorative wave layer. No cell-face lighting. */
+/* Opaque cells occlude one static glow that follows the pointer. */
 .projects-activity-shell .map-weeks { position: relative; isolation: isolate; }
 .projects-activity-shell .map-cell { position: relative; z-index: 1; }
 .map-ripple-layer {
@@ -91,19 +91,24 @@
   z-index: 0;
   overflow: hidden;
   pointer-events: none;
+  opacity: 0;
+  transition: opacity .18s ease;
   mask-image: linear-gradient(to right, transparent, #000 8px, #000 calc(100% - 8px), transparent), linear-gradient(to bottom, transparent, #000 5px, #000 calc(100% - 5px), transparent);
   mask-composite: intersect;
 }
-.map-ripple-wave {
+.map-ripple-layer.is-active { opacity: 1; }
+.map-ripple-glow {
   position: absolute;
+  left: 0;
+  top: 0;
+  width: 360px;
+  height: 360px;
+  margin: -180px 0 0 -180px;
   border-radius: 50%;
-  background: radial-gradient(circle, transparent 28%, rgba(31, 122, 58, .07) 43%, transparent 62%);
-  animation: map-ripple-wave 780ms ease-out both;
-}
-@keyframes map-ripple-wave {
-  from { transform: translate(-50%, -50%) scale(.12); opacity: 0; }
-  18% { opacity: 1; }
-  to { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+  background: radial-gradient(circle, rgba(31, 122, 58, .10) 0 30%, rgba(31, 122, 58, .14) 36%, rgba(31, 122, 58, .035) 48%, transparent 62%);
+  filter: blur(1px);
+  transform: translate3d(var(--ripple-x, 0px), var(--ripple-y, 0px), 0);
+  will-change: transform;
 }
 
 /* The visual grid is decorative (aria-hidden), so the hover preview is a
