@@ -427,7 +427,9 @@ export default function MuseumMockupPage() {
     if (!target) return
     event.preventDefault()
     hashOrigin.current = window.scrollY
-    window.history.pushState({ ...(window.history.state ?? {}), hashTarget: id }, '', `#${id}`)
+    const currentState = window.history.state && typeof window.history.state === 'object' ? window.history.state : {}
+    const { __scrollKey: _scrollKey, ...stateWithoutScrollKey } = currentState
+    window.history.pushState({ ...stateWithoutScrollKey, hashTarget: id }, '', `#${id}`)
     target.scrollIntoView({
       behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
       block: 'start',

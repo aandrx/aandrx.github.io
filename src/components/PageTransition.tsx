@@ -9,11 +9,20 @@ interface PageTransitionProps {
 
 const RESTORE_TIMEOUT_MS = 3000
 
+function getEntryKey(pathname: string) {
+  const state = window.history.state && typeof window.history.state === 'object' ? window.history.state : {}
+  if (typeof state.__scrollKey === 'string') return state.__scrollKey
+  const key = window.crypto?.randomUUID?.() ?? `${pathname}:${performance.now()}`
+  window.history.replaceState({ ...state, __scrollKey: key }, '')
+  return key
+}
+
 export default function PageTransition({ children }: Readonly<PageTransitionProps>) {
   const pathname = usePathname()
   const initialPathname = useRef(pathname)
   const hasNavigated = useRef(false)
   const scrollPositions = useRef(new Map<string, number>())
+  const entryKey = useRef<string | null>(null)
   const restoreTarget = useRef<number | null>(null)
   const restorePath = useRef<string | null>(null)
   const currentPathname = useRef(pathname)
@@ -23,7 +32,10 @@ export default function PageTransition({ children }: Readonly<PageTransitionProp
   currentPathname.current = pathname
 
   useEffect(() => {
-    const save = () => scrollPositions.current.set(pathname, window.scrollY)
+    entryKey.current = getEntryKey(pathname)
+    const save = () => {
+      if (entryKey.current) scrollPositions.current.set(entryKey.current, window.scrollY)
+    }
     save()
     window.addEventListener('scroll', save, { passive: true })
     return () => window.removeEventListener('scroll', save)
@@ -35,7 +47,8 @@ export default function PageTransition({ children }: Readonly<PageTransitionProp
       // Same-page hash history is owned by the browser. Only restore when the
       // history entry changes the route.
       if (path === currentPathname.current) return
-      const target = scrollPositions.current.get(path)
+      const key = window.history.state?.__scrollKey
+      const target = typeof key === 'string' ? scrollPositions.current.get(key) : undefined
       restorePath.current = target === undefined ? null : path
       restoreTarget.current = target ?? null
       setRestoreToken((value) => value + 1)

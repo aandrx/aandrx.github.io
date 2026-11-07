@@ -75,6 +75,31 @@ try {
   await page.waitForFunction(() => location.hash === '#projects', { timeout: 4000 })
   await page.waitForFunction(() => (document.querySelector('#projects')?.getBoundingClientRect().top ?? Infinity) <= 100, { timeout: 4000 })
 
+  await page.goto(`${baseURL}/`, { waitUntil: 'networkidle2', timeout: 60000 })
+  await page.waitForFunction(() => document.querySelector('.mock-museum')?.getAttribute('aria-busy') === 'false', { timeout: 8000 })
+  const setHomeScroll = async (top) => {
+    await page.evaluate((value) => { if (document.scrollingElement) document.scrollingElement.scrollTop = value }, top)
+    await page.waitForFunction((value) => Math.abs(window.scrollY - value) < 2, { timeout: 3000 }, top)
+  }
+  await setHomeScroll(300)
+  await page.evaluate(() => document.querySelector('#projects h2 a')?.click())
+  await page.waitForFunction(() => location.pathname === '/projects/', { timeout: 10000 })
+  await page.evaluate(() => document.querySelector('.feed-name')?.click())
+  await page.waitForFunction(() => location.pathname === '/', { timeout: 10000 })
+  await page.waitForFunction(() => document.querySelector('.mock-museum')?.getAttribute('aria-busy') === 'false', { timeout: 8000 })
+  await setHomeScroll(900)
+  await page.evaluate(() => document.querySelector('.museum-nav a[href="/feed/"]')?.click())
+  await page.waitForFunction(() => location.pathname === '/feed/', { timeout: 10000 })
+
+  await page.goBack()
+  await page.waitForFunction(() => location.pathname === '/', { timeout: 10000 })
+  await page.waitForFunction(() => Math.abs(window.scrollY - 900) < 30, { timeout: 4000 })
+  await page.goBack()
+  await page.waitForFunction(() => location.pathname === '/projects/', { timeout: 10000 })
+  await page.goBack()
+  await page.waitForFunction(() => location.pathname === '/', { timeout: 10000 })
+  await page.waitForFunction(() => Math.abs(window.scrollY - 300) < 30, { timeout: 4000 })
+
   const reducedCss = await page.evaluate(() => {
     const chunks = []
     const walk = (rules) => {
