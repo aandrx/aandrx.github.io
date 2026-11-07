@@ -16,9 +16,11 @@ export default function PageTransition({ children }: Readonly<PageTransitionProp
   const scrollPositions = useRef(new Map<string, number>())
   const restoreTarget = useRef<number | null>(null)
   const restorePath = useRef<string | null>(null)
+  const currentPathname = useRef(pathname)
   const [restoreToken, setRestoreToken] = useState(0)
 
   if (pathname !== initialPathname.current) hasNavigated.current = true
+  currentPathname.current = pathname
 
   useEffect(() => {
     const save = () => scrollPositions.current.set(pathname, window.scrollY)
@@ -30,6 +32,9 @@ export default function PageTransition({ children }: Readonly<PageTransitionProp
   useEffect(() => {
     const onPopState = () => {
       const path = window.location.pathname
+      // Same-page hash history is owned by the browser. Only restore when the
+      // history entry changes the route.
+      if (path === currentPathname.current) return
       const target = scrollPositions.current.get(path)
       restorePath.current = target === undefined ? null : path
       restoreTarget.current = target ?? null

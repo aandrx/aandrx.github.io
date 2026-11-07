@@ -61,12 +61,19 @@ try {
   await page.waitForFunction(() => location.pathname === '/', { timeout: 10000 })
   await page.waitForFunction((target) => Math.abs(window.scrollY - target) < 30, { timeout: 4000 }, savedScroll)
 
-  await page.evaluate(() => window.scrollTo(0, 0))
+  await page.evaluate(() => { if (document.scrollingElement) document.scrollingElement.scrollTop = 0 })
+  await page.waitForFunction(() => window.scrollY < 1, { timeout: 2000 })
   await page.evaluate(() => document.querySelector('.museum-pill[href="#projects"]')?.click())
   await page.waitForFunction(() => document.querySelector('#projects')?.getBoundingClientRect().top >= 0 && document.querySelector('#projects').getBoundingClientRect().top <= 100, { timeout: 4000 })
   assert.equal(await page.evaluate(() => location.hash), '#projects', 'Work anchor updates the hash')
   assert.equal(await page.evaluate(() => window.scrollY > 0), true, 'Work anchor scrolls to the projects section')
   assert.equal(await page.evaluate(() => document.getAnimations().filter((animation) => animation.animationName === 'page-fade-in' && animation.playState === 'running').length), 0, 'hash jump does not retrigger the route fade')
+
+  await page.goBack()
+  await page.waitForFunction(() => location.hash === '' && window.scrollY < 40, { timeout: 4000 })
+  await page.goForward()
+  await page.waitForFunction(() => location.hash === '#projects', { timeout: 4000 })
+  await page.waitForFunction(() => (document.querySelector('#projects')?.getBoundingClientRect().top ?? Infinity) <= 100, { timeout: 4000 })
 
   const reducedCss = await page.evaluate(() => {
     const chunks = []
