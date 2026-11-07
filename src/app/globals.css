@@ -9,12 +9,17 @@
    PAGE TRANSITION ANIMATIONS
    ==================================================================== */
 .page-transition {
-  opacity: 0;
-  transition: opacity 0.6s ease-in-out; /* Smooth transition for entire layout including sidebar */
+  animation: page-fade-in .35s ease-in-out both;
 }
 
-.page-transition.fade-in {
+.page-transition.is-initial {
+  animation: none;
   opacity: 1;
+}
+
+@keyframes page-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 /* ====================================================================
@@ -1160,7 +1165,7 @@ body:has(.horizontal-page-container) {
    ==================================================================== */
 @media (prefers-reduced-motion: reduce) {
   .page-transition {
-    transition: none;
+    animation: none;
     opacity: 1;
   }
 

@@ -48,8 +48,8 @@ export const FEED_POSTS: FeedPost[] = [
     date: 'Oct 2026',
     dateTime: '2026-10-01',
     body: [
-      'palace-tui is a terminal interface for a local knowledge graph. It opens into a list of nodes, and the keyboard moves between searching, opening a node, and following a connection.',
-      'The tool does not try to be a full editor. It reads a local graph and shows the neighboring nodes.',
+      'palace-tui is an early terminal prototype for a local knowledge graph. It parses Markdown links, stores notes in SQLite, and explores keyboard-first browsing.',
+      'The useful part is the path from a note to its neighbors: search, open a note, follow a link. Graph rendering and NLP are not finished, so the repository is still a sketch.',
       'The interaction depends on key handling and focus state. A terminal has no pointer to fall back on, so every state has to be visible in the prompt, the selection, or the line above it.',
     ],
     links: [{ label: 'palace-tui repository', href: 'https://github.com/aandrx/palace-tui' }],
@@ -100,13 +100,24 @@ export const FEED_POSTS: FeedPost[] = [
     date: 'Jun 2026',
     dateTime: '2026-06-01',
     body: [
-      'Sophitia is a place for interface experiments that are not ready to become products. It holds small interaction studies, half-built screens, and notes about what did not work.',
-      'The repository is intentionally unfinished. A sketch can stay in the history after the idea stops being useful, which makes it easier to compare one attempt with the next.',
-      'Spendwise and Ina live in the same part of the work: small tools with a narrow job. None of them needs a launch page to be worth keeping.',
+      'Sophitia is a small After Effects ScriptUI panel from 2023. It collects one-click layer helpers: adjustment-layer spans, null parenting, time remap, and single-frame adjustment layers.',
+      'The panel exists as one .jsx file and three commits. It is a dormant script, not a web project, and it stays in the history because the layer workflow is still reusable.',
+      'The repository stays public as a reference. It is dormant, not a polished product, and the adaptation from an earlier script still needs its provenance and license resolved.',
     ],
     links: [{ label: 'Sophitia repository', href: 'https://github.com/aandrx/sophitia' }],
   },
   {
+    slug: 'notes-from-a-build',
+    title: 'Notes from a build',
+    date: 'May 2026',
+    dateTime: '2026-05-29',
+    body: [
+      'Shend compresses large videos for Discord. The bot accepts a file, runs the encoder, and returns either an inline embed or a download link when the result is too large for the player.',
+      'A job can fail at upload, at encoding, or at delivery. The bot needs to keep those states separate so a retry does not start from the beginning.',
+      'The repository is self-hosted. That choice adds setup work, but it keeps processing and files on the machine running the bot. It was run on a home server; current operation is unverified.',
+    ],
+    links: [{ label: 'Shend repository', href: 'https://github.com/aandrx/shend' }],
+  },  {
     slug: 'photographing-empty-rooms',
     title: 'Photographing empty rooms',
     date: 'May 2026',
@@ -128,24 +139,13 @@ export const FEED_POSTS: FeedPost[] = [
     date: 'Apr 2026',
     dateTime: '2026-04-01',
     body: [
-      'Continuum is a dashboard for services and cluster state. The first screen should show what is running and what needs attention.',
-      'The interface uses a small set of rows and a status label. There is no second navigation layer for the same data, and no chart unless the chart changes a decision.',
-      'The Vue front end talks to the cluster through a narrow set of API calls. Keeping that list short makes the screens and the failure states easier to follow.',
+      'Continuum is a personal kanban prototype built with Vue, Pinia, Flask, and SQLite. The first screen should show the board, the cards, and the next small move.',
+      'The interface keeps the board and cards in one view, with actions close to the card they affect. There is no second navigation layer for the same data, and no chart unless the chart changes a decision.',
+      'The front end keeps a localStorage fallback when the API is unavailable. Authentication and external integrations are planned, not implemented, so the repository remains a dormant prototype.',
     ],
     links: [{ label: 'Continuum repository', href: 'https://github.com/aandrx/continuum' }],
   },
-  {
-    slug: 'notes-from-a-build',
-    title: 'Notes from a build',
-    date: 'Mar 2026',
-    dateTime: '2026-03-01',
-    body: [
-      'Shend compresses large videos for Discord. The bot accepts a file, runs the encoder, and returns either an inline embed or a download link when the result is too large for the player.',
-      'A job can fail at upload, at encoding, or at delivery. The bot needs to keep those states separate so a retry does not start from the beginning.',
-      'The repository is self-hosted. That choice adds setup work, but it keeps processing and files on the machine running the bot.',
-    ],
-    links: [{ label: 'Shend repository', href: 'https://github.com/aandrx/shend' }],
-  },
+
   {
     slug: 'unfinished-on-purpose',
     title: 'Unfinished, on purpose',

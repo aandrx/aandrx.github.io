@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState, type MouseEvent } from 'react'
 import { createPortal } from 'react-dom'
 import type { MuseumItem } from '@/components/museum/museum-wall'
 import { FEED_DEFAULT, FEED_MORE, type FeedEntry } from '@/lib/feed-data'
@@ -419,6 +419,41 @@ export default function MuseumMockupPage() {
     }
   }, [])
   const selectedItem = GALLERY[selected]
+  const hashOrigin = useRef(0)
+  const samePageHistory = useRef(false)
+
+  const jumpToSection = (event: MouseEvent<HTMLAnchorElement>, id: string) => {
+    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
+    const target = document.getElementById(id)
+    if (!target) return
+    event.preventDefault()
+    hashOrigin.current = window.scrollY
+    samePageHistory.current = true
+    const currentState = window.history.state && typeof window.history.state === 'object' ? window.history.state : {}
+    const { __scrollKey: _scrollKey, ...stateWithoutScrollKey } = currentState
+    window.history.pushState({ ...stateWithoutScrollKey, hashTarget: id }, '', `#${id}`)
+    target.scrollIntoView({
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+      block: 'start',
+    })
+  }
+
+  useEffect(() => {
+    const onPopState = () => {
+      if (window.location.pathname !== '/' || !samePageHistory.current) return
+      if (!window.location.hash) {
+        if (document.scrollingElement) document.scrollingElement.scrollTop = hashOrigin.current
+        return
+      }
+      const target = document.getElementById(window.location.hash.slice(1))
+      target?.scrollIntoView({
+        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+        block: 'start',
+      })
+    }
+    window.addEventListener('popstate', onPopState)
+    return () => window.removeEventListener('popstate', onPopState)
+  }, [])
 
   return (
     <main id="top" className={`mock-museum${atBottom ? ' is-at-bottom' : ''}${pastStage ? ' is-past-stage' : ''}`} aria-busy={!galleryReady}>
@@ -584,7 +619,7 @@ export default function MuseumMockupPage() {
           <span className="museum-name-slot" aria-hidden="true">Andrew Liu.</span>
           <Link className="museum-name" href="/">Andrew Liu.</Link>
           <nav className="museum-nav" aria-label="Site sections">
-            <a className="museum-pill active" href="#projects" aria-current="page">Work</a>
+            <a className="museum-pill active" href="#projects" aria-current="page" onClick={(event) => jumpToSection(event, 'projects')}>Work</a>
             <Link className="museum-pill" href="/feed/">Feed</Link>
             <Link className="museum-pill" href="/photo/">Photo</Link>
           </nav>
@@ -604,7 +639,7 @@ export default function MuseumMockupPage() {
       </section>
 
       <div className={`museum-top-fade${atBottom ? ' is-visible' : ''}`} aria-hidden="true" />
-      <a className={`museum-top-hint${atBottom ? ' is-visible' : ''}`} href="#top" aria-label="Back to top" tabIndex={atBottom ? undefined : -1}>
+      <a className={`museum-top-hint${atBottom ? ' is-visible' : ''}`} href="#top" aria-label="Back to top" tabIndex={atBottom ? undefined : -1} onClick={(event) => jumpToSection(event, 'top')}>
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M3 10.5 8 5.5 13 10.5" /></svg>
       </a>
 

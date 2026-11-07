@@ -82,25 +82,14 @@
   justify-content: center;
 }
 
-/* LCD-like proximity field: cells near the active day lift in brightness and
-   carry a faint green wash. Distance-delayed transitions let the response
-   travel outward instead of snapping with the pointer. */
+/* Keep the same 2px ring as the lab map, but fade its color between cells. */
 .projects-activity-shell .map-cell:not(.is-empty) {
-  position: relative;
-  filter: brightness(var(--ripple-brightness, 1));
-  transition: filter .18s ease;
-  transition-delay: var(--ripple-delay, 0s);
+  outline: 2px solid transparent;
+  outline-offset: 1px;
+  transition: outline-color .18s ease;
 }
-
-.projects-activity-shell .map-cell:not(.is-empty)::after {
-  position: absolute;
-  inset: -1px;
-  background: var(--accent);
-  opacity: var(--ripple-alpha, 0);
-  content: "";
-  pointer-events: none;
-  transition: opacity .18s ease;
-  transition-delay: var(--ripple-delay, 0s);
+.projects-activity-shell .map-cell:not(.is-empty):hover {
+  outline-color: #000;
 }
 
 /* The visual grid is decorative (aria-hidden), so the hover preview is a
@@ -112,7 +101,11 @@
   z-index: 100;
   width: 340px;
   max-width: calc(100vw - 16px);
-  padding: 8px 10px 9px;
+  padding: 0;
+  left: 0;
+  top: 0;
+  overflow: hidden;
+  box-sizing: border-box;
   border: 1px solid #000;
   background: #fff;
   box-shadow: 0 6px 18px rgba(0, 0, 0, .12);
@@ -120,14 +113,22 @@
   font: 400 11px/16px "Helvetica Neue", Helvetica, Arial, sans-serif;
   pointer-events: none;
   opacity: 0;
-  transform: translateY(4px);
-  transition: opacity .15s ease, transform .15s ease;
+  /* Position and size share timing so their interpolated bounds stay aligned. */
+  transition: opacity .15s ease, transform .2s ease, height .2s ease;
 }
 
 .map-preview.is-visible {
   opacity: 1;
-  transform: translateY(0);
+
 }
+
+.map-preview-content { padding: 8px 10px 9px; }
+.map-preview-slot { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows .2s ease, opacity .16s ease; }
+.map-preview-slot.is-present { grid-template-rows: 1fr; opacity: 1; }
+.map-preview-slot-clip { min-height: 0; overflow: hidden; }
+.map-content-enter { animation: map-content-enter .16s ease both; }
+.map-preview-icon > span { display: flex; }
+@keyframes map-content-enter { from { opacity: 0; } to { opacity: 1; } }
 
 .map-preview-head {
   display: flex;
@@ -156,7 +157,7 @@
   padding: 4px 0;
 }
 
-.map-preview-row:not(:last-child)::before {
+.map-preview-slot.is-present:has(+ .map-preview-slot.is-present) .map-preview-row::before {
   position: absolute;
   top: 28px;
   bottom: -4px;
@@ -338,12 +339,11 @@
   .projects-row-tag,
   .projects-row-summary,
   .projects-activity-summary::before,
-  .projects-activity-shell .map-cell:not(.is-empty),
-  .projects-activity-shell .map-cell:not(.is-empty)::after {
+  .map-preview-slot,
+  .projects-activity-shell .map-cell:not(.is-empty) {
     transition: none;
   }
 
-  .map-preview {
-    transition: none;
-  }
+  .map-preview { transition: none; }
+  .map-content-enter { animation: none; }
 }

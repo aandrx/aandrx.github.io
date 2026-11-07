@@ -98,6 +98,6 @@ try {
   console.log('PASS: recent work lab shows map, focus graph, timeline, surfaces, API shape and mobile layout')
 } finally {
   if (context) await context.close()
-  await browser.disconnect().catch(() => {})
-  if (!remoteEndpoint) await browser.close().catch(() => {})
+  if (remoteEndpoint) await browser.disconnect()
+  else await browser.close()
 }
