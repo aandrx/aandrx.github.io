@@ -62,6 +62,10 @@ try {
       groups: [...document.querySelectorAll('.feed-year')].map((heading) => heading.textContent),
       projectLinkCount: projectLinks.length,
       projectHrefs: projectLinks.map((link) => link.getAttribute('href')),
+      rowCopies: Object.fromEntries(projectLinks.map((link) => [
+        link.getAttribute('href')?.split('/').filter(Boolean).at(-1),
+        link.querySelector('.projects-row-summary')?.textContent,
+      ])),
       blankTargets: projectLinks.map((link) => link.getAttribute('target')),
       rowHeights: projectLinks.map((link) => link.getBoundingClientRect().height),
       summaryWhiteSpace: [...document.querySelectorAll('.projects-row-summary')].map((node) => getComputedStyle(node).whiteSpace),
@@ -94,6 +98,13 @@ try {
   assert.equal(state.canonicalPath, '/projects/', 'projects index declares its canonical path')
   assert.deepEqual(state.groups, ['Selected work', 'More work'], 'projects index renders both project groups')
   assert.equal(state.projectLinkCount, 12, 'projects index lists twelve projects')
+  assert.equal(state.rowCopies.continuum, 'A personal kanban prototype', 'Continuum is described as a kanban prototype')
+  assert.equal(state.rowCopies.ina, 'An unfinished Discord bot', 'Ina is described as an unfinished Discord bot')
+  assert.equal(state.rowCopies.spendwise, 'Team Android budgeting coursework', 'Spendwise is described as team Android coursework')
+  assert.equal(state.rowCopies.sophitia, 'An After Effects layer helper', 'Sophitia is described as an After Effects helper')
+  assert.equal(state.rowCopies.sink, 'Obsidian sync with conflict review', 'sink is described by its sync and conflict-review scope')
+  assert.equal(state.rowCopies.shend, 'A self-hosted Discord video compressor', 'Shend is described as a self-hosted compressor')
+  assert.doesNotMatch(JSON.stringify(state.rowCopies), /Kubernetes|experimental web project|small automation bot|personal finance prototype/, 'corrected project summaries do not retain stale claims')
   assert.ok(state.projectHrefs.every((href) => href?.startsWith('/projects/')), 'project rows link to internal detail pages')
   assert.ok(state.blankTargets.every((target) => target === null), 'project rows do not open in a new tab')
   assert.ok(state.rowHeights.every((height) => height > 0 && height <= 32), 'each project row is a single line')
@@ -187,22 +198,22 @@ try {
   assert.ok(preview.titles.some((title) => title.length > 0), 'preview shows at least one event title')
 
   const ripple = await page.evaluate(() => {
-    const cells = [...document.querySelectorAll('.map-weeks .map-cell[data-date]')]
-    const active = cells.find((cell) => Number(getComputedStyle(cell).getPropertyValue('--ripple')) > 0.8)
-    const neighbor = cells.find((cell) => cell !== active && Number(getComputedStyle(cell).getPropertyValue('--ripple')) > 0)
+    const layer = document.querySelector('.map-ripple-layer')
+    const cell = document.querySelector('.map-cell[data-date]')
     return {
-      active: active ? Number(getComputedStyle(active).getPropertyValue('--ripple')) : 0,
-      neighbor: neighbor ? Number(getComputedStyle(neighbor).getPropertyValue('--ripple')) : 0,
-      activeDelay: active ? getComputedStyle(active).getPropertyValue('--ripple-delay') : '',
-      activeFilter: active ? getComputedStyle(active).filter : '',
-      neighborFilter: neighbor ? getComputedStyle(neighbor).filter : '',
+      layer: Boolean(layer), layerZ: getComputedStyle(layer).zIndex,
+      cellZ: getComputedStyle(cell).zIndex, filter: getComputedStyle(cell).filter,
+      overlay: getComputedStyle(cell, '::after').content,
+      pointerEvents: getComputedStyle(layer).pointerEvents,
+      waves: layer.children.length,
     }
   })
-  assert.ok(ripple.active > 0.8, 'the active day has the strongest LCD ripple')
-  assert.ok(ripple.neighbor > 0, 'neighboring cells receive a proximity ripple')
-  assert.match(ripple.activeDelay, /s$/, 'ripple cells carry a distance delay')
-  assert.notEqual(ripple.activeFilter, 'none', 'ripple brightness is applied in CSS')
-  assert.notEqual(ripple.neighborFilter, 'none', 'neighbor brightness is applied in CSS')
+  assert.equal(ripple.layer, true, 'ripple has its own behind-grid layer')
+  assert.ok(Number(ripple.cellZ) > Number(ripple.layerZ), 'opaque cells occlude the ripple')
+  assert.equal(ripple.filter, 'none', 'cell faces are not brightened')
+  assert.equal(ripple.overlay, 'none', 'cell faces have no color overlay')
+  assert.equal(ripple.pointerEvents, 'none', 'ripple cannot intercept hover')
+  assert.ok(ripple.waves <= 2, 'ripple count stays bounded')
   assert.equal(preview.pointerEvents, 'none', 'preview cannot capture the pointer and flicker')
   assert.ok(preview.width <= 340, 'preview card stays at most 340px wide')
   assert.ok(preview.left >= 0 && preview.right <= preview.viewportWidth + 1, 'preview stays inside the viewport horizontally')
@@ -239,8 +250,8 @@ try {
   assert.ok(previewHandle, 'preview node exists before crossing the gap')
   const firstPreviewDate = await page.$eval('.map-preview .map-preview-head span', (node) => node.textContent)
   await page.mouse.move((adjacentPair.a.rect.right + adjacentPair.b.rect.x) / 2, adjacentPair.a.rect.y + adjacentPair.a.rect.height / 2)
-  await new Promise((resolve) => setTimeout(resolve, 40))
-  assert.equal(await previewHandle.evaluate((node) => node.isConnected), true, 'preview node stays mounted while crossing the gap between squares')
+  await new Promise((resolve) => setTimeout(resolve, 400))
+  assert.equal(await previewHandle.evaluate((node) => node.isConnected && getComputedStyle(node).opacity === '1'), true, 'preview stays fully visible during a long gutter dwell')
   await page.mouse.move(adjacentPair.b.rect.x + adjacentPair.b.rect.width / 2, adjacentPair.b.rect.y + adjacentPair.b.rect.height / 2)
   await page.waitForFunction((previous) => {
     const card = document.querySelector('.map-preview .map-preview-head span')
@@ -406,6 +417,7 @@ try {
       .format(new Date(`${date}T00:00:00Z`))
     return head.textContent === expected
   }, { timeout: 5000 }, placement.nearby.date)
+  await page.waitForFunction((x) => document.querySelector('.map-preview')?.getBoundingClientRect().right <= x, { timeout: 1000 }, placement.nearby.x)
   const nearbySide = await page.evaluate(() => {
     const rect = document.querySelector('.map-preview')?.getBoundingClientRect()
     return rect ? { left: rect.left, right: rect.right } : null
@@ -430,6 +442,7 @@ try {
   }))
   assert.equal(detail.h1, 'sink', 'project detail renders the project title')
   assert.ok(detail.body.includes('More project notes, demos, and photographs will be added here.'), 'project detail renders the placeholder paragraph')
+  assert.ok(detail.body.some((paragraph) => /stability notes currently recommend keeping the release disabled/i.test(paragraph)), 'sink detail states its safety status')
   assert.ok(detail.repo?.startsWith('https://github.com/'), 'project detail links to the repository')
   assert.equal(detail.repoRel, 'noreferrer', 'repository link is safe')
   assert.equal(detail.back, '/projects/', 'project detail links back to the projects index')
@@ -477,12 +490,13 @@ try {
     }
     return chunks.join('\n')
   })
-  assert.match(reducedCss, /\.projects-activity-shell \.map-cell:not\(\.is-empty\)[\s\S]{0,160}transition:\s*none/, 'LCD ripple transitions are disabled under reduced motion')
+  assert.match(reducedCss, /\.map-ripple-layer[\s\S]{0,80}display:\s*none/, 'decorative ripple is hidden under reduced motion')
+  assert.match(reducedCss, /\.map-preview-slot[\s\S]{0,80}transition:\s*none/, 'row transitions are disabled under reduced motion')
 
   assert.deepEqual(errors, [], 'projects index has no runtime errors')
   console.log('PASS: projects index shows groups, repository links, activity map and collapsible activity')
 } finally {
   if (context) await context.close()
-  await browser.disconnect().catch(() => {})
-  if (!remoteEndpoint) await browser.close().catch(() => {})
+  if (remoteEndpoint) await browser.disconnect()
+  else await browser.close()
 }

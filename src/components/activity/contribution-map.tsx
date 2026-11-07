@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react'
 import { createPortal } from 'react-dom'
-import ActivityEventIcon from '@/components/activity/activity-event-icon'
+import MapPreview from './map-preview'
 import type { ActivityEvent, ContributionDay, ContributionMonth, ContributionWeek } from '@/lib/activity-types'
 
 type Props = {
@@ -19,7 +19,6 @@ type Props = {
 }
 
 const PREVIEW_WIDTH = 340
-const PREVIEW_MAX_EVENTS = 4
 const GAP = 14
 const CLOSE_DELAY_MS = 220
 
@@ -50,17 +49,14 @@ function formatWeekOf(date: string) {
   return `Week of ${formatDate(date)}`
 }
 
-function previewHeight(eventCount: number) {
-  if (eventCount <= 0) return 86
-  const rows = 62 + Math.min(eventCount, PREVIEW_MAX_EVENTS) * 48
-  return eventCount > PREVIEW_MAX_EVENTS ? rows + 16 : rows
-}
-
 export default function ContributionMap({ calendar, events, title = 'Contribution map', showIndex = true, showHeading = true, bare = false }: Props) {
-  const [hovered, setHovered] = useState<{ day: ContributionDay; left: number; top: number } | null>(null)
+  const [hovered, setHovered] = useState<{ day: ContributionDay; left: number; anchorY: number } | null>(null)
   const [previewVisible, setPreviewVisible] = useState(false)
   const [announcement, setAnnouncement] = useState('')
-  const hoveredDate = hovered?.day.date
+  const isOpen = Boolean(hovered)
+  const [ripples, setRipples] = useState<Array<{ id: number; x: number; y: number; size: number }>>([])
+  const lastRipple = useRef(0)
+  const rippleId = useRef(0)
   const sideRef = useRef<'right' | 'left'>('right')
   const gridRef = useRef<HTMLDivElement | null>(null)
   const closeTimer = useRef<number | null>(null)
@@ -87,8 +83,7 @@ export default function ContributionMap({ calendar, events, title = 'Contributio
     setAnnouncement('')
   }
 
-  // Crossing the gaps between squares keeps the card mounted for a moment so
-  // traversal feels continuous instead of restarting the entrance animation.
+  // Only a grid exit starts dismissal. Gaps retain the last selected date.
   const scheduleClose = () => {
     if (closeTimer.current !== null) window.clearTimeout(closeTimer.current)
     setPreviewVisible(false)
@@ -121,16 +116,24 @@ export default function ContributionMap({ calendar, events, title = 'Contributio
     if (closeTimer.current !== null) window.clearTimeout(closeTimer.current)
   }, [])
 
+  // Reduced motion hides the layer and cancels waves before animationend.
+  useEffect(() => {
+    const query = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const clear = () => { if (query.matches) setRipples([]) }
+    query.addEventListener('change', clear)
+    return () => query.removeEventListener('change', clear)
+  }, [])
+
   // Mount the portal hidden, then reveal it on the next frame so the first
   // appearance also uses the same fade transition as the exit.
   useEffect(() => {
-    if (!hoveredDate) {
+    if (!isOpen) {
       setPreviewVisible(false)
       return
     }
     const frame = window.requestAnimationFrame(() => setPreviewVisible(true))
     return () => window.cancelAnimationFrame(frame)
-  }, [hoveredDate])
+  }, [isOpen])
 
   // The card anchors to the hovered square, not the cursor, so it stays still
   // while the pointer moves inside one cell.
@@ -144,25 +147,21 @@ export default function ContributionMap({ calendar, events, title = 'Contributio
     const cell = gridRef.current?.querySelector<HTMLElement>(`[data-date="${day.date}"]`)
     if (!cell) return
     const rect = cell.getBoundingClientRect()
-    const height = previewHeight(eventsByDay.get(day.date)?.length ?? 0)
+    const width = Math.min(PREVIEW_WIDTH, window.innerWidth - 16)
     // Keep the chosen side sticky for the whole hover so the card cannot flip
     // back and forth when the pointer nears the clamp threshold.
-    if (sideRef.current === 'right' && rect.right + GAP + PREVIEW_WIDTH > window.innerWidth - 8) {
+    if (sideRef.current === 'right' && rect.right + GAP + width > window.innerWidth - 8) {
       sideRef.current = 'left'
     }
-    const rawLeft = sideRef.current === 'right' ? rect.right + GAP : rect.left - PREVIEW_WIDTH - GAP
-    const left = Math.max(8, Math.min(rawLeft, window.innerWidth - PREVIEW_WIDTH - 8))
+    const rawLeft = sideRef.current === 'right' ? rect.right + GAP : rect.left - width - GAP
+    const left = Math.max(8, Math.min(rawLeft, window.innerWidth - width - 8))
     const anchorY = rect.top + rect.height / 2
-    const top = anchorY + 18 + height > window.innerHeight
-      ? Math.max(8, anchorY - height - 12)
-      : Math.max(8, anchorY + 18)
-    setHovered({ day, left, top })
+    if (hovered) setPreviewVisible(true)
+    setHovered({ day, left, anchorY })
   }
 
 
   const hoveredDayEvents = hovered ? (eventsByDay.get(hovered.day.date) ?? []) : []
-  const hoveredEvents = hoveredDayEvents.slice(0, PREVIEW_MAX_EVENTS)
-  const hoveredHiddenCount = hoveredDayEvents.length - hoveredEvents.length
 
   const columns = calendar.weeks.map((week) => {
     const days: Array<ContributionDay | null> = Array.from({ length: 7 }, () => null)
@@ -172,24 +171,19 @@ export default function ContributionMap({ calendar, events, title = 'Contributio
 
   const keyboardDays = columns.flat().filter((day): day is ContributionDay => Boolean(day))
 
-  const dayPositions = new Map<string, { week: number; day: number }>()
-  columns.forEach((week, weekIndex) => {
-    week.forEach((day, dayIndex) => {
-      if (day) dayPositions.set(day.date, { week: weekIndex, day: dayIndex })
-    })
-  })
-  const hoverPosition = hovered ? dayPositions.get(hovered.day.date) : undefined
-
-  const rippleStyle = (weekIndex: number, dayIndex: number): CSSProperties => {
-    if (!bare || !hoverPosition) return { '--ripple': '0', '--ripple-brightness': '1', '--ripple-alpha': '0', '--ripple-delay': '0s' } as CSSProperties
-    const distance = Math.hypot(weekIndex - hoverPosition.week, dayIndex - hoverPosition.day)
-    const ripple = Math.max(0, 1 - distance / 3.6)
-    return {
-      '--ripple': ripple.toFixed(3),
-      '--ripple-brightness': (1 + ripple * 0.30).toFixed(3),
-      '--ripple-alpha': (ripple * 0.18).toFixed(3),
-      '--ripple-delay': `${Math.min(0.14, distance * 0.022).toFixed(3)}s`,
-    } as CSSProperties
+  const emitRipple = (cell: HTMLElement) => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const now = performance.now()
+    if (now - lastRipple.current < 160) return
+    lastRipple.current = now
+    const grid = gridRef.current?.getBoundingClientRect()
+    if (!grid) return
+    const rect = cell.getBoundingClientRect()
+    const id = ++rippleId.current
+    setRipples((previous) => [...previous.slice(-1), {
+      id, x: rect.left - grid.left + rect.width / 2, y: rect.top - grid.top + rect.height / 2,
+      size: rect.width * 9,
+    }])
   }
 
   const handleGridPointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
@@ -198,7 +192,10 @@ export default function ContributionMap({ calendar, events, title = 'Contributio
     const date = target?.dataset.date
     if (!date || date === hovered?.day.date) return
     const day = keyboardDays.find((candidate) => candidate.date === date)
-    if (day) showDay(day)
+    if (day) {
+      showDay(day)
+      if (event.pointerType === 'mouse' || event.pointerType === 'pen') emitRipple(target!)
+    }
   }
 
   const handleGridPointerEnter = (event: ReactPointerEvent<HTMLDivElement>) => {
@@ -308,6 +305,11 @@ export default function ContributionMap({ calendar, events, title = 'Contributio
               onPointerLeave: handleGridPointerLeave,
             } : {})}
           >
+            {bare ? <div className="map-ripple-layer" aria-hidden="true">
+              {ripples.map((ripple) => <span className="map-ripple-wave" key={ripple.id}
+                style={{ left: ripple.x, top: ripple.y, width: ripple.size, height: ripple.size }}
+                onAnimationEnd={() => setRipples((current) => current.filter((item) => item.id !== ripple.id))} />)}
+            </div> : null}
             {columns.map((week, weekIndex) => (
               week.map((day, dayIndex) => day ? (
                 <span
@@ -316,7 +318,7 @@ export default function ContributionMap({ calendar, events, title = 'Contributio
                   data-date={bare ? day.date : undefined}
                   key={day.date}
                   title={bare ? undefined : `${formatDate(day.date)}: ${day.count} contribution${day.count === 1 ? '' : 's'}`}
-                  style={{ gridColumn: weekIndex + 1, gridRow: dayIndex + 1, ...rippleStyle(weekIndex, dayIndex) }}
+                  style={{ gridColumn: weekIndex + 1, gridRow: dayIndex + 1 }}
                   onTouchStart={bare ? () => (hovered?.day.date === day.date ? closeNow() : showDay(day, true)) : undefined}
                 />
               ) : (
@@ -376,40 +378,7 @@ export default function ContributionMap({ calendar, events, title = 'Contributio
 
       {bare && hovered
         ? createPortal(
-            <div className={`map-preview${previewVisible ? ' is-visible' : ''}`} style={{ left: hovered.left, top: hovered.top }} aria-hidden="true">
-              <p className="map-preview-head">
-                <span>{formatDate(hovered.day.date)}</span>
-                <span>{hovered.day.count} contribution{hovered.day.count === 1 ? '' : 's'}</span>
-              </p>
-              {hoveredEvents.length > 0 ? (
-                <ul className="map-preview-list">
-                  {hoveredEvents.map((event) => (
-                    <li className="map-preview-row" key={event.id}>
-                      <span className={`map-preview-icon map-preview-icon--${event.type}`} aria-hidden="true">
-                        <ActivityEventIcon type={event.type} />
-                      </span>
-                      <div className="map-preview-body">
-                        <p className="map-preview-line">
-                          <span className="map-preview-action">{event.action}</span>{' '}
-                          {event.title ? <span className="map-preview-title">{event.title}</span> : null}
-                        </p>
-                        <p className="map-preview-meta">
-                          <span className="map-preview-repo">{event.repo}</span>
-                          {typeof event.count === 'number' ? (
-                            <span className="map-preview-count">{event.count}</span>
-                          ) : null}
-                        </p>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="map-preview-empty">{hovered.day.count > 0 ? 'No public detail' : 'No contributions'}</p>
-              )}
-              {hoveredHiddenCount > 0 ? (
-                <p className="map-preview-more">+{hoveredHiddenCount} more</p>
-              ) : null}
-            </div>,
+            <MapPreview day={hovered.day} events={hoveredDayEvents} visible={previewVisible} left={hovered.left} anchorY={hovered.anchorY} />,
             document.body,
           )
         : null}
