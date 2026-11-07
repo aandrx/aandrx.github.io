@@ -107,6 +107,17 @@ export const FEED_POSTS: FeedPost[] = [
     links: [{ label: 'Sophitia repository', href: 'https://github.com/aandrx/sophitia' }],
   },
   {
+    slug: 'notes-from-a-build',
+    title: 'Notes from a build',
+    date: 'May 2026',
+    dateTime: '2026-05-29',
+    body: [
+      'Shend compresses large videos for Discord. The bot accepts a file, runs the encoder, and returns either an inline embed or a download link when the result is too large for the player.',
+      'A job can fail at upload, at encoding, or at delivery. The bot needs to keep those states separate so a retry does not start from the beginning.',
+      'The repository is self-hosted. That choice adds setup work, but it keeps processing and files on the machine running the bot. It was run on a home server; current operation is unverified.',
+    ],
+    links: [{ label: 'Shend repository', href: 'https://github.com/aandrx/shend' }],
+  },  {
     slug: 'photographing-empty-rooms',
     title: 'Photographing empty rooms',
     date: 'May 2026',
@@ -134,18 +145,7 @@ export const FEED_POSTS: FeedPost[] = [
     ],
     links: [{ label: 'Continuum repository', href: 'https://github.com/aandrx/continuum' }],
   },
-  {
-    slug: 'notes-from-a-build',
-    title: 'Notes from a build',
-    date: 'May 2026',
-    dateTime: '2026-05-29',
-    body: [
-      'Shend compresses large videos for Discord. The bot accepts a file, runs the encoder, and returns either an inline embed or a download link when the result is too large for the player.',
-      'A job can fail at upload, at encoding, or at delivery. The bot needs to keep those states separate so a retry does not start from the beginning.',
-      'The repository is self-hosted. That choice adds setup work, but it keeps processing and files on the machine running the bot. It was run on a home server; current operation is unverified.',
-    ],
-    links: [{ label: 'Shend repository', href: 'https://github.com/aandrx/shend' }],
-  },
+
   {
     slug: 'unfinished-on-purpose',
     title: 'Unfinished, on purpose',

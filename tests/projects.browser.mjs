@@ -490,8 +490,8 @@ try {
     }
     return chunks.join('\n')
   })
-  assert.match(reducedCss, /\.map-ripple-layer[\s\S]{0,80}display:\s*none/, 'decorative ripple is hidden under reduced motion')
-  assert.match(reducedCss, /\.map-preview-slot[\s\S]{0,80}transition:\s*none/, 'row transitions are disabled under reduced motion')
+  assert.match(reducedCss, /\.map-ripple-layer[^{}]*\{[^}]*display:\s*none/, 'decorative ripple is hidden under reduced motion')
+  assert.match(reducedCss, /\.map-preview-slot[^{}]*\{[^}]*transition:\s*none/, 'row transitions are disabled under reduced motion')
 
   assert.deepEqual(errors, [], 'projects index has no runtime errors')
   console.log('PASS: projects index shows groups, repository links, activity map and collapsible activity')
