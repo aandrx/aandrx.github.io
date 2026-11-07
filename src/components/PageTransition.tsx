@@ -22,7 +22,7 @@ export default function PageTransition({ children }: Readonly<PageTransitionProp
   const initialPathname = useRef(pathname)
   const hasNavigated = useRef(false)
   const scrollPositions = useRef(new Map<string, number>())
-  const entryKey = useRef<string | null>(null)
+  const restoringEntry = useRef(false)
   const restoreTarget = useRef<number | null>(null)
   const restorePath = useRef<string | null>(null)
   const currentPathname = useRef(pathname)
@@ -32,9 +32,10 @@ export default function PageTransition({ children }: Readonly<PageTransitionProp
   currentPathname.current = pathname
 
   useEffect(() => {
-    entryKey.current = getEntryKey(pathname)
     const save = () => {
-      if (entryKey.current) scrollPositions.current.set(entryKey.current, window.scrollY)
+      if (restoringEntry.current) return
+      const key = getEntryKey(pathname)
+      scrollPositions.current.set(key, window.scrollY)
     }
     save()
     window.addEventListener('scroll', save, { passive: true })
@@ -44,11 +45,12 @@ export default function PageTransition({ children }: Readonly<PageTransitionProp
   useEffect(() => {
     const onPopState = () => {
       const path = window.location.pathname
+      const key = getEntryKey(path)
       // Same-page hash history is owned by the browser. Only restore when the
       // history entry changes the route.
       if (path === currentPathname.current) return
-      const key = window.history.state?.__scrollKey
-      const target = typeof key === 'string' ? scrollPositions.current.get(key) : undefined
+      const target = scrollPositions.current.get(key)
+      restoringEntry.current = target !== undefined
       restorePath.current = target === undefined ? null : path
       restoreTarget.current = target ?? null
       setRestoreToken((value) => value + 1)
@@ -66,6 +68,7 @@ export default function PageTransition({ children }: Readonly<PageTransitionProp
       const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight)
       if (maxScroll >= target || performance.now() >= deadline) {
         window.scrollTo(0, Math.min(target, maxScroll))
+        restoringEntry.current = false
         restoreTarget.current = null
         restorePath.current = null
         return

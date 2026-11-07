@@ -420,6 +420,7 @@ export default function MuseumMockupPage() {
   }, [])
   const selectedItem = GALLERY[selected]
   const hashOrigin = useRef(0)
+  const samePageHistory = useRef(false)
 
   const jumpToSection = (event: MouseEvent<HTMLAnchorElement>, id: string) => {
     if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
@@ -427,6 +428,7 @@ export default function MuseumMockupPage() {
     if (!target) return
     event.preventDefault()
     hashOrigin.current = window.scrollY
+    samePageHistory.current = true
     const currentState = window.history.state && typeof window.history.state === 'object' ? window.history.state : {}
     const { __scrollKey: _scrollKey, ...stateWithoutScrollKey } = currentState
     window.history.pushState({ ...stateWithoutScrollKey, hashTarget: id }, '', `#${id}`)
@@ -438,7 +440,7 @@ export default function MuseumMockupPage() {
 
   useEffect(() => {
     const onPopState = () => {
-      if (window.location.pathname !== '/') return
+      if (window.location.pathname !== '/' || !samePageHistory.current) return
       if (!window.location.hash) {
         if (document.scrollingElement) document.scrollingElement.scrollTop = hashOrigin.current
         return
