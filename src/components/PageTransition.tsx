@@ -61,8 +61,14 @@ export default function PageTransition({ children }: Readonly<PageTransitionProp
 
   useEffect(() => {
     const target = restoreTarget.current
-    if (target === null || restorePath.current !== pathname) return
+    if (target === null || restorePath.current !== pathname) {
+      restoringEntry.current = false
+      restoreTarget.current = null
+      restorePath.current = null
+      return
+    }
     let frame = 0
+    let completed = false
     const deadline = performance.now() + RESTORE_TIMEOUT_MS
     const restore = () => {
       const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight)
@@ -71,12 +77,20 @@ export default function PageTransition({ children }: Readonly<PageTransitionProp
         restoringEntry.current = false
         restoreTarget.current = null
         restorePath.current = null
+        completed = true
         return
       }
       frame = window.requestAnimationFrame(restore)
     }
     frame = window.requestAnimationFrame(restore)
-    return () => window.cancelAnimationFrame(frame)
+    return () => {
+      window.cancelAnimationFrame(frame)
+      if (!completed) {
+        restoringEntry.current = false
+        restoreTarget.current = null
+        restorePath.current = null
+      }
+    }
   }, [pathname, restoreToken])
 
   return (
