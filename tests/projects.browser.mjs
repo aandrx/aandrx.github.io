@@ -197,38 +197,6 @@ try {
   assert.ok(preview.repos.every((repo) => repo.length > 0), 'preview names every event repository')
   assert.ok(preview.titles.some((title) => title.length > 0), 'preview shows at least one event title')
 
-  const ripple = await page.evaluate(() => {
-    const layer = document.querySelector('.map-ripple-layer')
-    const glow = layer?.querySelector('.map-ripple-glow')
-    return {
-      layer: Boolean(layer), active: layer?.classList.contains('is-active'),
-      glow: Boolean(glow), animation: glow ? getComputedStyle(glow).animationName : '',
-      background: glow ? getComputedStyle(glow).backgroundImage : '',
-      x: layer ? Number.parseFloat(getComputedStyle(layer).getPropertyValue('--ripple-x')) : 0,
-      cellFilter: getComputedStyle(document.querySelector('.map-cell[data-date]')).filter,
-      cellOverlay: getComputedStyle(document.querySelector('.map-cell[data-date]'), '::after').content,
-    }
-  })
-  assert.equal(ripple.layer, true, 'ripple has its own behind-grid layer')
-  assert.equal(ripple.glow, true, 'ripple is one static cursor-following glow')
-  assert.equal(ripple.active, true, 'ripple is active while the pointer is inside the grid')
-  assert.equal(ripple.animation, 'none', 'ripple does not restart an outward animation per cell')
-  assert.match(ripple.background, /repeating-radial-gradient/, 'ripple renders as concentric rings, not a flat wash')
-  assert.ok(ripple.x > 0, 'ripple receives the pointer position')
-  assert.equal(ripple.cellFilter, 'none', 'cell faces are not brightened')
-  assert.equal(ripple.cellOverlay, 'none', 'cell faces have no overlay')
-  const firstRippleX = ripple.x
-  const gridCenter = await page.$eval('.map-weeks', (grid) => {
-    const rect = grid.getBoundingClientRect()
-    return { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 }
-  })
-  await page.mouse.move(gridCenter.x, gridCenter.y)
-  await page.waitForFunction((previous) => {
-    const layer = document.querySelector('.map-ripple-layer')
-    return layer && Number.parseFloat(getComputedStyle(layer).getPropertyValue('--ripple-x')) !== previous
-  }, { timeout: 5000 }, firstRippleX)
-  const movedRippleX = await page.$eval('.map-ripple-layer', (layer) => Number.parseFloat(getComputedStyle(layer).getPropertyValue('--ripple-x')))
-  assert.notEqual(movedRippleX, firstRippleX, 'ripple follows the cursor across grid cells instead of restarting')
   assert.equal(preview.pointerEvents, 'none', 'preview cannot capture the pointer and flicker')
   assert.ok(preview.width <= 340, 'preview card stays at most 340px wide')
   assert.ok(preview.left >= 0 && preview.right <= preview.viewportWidth + 1, 'preview stays inside the viewport horizontally')
@@ -505,7 +473,6 @@ try {
     }
     return chunks.join('\n')
   })
-  assert.match(reducedCss, /\.map-ripple-layer[^{}]*\{[^}]*display:\s*none/, 'decorative ripple is hidden under reduced motion')
   assert.match(reducedCss, /\.map-preview-slot[^{}]*\{[^}]*transition:\s*none/, 'row transitions are disabled under reduced motion')
 
   assert.deepEqual(errors, [], 'projects index has no runtime errors')

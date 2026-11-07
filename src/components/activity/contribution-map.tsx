@@ -54,12 +54,6 @@ export default function ContributionMap({ calendar, events, title = 'Contributio
   const [previewVisible, setPreviewVisible] = useState(false)
   const [announcement, setAnnouncement] = useState('')
   const isOpen = Boolean(hovered)
-  const [rippleActive, setRippleActive] = useState(false)
-  const rippleLayer = useRef<HTMLDivElement | null>(null)
-  const rippleTarget = useRef({ x: 0, y: 0 })
-  const ripplePosition = useRef({ x: 0, y: 0 })
-  const rippleFrame = useRef<number | null>(null)
-  const rippleEntered = useRef(false)
   const sideRef = useRef<'right' | 'left'>('right')
   const gridRef = useRef<HTMLDivElement | null>(null)
   const closeTimer = useRef<number | null>(null)
@@ -117,7 +111,6 @@ export default function ContributionMap({ calendar, events, title = 'Contributio
 
   useEffect(() => () => {
     if (closeTimer.current !== null) window.clearTimeout(closeTimer.current)
-    if (rippleFrame.current !== null) window.cancelAnimationFrame(rippleFrame.current)
   }, [])
 
   // Mount the portal hidden, then reveal it on the next frame so the first
@@ -167,57 +160,8 @@ export default function ContributionMap({ calendar, events, title = 'Contributio
 
   const keyboardDays = columns.flat().filter((day): day is ContributionDay => Boolean(day))
 
-  const writeRipplePosition = () => {
-    const layer = rippleLayer.current
-    if (!layer) return
-    layer.style.setProperty('--ripple-x', `${ripplePosition.current.x}px`)
-    layer.style.setProperty('--ripple-y', `${ripplePosition.current.y}px`)
-  }
-
-  // One static ripple follows the pointer. It never restarts for a new cell;
-  // the glow simply eases toward the latest pointer position.
-  const moveRipple = (event: ReactPointerEvent<HTMLDivElement>) => {
-    if (event.pointerType === 'touch' || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-    const grid = gridRef.current?.getBoundingClientRect()
-    if (!grid) return
-    rippleTarget.current = { x: event.clientX - grid.left, y: event.clientY - grid.top }
-    const step = () => {
-      const target = rippleTarget.current
-      const position = ripplePosition.current
-      position.x += (target.x - position.x) * 0.22
-      position.y += (target.y - position.y) * 0.22
-      if (Math.hypot(target.x - position.x, target.y - position.y) < 0.15) {
-        ripplePosition.current = { ...target }
-        writeRipplePosition()
-        rippleFrame.current = null
-        return
-      }
-      writeRipplePosition()
-      rippleFrame.current = window.requestAnimationFrame(step)
-    }
-    if (rippleFrame.current === null) {
-      if (!rippleEntered.current) {
-        ripplePosition.current = { ...rippleTarget.current }
-        rippleEntered.current = true
-        writeRipplePosition()
-        setRippleActive(true)
-      }
-      rippleFrame.current = window.requestAnimationFrame(step)
-    }
-  }
-
-  const stopRipple = () => {
-    if (rippleFrame.current !== null) {
-      window.cancelAnimationFrame(rippleFrame.current)
-      rippleFrame.current = null
-    }
-    rippleEntered.current = false
-    setRippleActive(false)
-  }
-
   const handleGridPointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (event.pointerType === 'touch') return
-    moveRipple(event)
     const target = (event.target as HTMLElement).closest<HTMLElement>('.map-cell[data-date]')
     const date = target?.dataset.date
     if (!date || date === hovered?.day.date) return
@@ -228,13 +172,11 @@ export default function ContributionMap({ calendar, events, title = 'Contributio
   const handleGridPointerEnter = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (event.pointerType === 'touch') return
     cancelClose()
-    moveRipple(event)
     if (hovered) setPreviewVisible(true)
   }
 
   const handleGridPointerLeave = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (event.pointerType === 'touch') return
-    stopRipple()
     scheduleClose()
   }
 
@@ -334,9 +276,6 @@ export default function ContributionMap({ calendar, events, title = 'Contributio
               onPointerLeave: handleGridPointerLeave,
             } : {})}
           >
-            {bare ? <div ref={rippleLayer} className={`map-ripple-layer${rippleActive ? ' is-active' : ''}`} aria-hidden="true">
-              <span className="map-ripple-glow" />
-            </div> : null}
             {columns.map((week, weekIndex) => (
               week.map((day, dayIndex) => day ? (
                 <span

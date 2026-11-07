@@ -82,36 +82,6 @@
   justify-content: center;
 }
 
-/* Opaque cells occlude one static glow that follows the pointer. */
-.projects-activity-shell .map-weeks { position: relative; isolation: isolate; }
-.projects-activity-shell .map-cell { position: relative; z-index: 1; }
-.map-ripple-layer {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  overflow: hidden;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity .18s ease;
-  mask-image: linear-gradient(to right, transparent, #000 8px, #000 calc(100% - 8px), transparent), linear-gradient(to bottom, transparent, #000 5px, #000 calc(100% - 5px), transparent);
-  mask-composite: intersect;
-}
-.map-ripple-layer.is-active { opacity: 1; }
-.map-ripple-glow {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 300px;
-  height: 300px;
-  margin: -150px 0 0 -150px;
-  border-radius: 50%;
-  background: repeating-radial-gradient(circle at center, transparent 0 9px, rgba(31, 122, 58, .28) 10px 11px, transparent 12px 21px);
-  filter: blur(.35px);
-  mask-image: radial-gradient(circle at center, #000 0 56%, transparent 74%);
-  transform: translate3d(var(--ripple-x, 0px), var(--ripple-y, 0px), 0);
-  will-change: transform;
-}
-
 /* The visual grid is decorative (aria-hidden), so the hover preview is a
    pointer-only affordance and adds no tab stops. The hidden table remains the
    accessible source. The card is portalled to the body and positioned in JS so
@@ -365,5 +335,4 @@
 
   .map-preview { transition: none; }
   .map-content-enter { animation: none; }
-  .map-ripple-layer { display: none; }
 }
