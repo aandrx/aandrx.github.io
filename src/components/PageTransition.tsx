@@ -1,36 +1,65 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { usePathname } from 'next/navigation'
 
 interface PageTransitionProps {
   children: React.ReactNode
 }
 
+const RESTORE_TIMEOUT_MS = 3000
+
 export default function PageTransition({ children }: Readonly<PageTransitionProps>) {
-  const [isVisible, setIsVisible] = useState(true) // Start visible for immediate content
-  const [isInitialLoad, setIsInitialLoad] = useState(true)
   const pathname = usePathname()
+  const initialPathname = useRef(pathname)
+  const hasNavigated = useRef(false)
+  const scrollPositions = useRef(new Map<string, number>())
+  const restoreTarget = useRef<number | null>(null)
+  const restorePath = useRef<string | null>(null)
+  const [restoreToken, setRestoreToken] = useState(0)
+
+  if (pathname !== initialPathname.current) hasNavigated.current = true
 
   useEffect(() => {
-    // Skip transition on initial load
-    if (isInitialLoad) {
-      setIsInitialLoad(false)
-      return
+    const save = () => scrollPositions.current.set(pathname, window.scrollY)
+    save()
+    window.addEventListener('scroll', save, { passive: true })
+    return () => window.removeEventListener('scroll', save)
+  }, [pathname])
+
+  useEffect(() => {
+    const onPopState = () => {
+      const path = window.location.pathname
+      const target = scrollPositions.current.get(path)
+      restorePath.current = target === undefined ? null : path
+      restoreTarget.current = target ?? null
+      setRestoreToken((value) => value + 1)
     }
+    window.addEventListener('popstate', onPopState)
+    return () => window.removeEventListener('popstate', onPopState)
+  }, [])
 
-    // Apply transition to entire layout (including sidebar) on navigation
-    setIsVisible(false)
-    
-    const timer = setTimeout(() => {
-      setIsVisible(true)
-    }, 150) // Quick fade for smooth navigation
-
-    return () => clearTimeout(timer)
-  }, [pathname, isInitialLoad])
+  useEffect(() => {
+    const target = restoreTarget.current
+    if (target === null || restorePath.current !== pathname) return
+    let frame = 0
+    const deadline = performance.now() + RESTORE_TIMEOUT_MS
+    const restore = () => {
+      const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight)
+      if (maxScroll >= target || performance.now() >= deadline) {
+        window.scrollTo(0, Math.min(target, maxScroll))
+        restoreTarget.current = null
+        restorePath.current = null
+        return
+      }
+      frame = window.requestAnimationFrame(restore)
+    }
+    frame = window.requestAnimationFrame(restore)
+    return () => window.cancelAnimationFrame(frame)
+  }, [pathname, restoreToken])
 
   return (
-    <div className={`${isInitialLoad ? '' : 'page-transition'} ${isVisible ? 'fade-in' : ''}`}>
+    <div key={pathname} className={`page-transition${hasNavigated.current ? '' : ' is-initial'}`}>
       {children}
     </div>
   )
