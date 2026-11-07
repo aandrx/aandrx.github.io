@@ -59,6 +59,7 @@ export default function ContributionMap({ calendar, events, title = 'Contributio
   const rippleTarget = useRef({ x: 0, y: 0 })
   const ripplePosition = useRef({ x: 0, y: 0 })
   const rippleFrame = useRef<number | null>(null)
+  const rippleEntered = useRef(false)
   const sideRef = useRef<'right' | 'left'>('right')
   const gridRef = useRef<HTMLDivElement | null>(null)
   const closeTimer = useRef<number | null>(null)
@@ -185,13 +186,22 @@ export default function ContributionMap({ calendar, events, title = 'Contributio
       const position = ripplePosition.current
       position.x += (target.x - position.x) * 0.22
       position.y += (target.y - position.y) * 0.22
+      if (Math.hypot(target.x - position.x, target.y - position.y) < 0.15) {
+        ripplePosition.current = { ...target }
+        writeRipplePosition()
+        rippleFrame.current = null
+        return
+      }
       writeRipplePosition()
       rippleFrame.current = window.requestAnimationFrame(step)
     }
     if (rippleFrame.current === null) {
-      ripplePosition.current = { ...rippleTarget.current }
-      writeRipplePosition()
-      setRippleActive(true)
+      if (!rippleEntered.current) {
+        ripplePosition.current = { ...rippleTarget.current }
+        rippleEntered.current = true
+        writeRipplePosition()
+        setRippleActive(true)
+      }
       rippleFrame.current = window.requestAnimationFrame(step)
     }
   }
@@ -201,6 +211,7 @@ export default function ContributionMap({ calendar, events, title = 'Contributio
       window.cancelAnimationFrame(rippleFrame.current)
       rippleFrame.current = null
     }
+    rippleEntered.current = false
     setRippleActive(false)
   }
 
