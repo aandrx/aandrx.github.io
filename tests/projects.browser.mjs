@@ -97,7 +97,8 @@ try {
   assert.deepEqual(state.h1, ['Projects'], 'projects index renders exactly one h1')
   assert.equal(state.canonicalPath, '/projects/', 'projects index declares its canonical path')
   assert.deepEqual(state.groups, ['Selected work', 'More work'], 'projects index renders both project groups')
-  assert.equal(state.projectLinkCount, 12, 'projects index lists twelve projects')
+  assert.equal(state.projectLinkCount, 13, 'projects index lists thirteen projects')
+  assert.equal(state.rowCopies['animal-training-app'], 'A Bits of Good animal training manager', 'Animal Training App is described by its bootcamp scope')
   assert.equal(state.rowCopies.continuum, 'A personal kanban prototype', 'Continuum is described as a kanban prototype')
   assert.equal(state.rowCopies.ina, 'An unfinished Discord bot', 'Ina is described as an unfinished Discord bot')
   assert.equal(state.rowCopies.spendwise, 'Team Android budgeting coursework', 'Spendwise is described as team Android coursework')
@@ -421,7 +422,7 @@ try {
   await page.mouse.move(2, 2)
   await page.waitForFunction(() => !document.querySelector('.map-preview'), { timeout: 5000 })
 
-  const detailSlugs = ['bloom', 'sink', 'shend', 'webby', 'hope-for-haiti', 'loom', 'harmonyapi', 'palace-tui', 'continuum', 'ina', 'spendwise', 'sophitia']
+  const detailSlugs = ['bloom', 'sink', 'shend', 'webby', 'hope-for-haiti', 'loom', 'harmonyapi', 'palace-tui', 'animal-training-app', 'continuum', 'ina', 'spendwise', 'sophitia']
   for (const slug of detailSlugs) {
     const detailResponse = await fetch(`${baseURL}/projects/${slug}/`)
     assert.equal(detailResponse.status, 200, `/projects/${slug}/ renders`)
