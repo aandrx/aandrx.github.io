@@ -69,6 +69,13 @@ export const PROJECTS: ProjectItem[] = [
 
 export const MORE_PROJECTS: ProjectItem[] = [
   {
+    title: 'Animal Training App',
+    slug: 'animal-training-app',
+    repo: 'https://github.com/BoG-Developer-Bootcamp-Spring-26/project3-s26-hork',
+    summary: 'A Bits of Good animal training manager',
+    detail: 'A team-built animal training management app from the Bits of Good developer bootcamp. Owners manage animal profiles and training logs; admins review users, animals, and training activity. Built with Next.js, TypeScript, MongoDB, JWT authentication, and Argon2 password hashing.',
+  },
+  {
     title: 'Continuum',
     slug: 'continuum',
     repo: 'https://github.com/aandrx/continuum',
