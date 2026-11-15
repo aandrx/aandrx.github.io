@@ -9,6 +9,14 @@ export type ProjectItem = {
 
 export const PROJECTS: ProjectItem[] = [
   {
+    slug: 'voice-plotter',
+    title: 'Voice Plotter',
+    repo: 'https://github.com/aandrx/voice-plotter',
+    summary: 'A pen plotter that writes what you say',
+    detail: 'A four-person engineering project that turns speech into handwriting. I built the Arduino firmware, hand-authored stroke font, serial protocol, Python speech front end, and integration tests for the 3-axis plotter.',
+    tag: 'Hardware',
+  },
+  {
     slug: 'bloom',
     title: 'Bloom',
     repo: 'https://github.com/aandrx/bloom',
