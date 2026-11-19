@@ -69,14 +69,15 @@ export default function ShendMockPage() {
           <p>The encoder probes the duration with <code>ffprobe</code>, converts the 9.5 MB target into bits, subtracts a fixed 96 kbps for audio, and divides what is left by the duration. That number becomes the video bitrate for a two-pass libx264 run. If the computed bitrate falls below 500 kbps, the scale drops from 1280 wide to 854 wide rather than producing something unwatchable.</p>
 
           <figure className="feed-figure shend-code">
-            <pre tabIndex={0}><code>{`ffmpeg -y -i input.mp4 -vf scale=1280:-2 \\
+            <pre tabIndex={0}><code>{`# width: 1280, or 854 under 500 kbps
+ffmpeg -y -i input.mp4 -vf scale=<width>:-2 \\
   -c:v libx264 -b:v <target> -pass 1 -passlogfile <log> \\
   -an -f null /dev/null
 
-ffmpeg -y -i input.mp4 -vf scale=1280:-2 \\
+ffmpeg -y -i input.mp4 -vf scale=<width>:-2 \\
   -c:v libx264 -b:v <target> -pass 2 -passlogfile <log> \\
   -c:a aac -b:a 96000 -movflags +faststart output.mp4`}</code></pre>
-            <figcaption>The two passes from <code>compress.py</code>, with the computed bitrate and scale substituted in.</figcaption>
+            <figcaption>The two passes from <code>compress.py</code>, with the computed bitrate and width substituted in. The width is the only conditional value.</figcaption>
           </figure>
 
           <h2>Two ways to get the file back</h2>
