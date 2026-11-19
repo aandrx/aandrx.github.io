@@ -87,9 +87,9 @@ export default function SinkMockPage() {
                 alt="Sink's mobile review showing a binary attachment with its decision controls in dark theme."
                 width={468}
                 height={1013}
-                sizes="(max-width: 720px) 45vw, 240px"
+                sizes="(max-width: 520px) 100vw, (max-width: 720px) 45vw, 240px"
               />
-              <figcaption>A binary attachment in the review.</figcaption>
+              <figcaption>A binary attachment in the review. Rendered from the real component at a 390 by 844 viewport; not a device capture.</figcaption>
             </figure>
             <figure className="feed-figure">
               <Image
@@ -97,9 +97,9 @@ export default function SinkMockPage() {
                 alt="Sink's mobile review showing a retained conflict revision picker in light theme."
                 width={468}
                 height={1013}
-                sizes="(max-width: 720px) 45vw, 240px"
+                sizes="(max-width: 520px) 100vw, (max-width: 720px) 45vw, 240px"
               />
-              <figcaption>A retained conflict revision, which needs an explicit choice.</figcaption>
+              <figcaption>A retained conflict revision, which needs an explicit choice. Rendered from the real component; not a device capture.</figcaption>
             </figure>
           </div>
 
