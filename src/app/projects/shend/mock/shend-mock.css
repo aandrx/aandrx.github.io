@@ -1,0 +1,38 @@
+.shend-mock .feed-article-date {
+  margin-bottom: 32px;
+}
+
+.shend-mock .feed-body h2 {
+  margin-top: 44px;
+}
+
+.shend-mock .feed-body code {
+  padding: 1px 4px;
+  background: #f1f1ee;
+  font: 400 13px/1.4 "SFMono-Regular", Consolas, monospace;
+}
+
+.shend-mock .shend-code pre {
+  margin: 0;
+  padding: 16px 18px;
+  overflow-x: auto;
+  border: 1px solid #e3e3e3;
+  background: #fafaf8;
+}
+
+.shend-mock .shend-code pre code {
+  padding: 0;
+  background: none;
+  font: 400 12px/1.7 "SFMono-Regular", Consolas, monospace;
+  white-space: pre;
+}
+
+@media (max-width: 520px) {
+  .shend-mock .shend-code pre {
+    padding: 12px 14px;
+  }
+
+  .shend-mock .shend-code pre code {
+    font-size: 11px;
+  }
+}
