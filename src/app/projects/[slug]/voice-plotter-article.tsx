@@ -1,15 +1,10 @@
-import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import ProjectsTop from '../../projects-top'
-import '../../../feed/feed.css'
-import '../../../feed/[slug]/feed-article.css'
-import './voice-plotter-mock.css'
-
-export const metadata: Metadata = {
-  title: 'Voice Plotter draft · Andrew Liu',
-  robots: { index: false, follow: false },
-}
+import type { ProjectItem } from '@/lib/project-data'
+import ProjectsTop from '../projects-top'
+import '../../feed/feed.css'
+import '../../feed/[slug]/feed-article.css'
+import './voice-plotter-article.css'
 
 const facts = [
   ['Team', 'Four-person EG-UY 1004 project'],
@@ -18,14 +13,17 @@ const facts = [
   ['Speed', 'About 15 seconds per letter'],
 ]
 
-export default function VoicePlotterMockPage() {
+type Props = {
+  project: ProjectItem
+  next?: ProjectItem
+}
+
+export default function VoicePlotterArticle({ project, next }: Props) {
   return (
-    <main className="feed-page feed-article voice-plotter-mock">
+    <main className="feed-page feed-article voice-plotter-article" data-project-article={project.slug}>
       <ProjectsTop />
 
       <article className="feed-article-main">
-        <p className="project-mock-label">Draft project page for review. Not linked from Projects yet.</p>
-
         <header className="feed-article-head">
           <p className="project-kicker">Hardware · Fall 2025 · Team project</p>
           <h1>Voice Plotter</h1>
@@ -139,7 +137,11 @@ export default function VoicePlotterMockPage() {
 
         <footer className="feed-article-foot">
           <Link href="/projects/">← Projects</Link>
-          <a href="https://github.com/aandrx/voice-plotter" target="_blank" rel="noreferrer">Repository →</a>
+          {next ? (
+            <Link href={`/projects/${next.slug}/`}>Next: {next.title} →</Link>
+          ) : (
+            <Link href="/projects/">Projects →</Link>
+          )}
         </footer>
       </article>
     </main>
