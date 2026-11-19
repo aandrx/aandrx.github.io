@@ -4,6 +4,7 @@ import Link from 'next/link'
 import ProjectsTop from '../../projects-top'
 import '../../../feed/feed.css'
 import '../../../feed/[slug]/feed-article.css'
+import '../../project-article.css'
 import './bloom-mock.css'
 
 export const metadata: Metadata = {
@@ -116,13 +117,13 @@ export default function BloomMockPage() {
             <p>The public page still needs real runtime screenshots and a demo capture. I opened <a href="https://github.com/aandrx/bloom/issues/4" target="_blank" rel="noreferrer">issue #4</a> for those assets and verification details.</p>
           </div>
 
-          <div className="feed-related" aria-label="Related links">
+          <nav className="feed-related" aria-label="Related links">
             <span>Related</span>
             <a href="https://github.com/aandrx/bloom" target="_blank" rel="noreferrer">Repository</a>
             <a href="https://github.com/aandrx/bloom/blob/main/docs/system-design.md" target="_blank" rel="noreferrer">System design</a>
             <a href="https://github.com/aandrx/bloom/blob/main/docs/status.md" target="_blank" rel="noreferrer">Status and boundaries</a>
             <a href="https://github.com/aandrx/bloom/blob/main/docs/handoff.md" target="_blank" rel="noreferrer">Handoff notes</a>
-          </div>
+          </nav>
         </div>
 
         <footer className="feed-article-foot">

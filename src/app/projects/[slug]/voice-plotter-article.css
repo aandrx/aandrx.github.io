@@ -1,51 +1,5 @@
-.project-kicker {
-  margin: 0 0 8px;
-  color: #666;
-  font: 400 11px/1.4 "Helvetica Neue", Helvetica, Arial, sans-serif;
-  letter-spacing: .1em;
-  text-transform: uppercase;
-}
-
 .voice-plotter-article .feed-article-date {
   margin-bottom: 32px;
-}
-
-.project-hero {
-  margin-top: 0;
-}
-
-.project-lede {
-  margin-bottom: 28px !important;
-  color: #18181b;
-  font-size: 19px;
-  line-height: 1.55;
-}
-
-.project-facts {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0 24px;
-  margin: 28px 0 36px;
-  padding: 14px 0;
-  border-top: 1px solid #e3e3e3;
-  border-bottom: 1px solid #e3e3e3;
-}
-
-.project-facts div {
-  padding: 4px 0;
-}
-
-.project-facts dt {
-  color: #555;
-  font: 400 10px/1.4 "Helvetica Neue", Helvetica, Arial, sans-serif;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-}
-
-.project-facts dd {
-  margin: 2px 0 0;
-  color: #222;
-  font: 400 13px/1.45 "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 .voice-plotter-article .feed-body h2 {
@@ -54,15 +8,4 @@
 
 .compact-figure img {
   border: 1px solid #e3e3e3;
-}
-
-@media (max-width: 520px) {
-  .project-facts {
-    grid-template-columns: 1fr;
-    gap: 8px 0;
-  }
-
-  .project-lede {
-    font-size: 17px;
-  }
 }
