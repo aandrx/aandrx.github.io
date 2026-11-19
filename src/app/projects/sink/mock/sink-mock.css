@@ -1,0 +1,29 @@
+.sink-mock .feed-article-date {
+  margin-bottom: 32px;
+}
+
+.sink-mock .feed-body h2 {
+  margin-top: 44px;
+}
+
+.sink-mock .sink-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 20px;
+  margin: 32px 0;
+}
+
+.sink-mock .sink-pair .feed-figure {
+  margin: 0;
+}
+
+.sink-mock .sink-pair figcaption {
+  font-size: 12px;
+}
+
+@media (max-width: 520px) {
+  .sink-mock .sink-pair {
+    grid-template-columns: 1fr;
+    gap: 24px 0;
+  }
+}

@@ -58,3 +58,40 @@
     font-size: 17px;
   }
 }
+
+/* Draft and status affordances shared by project articles. These class names
+   are project-specific, so they are safe to define once here. */
+
+.project-mock-label {
+  display: inline-block;
+  margin: 0 0 28px;
+  padding: 4px 7px;
+  background: #f1f1ee;
+  color: #555;
+  font: 400 11px/1.4 "Helvetica Neue", Helvetica, Arial, sans-serif;
+  letter-spacing: .04em;
+}
+
+.project-status-note {
+  margin: 40px 0 0;
+  padding: 14px 16px;
+  border: 1px solid #e3e3e3;
+  background: #fafaf8;
+}
+
+.project-status-note strong {
+  font: 500 13px/1.4 "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.project-status-note p {
+  margin: 4px 0 0 !important;
+  color: #555;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.project-status-note a {
+  color: #222;
+  text-decoration: underline;
+  text-underline-offset: .18em;
+}
