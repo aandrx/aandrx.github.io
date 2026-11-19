@@ -14,18 +14,4 @@
 
 .webby-mock .webby-media-note {
   margin: 0 0 24px;
-  padding: 12px 14px;
-  border-left: 2px solid #c9c9c3;
-  background: #fafaf8;
-}
-
-.webby-mock .webby-media-note strong {
-  font: 500 13px/1.4 "Helvetica Neue", Helvetica, Arial, sans-serif;
-}
-
-.webby-mock .webby-media-note p {
-  margin: 3px 0 0 !important;
-  color: #555;
-  font-size: 13px;
-  line-height: 1.5;
 }

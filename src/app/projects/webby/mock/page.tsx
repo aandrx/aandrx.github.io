@@ -33,7 +33,7 @@ export default function WebbyMockPage() {
           <p className="feed-article-date">Sticky notes that stay attached to the app or the web page you left them on.</p>
         </header>
 
-        <div className="webby-media-note">
+        <div className="project-status-note webby-media-note">
           <strong>No app build has been published</strong>
           <p>The two images on this page are captures of Webby's public design-direction site, not the app. A runtime capture is requested in issue #68.</p>
         </div>
@@ -83,7 +83,7 @@ export default function WebbyMockPage() {
           </figure>
 
           <h2>Skins as a file, not a plugin</h2>
-          <p>A <code>.webbyskin</code> is a ZIP containing <code>skin.json</code>, PNG images, and WAV sounds. There is no code in a skin, which keeps the format reviewable: an importer can inspect every asset before it stages a note panel, collapsed bar, Library window, voice orb, or app icon.</p>
+          <p>A <code>.webbyskin</code> is a ZIP containing <code>skin.json</code>, PNG images, and WAV sounds. There is no code in a skin, which keeps the format reviewable: an importer can inspect every asset before it stages a note panel, collapsed bar, Library window, or voice orb.</p>
           <p>The rules are accessibility-first. Every text and fill pair has to meet 4.5:1 when composited over both white and black, because the page behind a note is unknown. Texture stays at the edges rather than under body text, Reduce Transparency switches to an opaque fill, and Increase Contrast applies the skin's overrides last.</p>
           <p>The archive layer has code and tests. The five looks are still directions: the design document calls the visual principles proposed, and the site says the skin engine is what Webby <em>would</em> use. This page does not present them as shipped.</p>
 
@@ -92,7 +92,7 @@ export default function WebbyMockPage() {
           <p>The Chrome integration has recorded evidence beyond unit tests. A disposable Chrome profile produced real window bounds and a real navigation stream, including Punycode hosts and the empty-URL-then-update activation sequence. Recorded normal, incognito-enabled, and incognito-denied sessions replay through Swift tests, and synthetic fixtures cover mismatched bounds, overlapping profiles, reconnects, prefix boundaries, and separate YouTube videos. The document labels which cases were live and which were synthetic.</p>
 
           <h2>What is not verified</h2>
-          <p>There is no release. <code>release/history.json</code> is empty, the README says so, and release packaging is still being built. Without a signed, notarized build there is nothing for a reader to download, and no runtime screenshot to show.</p>
+          <p>There is no release. <code>release/history.json</code> is empty, the README says so, and release packaging is still being built. The packaging scripts and runbook exist, but no release has run and the signing inputs are unconfirmed. Without a signed, notarized build there is nothing for a reader to download, and no runtime screenshot to show.</p>
           <p>The interactive acceptance pass is also still open: Accessibility permission changes, typing and dragging notes, full-screen and multiple displays, multiple Chrome profiles, and switching between normal and incognito windows with extension access on and off. The recorded browser observations do not substitute for that packaged-app pass.</p>
 
           <h2>What holds it back</h2>
@@ -100,7 +100,7 @@ export default function WebbyMockPage() {
           <p>Webby also asks for a permission that many people reasonably refuse. The app is designed to remain useful without it, at fixed note positions, but the part that makes it feel native is the part that needs trust.</p>
 
           <h2>Credit</h2>
-          <p>Webby is a two-person project. I built alongside Jayden Lee; my commits concentrate in the core library, skin archive, persistence, and release packaging, and Jayden's in the window and Chrome bridge layer. The product decisions were shared.</p>
+          <p>Webby is a two-person project. I built alongside Jayden Lee; my commits concentrate in the core library, skin archive, persistence, and release planning, and Jayden's in the app and window layer, the Chrome bridge, and the release runbook. The final split is one of the things issue #68 asks us to confirm.</p>
 
           <div className="project-status-note">
             <strong>Waiting on project media</strong>
