@@ -428,6 +428,39 @@ try {
     assert.equal(detailResponse.status, 200, `/projects/${slug}/ renders`)
   }
 
+  const voiceResponse = await page.goto(`${baseURL}/projects/voice-plotter/`, { waitUntil: 'networkidle2', timeout: 60000 })
+  assert.equal(voiceResponse?.status(), 200, 'Voice Plotter live page renders')
+  await page.waitForSelector('.voice-plotter-article')
+  const voiceImageCount = await page.$$eval('.feed-figure img', (images) => images.length)
+  for (let index = 0; index < voiceImageCount; index++) {
+    await page.evaluate((imageIndex) => {
+      document.querySelectorAll('.feed-figure img')[imageIndex]?.scrollIntoView({ block: 'center' })
+    }, index)
+    await page.waitForFunction((imageIndex) => {
+      const image = document.querySelectorAll('.feed-figure img')[imageIndex]
+      return Boolean(image && image.complete && image.naturalWidth > 0)
+    }, { timeout: 5000 }, index)
+  }
+  const voice = await page.evaluate(() => ({
+    h1: document.querySelector('h1')?.textContent,
+    kicker: document.querySelector('.project-kicker')?.textContent,
+    facts: [...document.querySelectorAll('.project-facts dd')].map((node) => node.textContent ?? ''),
+    images: [...document.querySelectorAll('.feed-figure img')].map((image) => ({ src: image.getAttribute('src'), alt: image.getAttribute('alt'), width: image.naturalWidth })),
+    draftLabel: document.querySelector('.project-mock-label'),
+    repo: document.querySelector('.feed-related a')?.getAttribute('href'),
+    next: document.querySelector('.feed-article-foot a:last-child')?.getAttribute('href'),
+  }))
+  assert.equal(voice.h1, 'Voice Plotter', 'Voice Plotter live page uses its custom article')
+  assert.match(voice.kicker ?? '', /Hardware/, 'Voice Plotter page keeps its hardware context')
+  assert.equal(voice.facts.length, 4, 'Voice Plotter page renders the project facts')
+  assert.equal(voice.images.length, 5, 'Voice Plotter page renders all project images')
+  assert.ok(voice.images.every((image) => image.width > 0), 'Voice Plotter images load')
+  assert.equal(voice.draftLabel, null, 'Voice Plotter page is no longer marked as a draft')
+  assert.equal(voice.repo, 'https://github.com/aandrx/voice-plotter', 'Voice Plotter page links to its repository')
+  assert.equal(voice.next, '/projects/bloom/', 'Voice Plotter page continues to the next selected project')
+  const mockResponse = await fetch(`${baseURL}/projects/voice-plotter/mock/`)
+  assert.equal(mockResponse.status, 404, 'the temporary Voice Plotter mock route is gone')
+
   await page.goto(`${baseURL}/projects/sink/`, { waitUntil: 'networkidle2', timeout: 60000 })
   const detail = await page.evaluate(() => ({
     h1: document.querySelector('h1')?.textContent,
