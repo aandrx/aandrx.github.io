@@ -4,6 +4,7 @@ import type { ProjectItem } from '@/lib/project-data'
 import ProjectsTop from '../projects-top'
 import '../../feed/feed.css'
 import '../../feed/[slug]/feed-article.css'
+import '../project-article.css'
 import './voice-plotter-article.css'
 
 const facts = [
@@ -126,13 +127,13 @@ export default function VoicePlotterArticle({ project, next }: Props) {
           <h2>What I would show next</h2>
           <p>The strongest next step is not another feature. It is a repeatable print test with a known home position, a measured line of text, and a failure case that can be reproduced. That would turn the prototype story into a machine story.</p>
 
-          <div className="feed-related" aria-label="Related links">
+          <nav className="feed-related" aria-label="Related links">
             <span>Related</span>
             <a href="https://github.com/aandrx/voice-plotter" target="_blank" rel="noreferrer">Repository</a>
             <a href="https://github.com/aandrx/voice-plotter/blob/main/docs/architecture.md" target="_blank" rel="noreferrer">Architecture notes</a>
             <a href="https://github.com/aandrx/voice-plotter/blob/main/docs/case-study.md" target="_blank" rel="noreferrer">Case study</a>
             <a href="https://github.com/aandrx/voice-plotter/tree/main/media/demo" target="_blank" rel="noreferrer">Demo videos</a>
-          </div>
+          </nav>
         </div>
 
         <footer className="feed-article-foot">
