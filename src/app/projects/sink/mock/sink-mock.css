@@ -1,0 +1,69 @@
+.sink-mock .project-mock-label {
+  display: inline-block;
+  margin: 0 0 28px;
+  padding: 4px 7px;
+  background: #f1f1ee;
+  color: #555;
+  font: 400 11px/1.4 "Helvetica Neue", Helvetica, Arial, sans-serif;
+  letter-spacing: .04em;
+}
+
+.sink-mock .feed-article-date {
+  margin-bottom: 32px;
+}
+
+.sink-mock .feed-body h2 {
+  margin-top: 44px;
+}
+
+.sink-mock .feed-body code {
+  padding: 1px 4px;
+  background: #f1f1ee;
+  font: 400 13px/1.4 "SFMono-Regular", Consolas, monospace;
+}
+
+.sink-mock .project-status-note {
+  margin: 40px 0 0;
+  padding: 14px 16px;
+  border: 1px solid #e3e3e3;
+  background: #fafaf8;
+}
+
+.sink-mock .project-status-note strong {
+  font: 500 13px/1.4 "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.sink-mock .project-status-note p {
+  margin: 4px 0 0 !important;
+  color: #555;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.sink-mock .project-status-note a {
+  color: #222;
+  text-decoration: underline;
+  text-underline-offset: .18em;
+}
+
+.sink-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 20px;
+  margin: 32px 0;
+}
+
+.sink-pair .feed-figure {
+  margin: 0;
+}
+
+.sink-pair figcaption {
+  font-size: 12px;
+}
+
+@media (max-width: 520px) {
+  .sink-pair {
+    grid-template-columns: 1fr;
+    gap: 24px 0;
+  }
+}
