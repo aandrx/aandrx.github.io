@@ -431,9 +431,15 @@ try {
   const voiceResponse = await page.goto(`${baseURL}/projects/voice-plotter/`, { waitUntil: 'networkidle2', timeout: 60000 })
   assert.equal(voiceResponse?.status(), 200, 'Voice Plotter live page renders')
   await page.waitForSelector('.voice-plotter-article')
-  for (let y = 0; y < 7000; y += 700) {
-    await page.evaluate((top) => window.scrollTo(0, top), y)
-    await new Promise((resolve) => setTimeout(resolve, 50))
+  const voiceImageCount = await page.$$eval('.feed-figure img', (images) => images.length)
+  for (let index = 0; index < voiceImageCount; index++) {
+    await page.evaluate((imageIndex) => {
+      document.querySelectorAll('.feed-figure img')[imageIndex]?.scrollIntoView({ block: 'center' })
+    }, index)
+    await page.waitForFunction((imageIndex) => {
+      const image = document.querySelectorAll('.feed-figure img')[imageIndex]
+      return Boolean(image && image.complete && image.naturalWidth > 0)
+    }, { timeout: 5000 }, index)
   }
   const voice = await page.evaluate(() => ({
     h1: document.querySelector('h1')?.textContent,
