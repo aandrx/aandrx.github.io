@@ -1,0 +1,17 @@
+.webby-mock .feed-article-date {
+  margin-bottom: 32px;
+}
+
+.webby-mock .feed-body h2 {
+  margin-top: 44px;
+}
+
+.webby-mock .feed-body code {
+  padding: 1px 4px;
+  background: #f1f1ee;
+  font: 400 13px/1.4 "SFMono-Regular", Consolas, monospace;
+}
+
+.webby-mock .webby-media-note {
+  margin: 0 0 24px;
+}
